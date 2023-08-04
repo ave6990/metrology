@@ -2,6 +2,7 @@
   (:gen-class)
   (:require 
     [metrology.lib.chemistry :as ch]
+    [metrology.lib.metrology :as m]
     [clojure.math :refer :all]
     [clojure.core :refer :all]
     [clojure.repl :refer :all]
@@ -12,23 +13,16 @@
   [& args]
   (println "Hello, World!"))
 
+(def tasks
+  {:classname "org.sqlite.jdbc"
+    :subprotocol "sqlite"
+    :subname "data/tasks.db"})
 
-(defn delta%
-  [value tolerance]
-  (let [dif (double (/ (* value tolerance) 100))]
-    (list (- value dif) (+ value dif))))
-
-(defn delta
-  [value tolerance]
-  (list (- value tolerance) (+ value tolerance)))
-
-(defn lel
-  [value component]
-  ())
+(jdbc/query tasks ["select * from tasks limit 3;"])
 
 (comment
 
-(delta% 0.94 5)
+(m/delta 0.94 5 :%)
 
 (map (fn [x] (* (/ x 4.4) 100)) '(0.216 0.663 0.769 1.077))
 
@@ -38,15 +32,17 @@
 
 (some (partial = "c3h4") (keys lel))
 
-(in-ns 'user)
-
-(in-ns 'metrology.metr)
-
 (re-seq #"[A-Z][a-z]?\d{0,2}" "NO2")
 
 (reduce + '(1 2 3 4))
 
 (clojure.string/upper-case "hello")
+
+;; change namespace
+
+(in-ns 'user)
+
+(in-ns 'metrology.core)
 
 ;; documentation functions
 
