@@ -1,6 +1,7 @@
 (ns metrology.core
   (:gen-class)
   (:require 
+    [lib.chemistry :as ch]
     [clojure.math :refer :all]
     [clojure.core :refer :all]
     [clojure.repl :refer :all]
