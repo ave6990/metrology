@@ -1,12 +1,13 @@
 (ns metrology.core
   (:gen-class)
   (:require 
-    [metrology.lib.chemistry :as ch]
-    [metrology.lib.metrology :as m]
-    [clojure.math :refer :all]
+    ;;[clojure.math :refer :all]
     [clojure.core :refer :all]
     [clojure.repl :refer :all]
-    [clojure.java.jdbc :as jdbc]))
+    [clojure.java.jdbc :as jdbc]
+    [metrology.lib.chemistry :as ch]
+    [metrology.lib.metrology :as m]
+    ))
 
 (defn -main
   "I don't do a whole lot ... yet."
@@ -23,6 +24,13 @@
 (comment
 
 (m/delta 0.94 5 :%)
+
+
+
+(def r (m/range-converter 4 20 0 200))
+(r 12)
+
+(m/round 12.1236 3)
 
 (map (fn [x] (* (/ x 4.4) 100)) '(0.216 0.663 0.769 1.077))
 
@@ -46,9 +54,11 @@
 
 ;; documentation functions
 
-(apropos "upper")
+(apropos "round")
 
 (doc clojure.string/upper-case)
+
+(doc m/round)
 
 (find-doc "reduce")
 
