@@ -32,5 +32,20 @@
 (defn average
   "Возращает среднее арифметическое переданных числовых значений."
   [& vals]
-  (let [sum (reduce + vals)]
-    (double (/ sum (count vals)))))
+  (double (/
+    (reduce + vals)
+    (count vals))))
+
+(defn discrete
+  "Округляет значение с учетом заданной дискретности."
+  [val, discrete-val]
+  (let [exp
+    (let [t-val (math/log10 discrete-val)]
+      (if (> t-val 0)
+        (* -1 (+ 1 (math/ceil t-val)))
+        (* -1 (+ 1 (math/floor t-val)))))]
+    (+ (round val exp)
+      (* discrete-val
+        (round (double (/ 
+          (- val (round val exp))
+          discrete-val)))))))
