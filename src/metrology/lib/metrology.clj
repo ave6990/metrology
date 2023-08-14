@@ -49,3 +49,14 @@
         (round (double (/ 
           (- val (round val exp))
           discrete-val)))))))
+
+(defn sko
+  "Функция вычисления среднего квадратического отклонения."
+  [& vals]
+  (math/sqrt
+    (/
+      (reduce +
+        (map
+          (fn [val] (math/pow (- val (apply average vals)) 2))
+          vals))
+      (- (count vals) 1))))
