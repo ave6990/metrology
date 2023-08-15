@@ -7,6 +7,7 @@
     [clojure.java.jdbc :as jdbc]
     [metrology.lib.chemistry :as ch]
     [metrology.lib.metrology :as m]
+    [metrology.lib.calc :as c]
     ))
 
 (defn -main
