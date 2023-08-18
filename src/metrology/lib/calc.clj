@@ -2,7 +2,7 @@
   (:require
     [clojure.math :as math]))
 
-(sheet-count
+(defn sheet-count
   ([l width]
     (hash-map
       :count (math/ceil (double (/ l width)))
