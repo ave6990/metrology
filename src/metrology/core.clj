@@ -47,6 +47,8 @@
 
 (clojure.string/upper-case "hello")
 
+(.toString (java.time.LocalDateTime/now))
+
 ;; change namespace
 
 (in-ns 'user)
