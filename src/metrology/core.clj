@@ -7,8 +7,7 @@
     [clojure.java.jdbc :as jdbc]
     [metrology.lib.chemistry :as ch]
     [metrology.lib.metrology :as m]
-    [metrology.lib.calc :as c]
-    ))
+    [metrology.lib.calc :as c]))
 
 (defn -main
   "I don't do a whole lot ... yet."
@@ -17,8 +16,8 @@
 
 (def tasks
   {:classname "org.sqlite.jdbc"
-    :subprotocol "sqlite"
-    :subname "data/tasks.db"})
+   :subprotocol "sqlite"
+   :subname "data/tasks.db"})
 
 (jdbc/query tasks ["select * from tasks limit 3;"])
 

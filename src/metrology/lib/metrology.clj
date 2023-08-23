@@ -4,9 +4,9 @@
 
 (defn delta
   "Возвращает границы диапазона значений 
-  (value - tolerance, value + tolerance)
-  , если передан третий аргумент, то значение tolerance расчитывается как
-  процент от value."
+   (value - tolerance, value + tolerance)
+   , если передан третий аргумент, то значение tolerance расчитывается как
+   процент от value."
   ([value tolerance percent]
     (let [dif (double (/ (* value tolerance) 100))]
       (list (- value dif) (+ value dif))))
@@ -22,41 +22,41 @@
 
 (defn round
   "Возвращает значение округленное до заданного знака после запятой или
-  до целых, если передан один аргумент."
-  ([val prec]
-    (/ (math/round (* val (math/pow 10 prec)))
-        (math/pow 10 prec)))
-  ([val]
-    (round val 0)))
+   до целых, если передан один аргумент."
+  ([x y]
+    (/ (math/round (* x (math/pow 10 y)))
+       (math/pow 10 y)))
+  ([x]
+    (round x 0)))
 
 (defn average
   "Возращает среднее арифметическое переданных числовых значений."
-  [& vals]
+  [& xs]
   (double (/
-    (reduce + vals)
-    (count vals))))
+            (reduce + xs)
+            (count xs))))
 
 (defn discrete
   "Округляет значение с учетом заданной дискретности."
-  [val, discrete-val]
+  [val discrete-val]
   (let [exp
     (let [t-val (math/log10 discrete-val)]
-      (if (> t-val 0)
-        (* -1 (+ 1 (math/ceil t-val)))
-        (* -1 (+ 1 (math/floor t-val)))))]
+      (if (pos? t-val)
+          (* -1 (inc (math/ceil t-val)))
+          (* -1 (inc (math/floor t-val)))))]
     (+ (round val exp)
-      (* discrete-val
-        (round (double (/ 
-          (- val (round val exp))
-          discrete-val)))))))
+       (* discrete-val
+          (round (double (/ 
+                           (- val (round val exp))
+                           discrete-val)))))))
 
 (defn sko
   "Функция вычисления среднего квадратического отклонения."
-  [& vals]
+  [& xs]
   (math/sqrt
     (/
       (reduce +
-        (map
-          (fn [val] (math/pow (- val (apply average vals)) 2))
-          vals))
-      (- (count vals) 1))))
+              (map
+                (fn [x] (math/pow (- x (apply average xs)) 2))
+                xs))
+      (dec (count xs)))))
