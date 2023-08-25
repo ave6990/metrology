@@ -37,9 +37,49 @@
                            :else 0))
                coll)))
 
+(defn binary->digit-list
+  "Возвращает последовательность 10 бит целого числа от 0 до 1023."
+  [x]
+  (->> (Integer/toString x 2)
+       (map str)
+       (map read-string)
+       (concat (repeat (- 10 (count (Integer/toString x 2))) 0))))
+
+(defn dilution-factor
+  ""
+  [x coll] 
+  (reduce + (map (fn [x, y]
+                   (if (zero? x)
+                       x
+                       y))
+                 (binary->digit-list x)
+                 coll)))
+
 (comment
 
+(dilution-factor 2r1000000101 '(1 2 3 4 5 6 7 8 9 10))
+
+(binary->digit-list 2r0101)
+
 (nearest-num 6.7 [1 2 3 4 5 6 7 8])
+
+(map read-string (map str (Integer/toString 5 2)))
+
+(count "string")
+
+(->>
+  "01011101"
+  (map str)
+  (map read-string)
+  (vec))
+
+(vec (map read-string (map str "010111101")))
+
+(Integer/toString 3 2)
+
+(str (reduce str (repeat 3 "0")) "1111111")
+
+(map str (range 15) "string")
 
 ((get pass-coefficients 0) "air")
 

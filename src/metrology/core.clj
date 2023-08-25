@@ -48,6 +48,8 @@
 
 (.toString (java.time.LocalDateTime/now))
 
+(require '[clojure.math.compbinatorics])
+
 ;; change namespace
 
 (in-ns 'user)
@@ -60,12 +62,12 @@
 
 (doc clojure.string/upper-case)
 
-(doc m/round)
+(doc map)
 
 (find-doc "reduce")
 
 (source clojure.core/some)
 
-(dir clojure.core)
+(dir clojure.math.combinatorics)
 
 )
