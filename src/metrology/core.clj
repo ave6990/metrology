@@ -62,9 +62,9 @@
 
 (doc clojure.string/upper-case)
 
-(doc map)
+(doc keep-indexed)
 
-(find-doc "reduce")
+(find-doc "index")
 
 (source clojure.core/some)
 

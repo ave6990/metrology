@@ -19,15 +19,6 @@
     "CO2" "CS2" "CH4" "C2H6" "C3H8" "C4H10" "C5H12"
     "C6H14" "CH3OH" "CH3SH" "CH3OCH3" "C2H5OH" "C2H4O"]
 
-(defn map-coefficients
-  "Функция отображения мноежства паспортных значений коэффициентов
-   K = {k1, k2, ..., k10}
-   на множество значений вида
-   L = {1/(k1 - 1), 1/(k2 - 1), ..., 1/(k10 - 1)
-   для упрощения дальнейших вычислений."
-  [coll]
-  (map (fn [x] (double (/ 1 (dec x)))) coll)) 
-
 (defn nearest-num
   "Возвращает число из коллекции наиболее близкое к заданному."
   [x coll]
@@ -46,18 +37,25 @@
        (concat (repeat (- 10 (count (Integer/toString x 2))) 0))))
 
 (defn dilution-factor
-  ""
+  "Вычисляет коэффициент разбавления генератора, положение клапанов
+   задается двоичным представлением целого числа."
   [x coll] 
-  (reduce + (map (fn [x, y]
-                   (if (zero? x)
-                       x
-                       y))
-                 (binary->digit-list x)
-                 coll)))
+  (if (zero? x)
+    x
+    (->> (map (fn [x, y]
+                (if (zero? x)
+                    x
+                    (double (/ 1 (dec y)))))
+              (binary->digit-list x)
+              coll)
+         (reduce +)
+         (/ 1)
+         double
+         inc)))
 
 (comment
 
-(dilution-factor 2r1000000101 '(1 2 3 4 5 6 7 8 9 10))
+(dilution-factor 2r1000000101 '(2 2 3 4 5 6 7 8 9 10))
 
 (binary->digit-list 2r0101)
 
