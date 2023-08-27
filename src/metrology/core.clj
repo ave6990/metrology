@@ -62,7 +62,7 @@
 
 (doc clojure.string/upper-case)
 
-(doc keep-indexed)
+(doc let)
 
 (find-doc "index")
 

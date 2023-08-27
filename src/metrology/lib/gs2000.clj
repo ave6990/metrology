@@ -2,15 +2,15 @@
 
 (def passports
   "Коэффициенты разбавления генераторов (паспортные значения)."
-  [{"serial_number" "58-2-21"
-    "air" [1176 513 253 134 70.4 46.8 36.3 24.3 14 10.5]
-    "N2" [1196 522 267 136 71.6 47.6 36.9 24.7 14.2 10.7]}
-   {"serial_number" "87-1-23"
-    "air" [1160 489 237 140 70.3 50.4 34.6 21.8 13.6 10.9]
-    "N2" [1180 497 241 142 71.5 51.3 35.2 22.2 13.8 11.1]}
-   {"serial_number" "88-2-23"
-    "air" [1240 496 283 147 74.4 48.5 34.7 27.7 16.4 11]
-    "N2" [1261 504 288 149 75.7 49.3 35.3 28.2 16.7 11.2]}])
+  [{:serial_number "58-2-21"
+    :air [1176 513 253 134 70.4 46.8 36.3 24.3 14 10.5]
+    :N2 [1196 522 267 136 71.6 47.6 36.9 24.7 14.2 10.7]}
+   {:serial_number "87-1-23"
+    :air [1160 489 237 140 70.3 50.4 34.6 21.8 13.6 10.9]
+    :N2 [1180 497 241 142 71.5 51.3 35.2 22.2 13.8 11.1]}
+   {:serial_number "88-2-23"
+    :air [1240 496 283 147 74.4 48.5 34.7 27.7 16.4 11]
+    :N2 [1261 504 288 149 75.7 49.3 35.3 28.2 16.7 11.2]}])
 
 (def components 
   "Перечень газов подлежащих разбавлению с помощью генератора,
@@ -53,7 +53,29 @@
          double
          inc)))
 
+(defn calc-factors
+  ""
+  [coll]
+  (vec (map (fn [n] (dilution-factor n coll))
+       (range 1024))))
+
+(defn calculator
+  "Возвращает функцию расчета режима работы ГС-2000.
+   В качестве аргумента передается паспорт генератора."
+  [m]
+  (let [pass
+          {:air (calc-factors (:air m))
+          :N2 (calc-factors (:N2 m))}]
+     (fn [sym x y]
+       (let [factor (nearest-num (double (/ x y)) (sym pass))]
+       (hash-map :conc (/ x factor)
+                 :valves (binary->digit-list (.indexOf (sym pass) factor)))))))
+
 (comment
+
+((calculator (passports 0)) :air 3015 50)
+
+(calc-factors (:air (passports 0)))
 
 (dilution-factor 2r1000000101 '(2 2 3 4 5 6 7 8 9 10))
 
@@ -61,26 +83,6 @@
 
 (nearest-num 6.7 [1 2 3 4 5 6 7 8])
 
-(map read-string (map str (Integer/toString 5 2)))
-
-(count "string")
-
-(->>
-  "01011101"
-  (map str)
-  (map read-string)
-  (vec))
-
-(vec (map read-string (map str "010111101")))
-
-(Integer/toString 3 2)
-
-(str (reduce str (repeat 3 "0")) "1111111")
-
 (map str (range 15) "string")
-
-((get pass-coefficients 0) "air")
-
-(map-coefficients ((get passports 0) "air"))
 
 )
