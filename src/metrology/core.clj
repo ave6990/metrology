@@ -7,7 +7,8 @@
     [clojure.java.jdbc :as jdbc]
     [metrology.lib.chemistry :as ch]
     [metrology.lib.metrology :as m]
-    [metrology.lib.calc :as c]))
+    [metrology.lib.calc :as c]
+    [metrology.lib.gs2000 :as gs]))
 
 (defn -main
   "I don't do a whole lot ... yet."
@@ -25,7 +26,10 @@
 
 (m/delta 0.94 5 :%)
 
+((gs/calculator (gs/passports 0)) :air 3015 50)
 
+(let [res ((gs/calculator (gs/passports 0)) :air 3015 50)]
+  (ch/ppm->mg "H2S" (res :conc)))
 
 (def r (m/range-converter 4 20 0 200))
 (r 12)
@@ -42,13 +46,10 @@
 
 (re-seq #"[A-Z][a-z]?\d{0,2}" "NO2")
 
-(reduce + '(1 2 3 4))
-
 (clojure.string/upper-case "hello")
 
 (.toString (java.time.LocalDateTime/now))
 
-(require '[clojure.math.compbinatorics])
 
 ;; change namespace
 

@@ -71,6 +71,16 @@
   ([formula]
     (coefficient formula 20 101.325)))
 
+(defn ppm->mg
+  "Пересчет единиц концентрации млн^-1 в мг/м^3."
+  [s x]
+  (* x (coefficient s)))
+
+(defn mg->ppm
+  "Пересчет единиц концентрации мг/м^3 в млн^-1."
+  [s x]
+  (double (/ x (coefficient s))))
+
 (comment
 
 (molar-weight "CH4")

@@ -17,7 +17,7 @@
    согласно РЭ."
   ["NO" "NO2" "N2O" "NH3" "H2" "H2S" "SO2" "O2" "CO"
     "CO2" "CS2" "CH4" "C2H6" "C3H8" "C4H10" "C5H12"
-    "C6H14" "CH3OH" "CH3SH" "CH3OCH3" "C2H5OH" "C2H4O"]
+    "C6H14" "CH3OH" "CH3SH" "CH3OCH3" "C2H5OH" "C2H4O"])
 
 (defn nearest-num
   "Возвращает число из коллекции наиболее близкое к заданному."
