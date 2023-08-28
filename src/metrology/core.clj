@@ -62,8 +62,6 @@
 
 ((gs/calculator (gs/passports 0)) "H2S" :air 3015 50)
 
-(ch/ppm->mg "H2S" (gs/calculator (gs/passports 0)) :air 3015 50)
-
 ;; change namespace
 
 (in-ns 'user)

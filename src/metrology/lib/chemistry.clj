@@ -72,12 +72,8 @@
 
 (defn ppm->mg
   "Пересчет единиц концентрации млн^-1 в мг/м^3."
-  ([s x]
+  [s x]
     (* x (coefficient s)))
-  ([s f sym x y]
-    (let [res (f sym x (mg->ppm s y))]
-      {:conc (ppm->mg s (:conc res))
-       :valves (:valves res)})))
 
 (defn mg->ppm
   "Пересчет единиц концентрации мг/м^3 в млн^-1."
