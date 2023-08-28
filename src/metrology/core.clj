@@ -26,11 +26,6 @@
 
 (m/delta 0.94 5 :%)
 
-((gs/calculator (gs/passports 0)) :air 3015 50)
-
-(let [res ((gs/calculator (gs/passports 0)) :air 3015 50)]
-  (ch/ppm->mg "H2S" (res :conc)))
-
 (def r (m/range-converter 4 20 0 200))
 (r 12)
 
@@ -50,6 +45,24 @@
 
 (.toString (java.time.LocalDateTime/now))
 
+(defn func
+  []
+  (letfn [(fu
+           ([a]
+             (inc a))
+           ([a b]
+             (+ (fu a) b)))]
+    fu)) 
+
+((func) 2 4)
+
+;; ГС-2000
+
+((gs/calculator (gs/passports 0)) :air 3015 50)
+
+((gs/calculator (gs/passports 0)) "H2S" :air 3015 50)
+
+(ch/ppm->mg "H2S" (gs/calculator (gs/passports 0)) :air 3015 50)
 
 ;; change namespace
 
@@ -63,7 +76,7 @@
 
 (doc clojure.string/upper-case)
 
-(doc let)
+(doc letfn)
 
 (find-doc "index")
 

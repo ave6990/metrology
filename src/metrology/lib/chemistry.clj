@@ -28,7 +28,6 @@
   [s]
   (some (partial = s) gases))
 
-
 (def molar-volume
   (hash-map "air" 24.06 "N2" 24.04))
 
@@ -73,8 +72,12 @@
 
 (defn ppm->mg
   "Пересчет единиц концентрации млн^-1 в мг/м^3."
-  [s x]
-  (* x (coefficient s)))
+  ([s x]
+    (* x (coefficient s)))
+  ([s f sym x y]
+    (let [res (f sym x (mg->ppm s y))]
+      {:conc (ppm->mg s (:conc res))
+       :valves (:valves res)})))
 
 (defn mg->ppm
   "Пересчет единиц концентрации мг/м^3 в млн^-1."

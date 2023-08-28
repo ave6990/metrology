@@ -1,4 +1,5 @@
-(ns metrology.lib.gs2000)
+(ns metrology.lib.gs2000
+  (:require [metrology.lib.chemistry :as ch]))
 
 (def passports
   "Коэффициенты разбавления генераторов (паспортные значения)."
@@ -66,11 +67,17 @@
   (let [pass
           {:air (calc-factors (:air m))
           :N2 (calc-factors (:N2 m))}]
-     (fn [sym x y]
-       (let [factor (nearest-num (double (/ x y)) (sym pass))]
-       (hash-map :conc (/ x factor)
-                 :valves (binary->digit-list (.indexOf (sym pass) factor)))))))
-
+     (letfn [(f 
+               ([sym x y]
+                 (let [factor (nearest-num (double (/ x y)) (sym pass))]
+                 (hash-map :conc (/ x factor)
+                           :valves (binary->digit-list (.indexOf (sym pass) factor)))))
+               ([s sym x y]
+                 (let [res (f sym x (ch/mg->ppm s y))]
+                   {:conc (ch/ppm->mg s (:conc res))
+                    :valves (:valves res)})))]
+       f)))
+ 
 (comment
 
 ((calculator (passports 0)) :air 3015 50)
@@ -82,7 +89,5 @@
 (binary->digit-list 2r0101)
 
 (nearest-num 6.7 [1 2 3 4 5 6 7 8])
-
-(map str (range 15) "string")
 
 )
