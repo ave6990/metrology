@@ -2,6 +2,20 @@
   (:require
     [clojure.math :as math]))
 
+(defn error
+  "Порешность измерения."
+  ([x y]
+    {:abs (- x y)
+      :rel (* (double (/ (- x y) y)) 100)
+      :red nil})
+  ([x y a]
+    (let [res (error x y)]
+      {:abs (:abs res)
+       :rel (:rel res)
+       :red (* (double (/ (- x y) a)) 100)}))
+  ([x y a b]
+    (error x y (- b a))))
+
 (defn delta
   "Возвращает границы диапазона значений 
    (value - tolerance, value + tolerance)
@@ -60,3 +74,9 @@
                 (fn [x] (math/pow (- x (apply average xs)) 2))
                 xs))
       (dec (count xs)))))
+
+(comment
+
+(error 43 45 10 50)
+
+)

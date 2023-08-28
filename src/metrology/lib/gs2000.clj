@@ -62,7 +62,13 @@
 
 (defn calculator
   "Возвращает функцию расчета режима работы ГС-2000.
-   В качестве аргумента передается паспорт генератора."
+   В качестве аргумента передается паспорт генератора.
+   Возвращаемая функция f принимает 3 или 4 аргумента:
+   (f газ-разбавитель исходная-концентрация целевая-концентрация)
+   исходная и целевая концентрации заданы в млн^-1
+   (f исходный-газ газ-разбавитель исходная-концентрация целевая-концентрация)
+   исходная концентрация задана в млн^-1, целевая концентрация и результат -
+   мг/м^3."
   [m]
   (let [pass
           {:air (calc-factors (:air m))
@@ -71,16 +77,28 @@
                ([sym x y]
                  (let [factor (nearest-num (double (/ x y)) (sym pass))]
                  (hash-map :conc (/ x factor)
-                           :valves (binary->digit-list (.indexOf (sym pass) factor)))))
+                           :valves (->
+                                     (sym pass) 
+                                     (.indexOf factor)
+                                     binary->digit-list))))
                ([s sym x y]
                  (let [res (f sym x (ch/mg->ppm s y))]
                    {:conc (ch/ppm->mg s (:conc res))
                     :valves (:valves res)})))]
        f)))
+
+(defn re-calculate
+  "Расчитать концентрацию газа по заданному состоянию клапанов."
+  [m sym x y]
+    (double (/ x (dilution-factor y (sym m)))))
  
 (comment
 
 ((calculator (passports 0)) :air 3015 50)
+
+((calculator (passports 0)) "H2S" :air 3015 50)
+
+(re-calculate (passports 0) :air 3015 2r1100100000)
 
 (calc-factors (:air (passports 0)))
 

@@ -2,32 +2,24 @@
   (:gen-class)
   (:require 
     ;;[clojure.math :refer :all]
-    [clojure.core :refer :all]
+    ;;[clojure.core :refer :all]
     [clojure.repl :refer :all]
-    [clojure.java.jdbc :as jdbc]
     [metrology.lib.chemistry :as ch]
     [metrology.lib.metrology :as m]
     [metrology.lib.calc :as c]
-    [metrology.lib.gs2000 :as gs]))
+    [metrology.lib.gs2000 :as gs]
+    [metrology.lib.tasks :as db]))
 
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
   (println "Hello, World!"))
 
-(def tasks
-  {:classname "org.sqlite.jdbc"
-   :subprotocol "sqlite"
-   :subname "data/tasks.db"})
-
-(jdbc/query tasks ["select * from tasks limit 3;"])
-
 (comment
 
 (m/delta 0.94 5 :%)
 
-(def r (m/range-converter 4 20 0 200))
-(r 12)
+((m/range-converter 4 20 0 200) 13.964)
 
 (m/round 12.1236 3)
 
@@ -45,22 +37,17 @@
 
 (.toString (java.time.LocalDateTime/now))
 
-(defn func
-  []
-  (letfn [(fu
-           ([a]
-             (inc a))
-           ([a b]
-             (+ (fu a) b)))]
-    fu)) 
-
-((func) 2 4)
+(macroexpand '(defn func [x] (x)))
 
 ;; ГС-2000
 
 ((gs/calculator (gs/passports 0)) :air 3015 50)
 
 ((gs/calculator (gs/passports 0)) "H2S" :air 3015 50)
+
+(gs/re-calculate (gs/passports 0) :air 3015 2r1100100000)
+
+(ch/ppm->mg "H2S" (gs/re-calculate (gs/passports 0) :air 3015 2r1100100000))
 
 ;; change namespace
 
@@ -74,7 +61,9 @@
 
 (doc clojure.string/upper-case)
 
-(doc letfn)
+(doc min)
+
+(doc gs/calculator)
 
 (find-doc "index")
 
