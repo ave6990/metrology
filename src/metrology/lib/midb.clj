@@ -23,7 +23,10 @@
               ["select * from conditions where date = ?" date]))
 
 (defn copy-verification!
-  ""
+  "Копировать запиь о поверке с данными о применяемых эталонах, операциях
+   поверки и результатах измерений.
+   args:
+     id - целочисленный идентификатор записи в БД."
   [id]
   (map (partial jdbc/execute! midb)
     [(str "--to copy the record with id from the verification table
@@ -98,8 +101,7 @@
       from
           v_gso
       where
-          v_id = (select v_id_from from temp);"]))
-
+          v_id = (select v_id_from from temp);"
       "--to copy refs
       with temp as (
           select
@@ -117,7 +119,7 @@
       from
           v_refs
       where
-          v_id = (select v_id_from from temp);")
+          v_id = (select v_id_from from temp);"
       "--to copy opt_refs
       with temp as (
           select
@@ -135,7 +137,7 @@
       from
           v_opt_refs
       where
-          v_id = (select v_id_from from temp);")
+          v_id = (select v_id_from from temp);"
       "--to copy v_operations
       with temp as (
           select
