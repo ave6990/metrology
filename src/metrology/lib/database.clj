@@ -35,6 +35,8 @@
       "null"
     (= (class el) java.lang.String)
       (str \" el \")
+    (= (class el) clojure.lang.Keyword)
+      (replace (str \" el \") ":" "")
     :else
       el))
 
@@ -44,25 +46,12 @@
     ", "
     (map prepare-val xs)))
 
-(defn insert-conditions!
-  "Вставка данных условий поверки в БД."
-  ([date temp moist press volt freq other location c]
-    (jdbc/execute! (str "insert into conditions values (null, "
-         (apply str (prepare-vals date temp moist
-                     press volt freq other location c))
-         ");")))
-  ([date temp moist press volt]
-    (add-condition date temp moist press volt 50 nil "ОЦСМ" nil)))
+(defn q-select
+  "SQL SELECT."
+  ([table columns]
+  ()))
 
-(defn get-conditions
-  "Возвращает запись БД с условиями поверки на заданную дату."
-  [s]
-  (jdbc/query midb
-              (str "select * from conditions where date = "
-                   (prepare-val s)
-                   ";")))
-
-(defn get-record
+(defn new-record
   "Возвращает пустую запись выбранной таблицы БД."
   [db table]
   (->>
@@ -72,26 +61,28 @@
     clear-record))
 
 (defn clear-record
-  "Все значения хэша меняются на nil."
-  [m]
-  (apply hash-map (flatten (map (fn [k] (list k nil)) (keys m)))))
+  "Все значения хэша меняются на nil, либо значения ключей переданных вторым
+   аргументом."
+  ([m]
+   (apply hash-map (flatten (map (fn [k] (list k nil)) (keys m)))))
+  ([m coll]
+   (reduce (fn [a b] (assoc a b nil)) m coll)))
 
 (comment
 
-(insert-conditions! "2023-08-29" 22.7 52.9 98.57 223.2)
+(def record (atom nil))
 
-(get-conditions "2023-08-30")
+(reduce (fn [a b] (assoc a b nil)) @record '(:channels :sw_name :protocol))
 
-(def record (->> "Select * from verification limit 1;"
-                 (jdbc/query midb)
-                 first
-                 atom))
+(clear-record @record '(:channels :sw_name))
 
 @record
 
-(reset! record (get-record midb "conditions"))
+(some (fn [x] (= x :sw_name)) (keys @record))
 
-(reset! record (first (jdbc/qurey midb "Select * from verification limit 1;")))
+(reset! record (new-record midb "conditions"))
+
+(reset! record (first (jdbc/query midb "Select * from verification limit 1;")))
 
 (swap! record clear-record)
 
@@ -115,7 +106,7 @@
 
 (doc jdbc/execute!)
 
-(dir jdbc)
+(dir clojure.string)
 
 (macroexpand '(defdb midb))
 
