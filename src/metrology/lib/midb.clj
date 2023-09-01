@@ -2,7 +2,8 @@
   (:require 
     [clojure.java.jdbc :as jdbc]
     [clojure.string]
-    [metrology.lib.database :as db]))
+    [metrology.lib.database :as db]
+    [metrology.lib.midb-queries :as q]))
 
 (db/defdb midb)
 
@@ -23,85 +24,30 @@
               ["select * from conditions where date = ?" date]))
 
 (defn copy-verification!
+  "Копировать строку таблицы verification."
+  [id]
+  (jdbc/execute! midb [q/copy-verification id]))
+
+(defn copy-gso!
+  "Копировать строки таблицы v_gso соответствующие заданному v_id."
+  [id-from id-to]
+  (map (partial jdbc/execute! midb)
+       [[q/delete-gso id-to] [q/copy-gso id-to id-from]])) 
+
+(defn delete-gso!
+  "Удалить строки таблицы v_gso соответствующие заданному v_id."
+  [id]
+  (jdbc/execute! midb [q/delete-gso id]))
+
+(defn copy-record!
   "Копировать запиь о поверке с данными о применяемых эталонах, операциях
    поверки и результатах измерений.
    args:
      id - целочисленный идентификатор записи в БД."
   [id]
   (map (partial jdbc/execute! midb)
-    [(str "--to copy the record with id from the verification table
-      with temp as (
-          select
-            " id " as v_id
-          )
-      insert into
-          verification (
-              engineer,
-              counteragent,
-              mi_type,
-              methodology_id,
-              serial_number,
-              manufacture_year,
-              components,
-              scope,
-              channels,
-              area,
-              interval,
-              verification_type,
-              sw_name,
-              sw_version,
-              sw_version_real,
-              sw_checksum,
-              sw_algorithm,
-              voltage,
-              protocol,
-              protolang,
-              copy_from
-          )
-      select
-          engineer,
-          counteragent,
-          mi_type,
-          methodology_id,
-          serial_number,
-          manufacture_year,
-          components,
-          scope,
-          channels,
-          area,
-          interval,
-          verification_type,
-          sw_name,
-          sw_version,
-          sw_version_real,
-          sw_checksum,
-          sw_algorithm,
-          voltage,
-          protocol,
-          protolang,
-          (select v_id from temp)
-      from
-          verification
-      where
-          id = (select v_id from temp);")
-      "--to copy gso
-      with temp as (
-          select
-              id as v_id,
-              copy_from as v_id_from
-          from
-              verification
-          order by id desc
-          limit 1
-          )
-      insert into v_gso
-      select
-          (select v_id from temp),
-          gso_id
-      from
-          v_gso
-      where
-          v_id = (select v_id_from from temp);"
+    [[q/copy-verification id]
+     q/copy-gso 
       "--to copy refs
       with temp as (
           select
@@ -182,12 +128,21 @@
 
 (comment
 
-(jdbc/query midb ["select * from conditions limit 1;"
-                  "seledt * form verification limit 1;"])
+((fn [x]
+  (do (inc x)
+      (dec x))) 3)
+
+(map (fn [f] (f)) (list (inc 2) (inc 4)))
+
+(jdbc/query midb "select id from verification limit 1;")
 
 (map (partial * 2) '(2 3 4))
 
-(copy-verification! 1973)
+(copy-verification! 2060)
+
+(copy-gso! 2060 3000)
+
+(delete-gso! 3000)
 
 (insert-conditions! "2023-08-29" 22.7 52.9 98.57 223.2)
 
