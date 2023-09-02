@@ -1,4 +1,5 @@
-(ns metrology.lib.midb-queries)
+(ns metrology.lib.midb-queries
+  (:require [clojure.string]))
 
 (def copy-verification
   "Query to copy the record with id from the verification table"
@@ -57,6 +58,22 @@
   where
       id = (select v_id from temp);")
 
+(defmacro defquery-delete
+  [s]
+  `(def ~(symbol (str "delete-" s))
+    ~(str "Query to delete " s ".")
+    ~(str "delete from v_"
+          (clojure.string/replace s "-" "_")
+          " where v_id = ?;")))
+
+(defquery-delete gso)
+
+(defquery-delete refs)
+
+(defquery-delete opt-refs)
+
+(defquery-delete operations)
+
 (def copy-gso
   "Query to copy gso."
   "insert into v_gso
@@ -67,11 +84,6 @@
       v_gso
   where
       v_id = ?;")
-
-(def delete-gso
-  "Query to delete gso."
-  "delete from v_gso
-  where v_id = ?;")
 
 (def copy-refs
   "Query to copy refs."
@@ -84,11 +96,6 @@
   where
       v_id = ?;")
 
-(def delete-refs
-  "Query to delete refs."
-  "delete from v_refs
-  where v_id = ?;")
-
 (def copy-opt-refs
   "Query to copy refs."
   "insert into v_opt_refs
@@ -100,11 +107,6 @@
   where
       v_id = ?;")
 
-(def delete-opt-refs
-  "Query to delete opt_refs."
-  "delete from v_opt_refs
-  where v_id =?;")
-
 (def copy-operations
   "Query to copy operations."
   "insert into v_operations
@@ -115,9 +117,3 @@
       v_operations
   where
       v_id = ?;")
-
-(def delete-operations
-  "Query to delete operations."
-  "delete from v_operations
-  where v_id = ?;")
-
