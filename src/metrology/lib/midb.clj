@@ -28,6 +28,23 @@
   [id]
   (jdbc/execute! midb [q/copy-verification id]))
 
+(defmacro defn-copy
+  [s]
+  `(defn ~(symbol (str "copy-" s "!"))
+    ~(str "Копировать строки таблицы v_"
+          s
+          " соответствующие заданному v_id.")
+    [~(symbol "id-from") ~(symbol "id-to")]
+    (map (partial jdbc/execute! midb)
+         [[~(symbol (str "q/delete-" s)) ~(symbol "id-to")]
+          [~(symbol (str "q/copy-" s))
+           ~(symbol "id-to")
+           ~(symbol "id-from")]])))
+
+(macroexpand-1 '(defn-copy gso))
+
+(defn-copy gso)
+
 (defn copy-gso!
   "Копировать строки таблицы v_gso соответствующие заданному v_id."
   [id-from id-to]
