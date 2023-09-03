@@ -15,7 +15,7 @@
                      press volt freq other location c))
          ");")))
   ([date temp moist press volt]
-    (add-condition date temp moist press volt 50 nil "ОЦСМ" nil)))
+    (insert-conditions! date temp moist press volt 50 nil "ОЦСМ" nil)))
 
 (defn get-conditions
   "Возвращает запись БД с условиями поверки на заданную дату."
