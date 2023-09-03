@@ -14,4 +14,4 @@ pom.xml.asc
 .cpcache/
 *.swp
 *.swo
-/data/
+data/
