@@ -45,6 +45,8 @@
 
 (defn-copy gso)
 
+(copy-gso! 2030 3000)
+
 (defn copy-gso!
   "Копировать строки таблицы v_gso соответствующие заданному v_id."
   [id-from id-to]
