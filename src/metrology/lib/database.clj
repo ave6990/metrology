@@ -14,8 +14,6 @@
 
 (defdb tasks)
 
-(defdb midb)
-
 (defn active
   "Активные задачи."
   [db]
@@ -46,10 +44,13 @@
     ", "
     (map prepare-val xs)))
 
-(defn q-select
-  "SQL SELECT."
-  ([table columns]
-  ()))
+(defn clear-record
+  "Все значения хэша меняются на nil, либо значения ключей переданных вторым
+   аргументом."
+  ([m]
+   (apply hash-map (flatten (map (fn [k] (list k nil)) (keys m)))))
+  ([m coll]
+   (reduce (fn [a b] (assoc a b nil)) m coll)))
 
 (defn new-record
   "Возвращает пустую запись выбранной таблицы БД."
@@ -59,14 +60,6 @@
     (jdbc/query db)
     first
     clear-record))
-
-(defn clear-record
-  "Все значения хэша меняются на nil, либо значения ключей переданных вторым
-   аргументом."
-  ([m]
-   (apply hash-map (flatten (map (fn [k] (list k nil)) (keys m)))))
-  ([m coll]
-   (reduce (fn [a b] (assoc a b nil)) m coll)))
 
 (comment
 

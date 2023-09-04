@@ -7,6 +7,13 @@
 
 (db/defdb midb)
 
+(defn get-last-id
+  "Получить id последней записи заданной таблицы."
+  [s]
+  (:id (first (jdbc/query 
+                midb
+                (clojure.string/replace q/last-id "?" s)))))
+
 (defn insert-conditions!
   "Вставка данных условий поверки в БД."
   ([date temp moist press volt freq other location c]
@@ -28,140 +35,116 @@
   [id]
   (jdbc/execute! midb [q/copy-verification id]))
 
+(defn delete-verification!
+  "Удалить строку таблицы verification."
+  [id]
+  (jdbc/delete! midb :verification ["id = ?;" id]))
+
+(defmacro defn-delete
+  [s]
+  (let [id (gensym "id")]
+    `(defn ~(symbol (str "delete-" s "!"))
+      ~(str "Удалить строки таблицы "
+            (clojure.string/replace s "-" "_")
+            " соответствующие заданному v_id.")
+      [~id]
+      (jdbc/delete! midb 
+                    ~(keyword (clojure.string/replace s "-" "_"))
+                    ["v_id = ?" ~id]))))
+
+(defn-delete v-gso)
+(defn-delete v-refs)
+(defn-delete v-opt-refs)
+(defn-delete v-operations)
+(defn-delete measurements)
+
 (defmacro defn-copy
   [s]
   `(defn ~(symbol (str "copy-" s "!"))
-    ~(str "Копировать строки таблицы v_"
+    ~(str "Копировать строки таблицы "
           s
           " соответствующие заданному v_id.")
     [~(symbol "id-from") ~(symbol "id-to")]
-    (map (partial jdbc/execute! midb)
-         [[~(symbol (str "q/delete-" s)) ~(symbol "id-to")]
-          [~(symbol (str "q/copy-" s))
+    (map (fn [~(symbol "f") ~(symbol "args")] (~(symbol "f") ~(symbol "args")))
+         [~(symbol (str "metrology.lib.midb/delete-" s "!"))
+           (partial jdbc/execute! midb)]
+         [~(symbol "id-to")
+           [~(symbol (str "q/copy-" s))
            ~(symbol "id-to")
            ~(symbol "id-from")]])))
 
-(macroexpand-1 '(defn-copy gso))
+(defn-copy v-gso)
+(defn-copy v-refs)
+(defn-copy v-opt-refs)
+(defn-copy v-operations)
+(defn-copy measurements)
 
-(defn-copy gso)
-
-(copy-gso! 2030 3000)
-
-(defn copy-gso!
-  "Копировать строки таблицы v_gso соответствующие заданному v_id."
-  [id-from id-to]
-  (map (partial jdbc/execute! midb)
-       [[q/delete-gso id-to] [q/copy-gso id-to id-from]])) 
-
-(defn delete-gso!
-  "Удалить строки таблицы v_gso соответствующие заданному v_id."
-  [id]
-  (jdbc/execute! midb [q/delete-gso id]))
+(defn delete-record!
+  "Удалить запись о поверке с заданным id, вместе с данными о
+   эталонах, операциях и измерениях."
+   [id]
+   (map (fn [f] (f id))
+        [delete-v-gso! delete-v-refs! delete-v-opt-refs! delete-v-operations!
+         delete-measurements! delete-verification!]))
 
 (defn copy-record!
   "Копировать запиь о поверке с данными о применяемых эталонах, операциях
    поверки и результатах измерений.
    args:
      id - целочисленный идентификатор записи в БД."
+  [id-from]
+  (let [id-to (inc (get-last-id "verification"))]
+    (conj (copy-verification! id-from)
+          (map (fn [f] (f id-from id-to))
+               [copy-v-gso!
+                copy-v-refs!
+                copy-v-opt-refs!
+                copy-v-operations!
+                copy-measurements!]))))
+
+(defn get-verification
+  "Возвращает hash-map записи verification."
   [id]
-  (map (partial jdbc/execute! midb)
-    [[q/copy-verification id]
-     q/copy-gso 
-      "--to copy refs
-      with temp as (
-          select
-              id as v_id,
-              copy_from as v_id_from
-          from
-              verification
-          order by id desc
-          limit 1
-          )
-      insert into v_refs
-      select
-          (select v_id from temp),
-          ref_id
-      from
-          v_refs
-      where
-          v_id = (select v_id_from from temp);"
-      "--to copy opt_refs
-      with temp as (
-          select
-              id as v_id,
-              copy_from as v_id_from
-          from
-              verification
-          order by id desc
-          limit 1
-          )
-      insert into v_opt_refs
-      select
-          (select v_id from temp),
-          ref_id
-      from
-          v_opt_refs
-      where
-          v_id = (select v_id_from from temp);"
-      "--to copy v_operations
-      with temp as (
-          select
-              id as v_id,
-              copy_from as v_id_from
-          from
-              verification
-          order by id desc
-          limit 1
-          )
-      insert into v_operations
-          (v_id, op_id, comment)
-      select
-          (select v_id from temp),
-          op_id,
-          comment
-      from
-          v_operations
-      where
-          v_id = (select v_id_from from temp);"
-      "--to copy measurements
-      with temp as (
-          select
-              id as v_id,
-              copy_from as v_id_from
-          from
-              verification
-          order by id desc
-          limit 1
-          )
-      insert into measurements
-          (v_id, metrology_id, operation_id, ref_value)
-      select
-          (select v_id from temp),
-          metrology_id,
-          operation_id,
-          ref_value
-      from
-          measurements
-      where
-          v_id = (select v_id_from from temp);"]))
+  (first (jdbc/query midb
+              ["select * from verification where id = ?" id]))) 
+
+(defn get-record
+  "Возвращает hash-map записи о поверке."
+  [id]
+  (apply conj (hash-map :verification (get-verification id))
+        (map (fn [table]
+               (hash-map
+                 (keyword table)
+                 (first (jdbc/query midb
+                             [(str "select * from " table " where v_id = ?;")
+                              id]))))
+             (list "v_gso" "v_refs" "v_opt_refs"
+              "v_operations" "measurements"))))
 
 (comment
 
-((fn [x]
-  (do (inc x)
-      (dec x))) 3)
+(conj (hash-map :verification (get-verification 2060))
+  (apply hash-map (list {:key1 23423} {:key2 3223})))
+      
+(apply conj {:key0 0} '({:key1 1} {:key2 2} {:key3 3}))
 
-(map (fn [f] (f)) (list (inc 2) (inc 4)))
+(reset! record (get-record 2060))
 
-(jdbc/query midb "select id from verification limit 1;")
+(get-in @record [:verification :serial_number])
 
-(map (partial * 2) '(2 3 4))
+(->> @record
+     :verification
+     :serial_number)
 
-(copy-verification! 2060)
+(reverse (list 1 2 3 4))
 
-(copy-gso! 2060 3000)
+(pop (list 1 2 3 4))
 
-(delete-gso! 3000)
+(get-last-id "verification")
+
+(copy-record! 2060)
+
+(delete-record! 2061)
 
 (insert-conditions! "2023-08-29" 22.7 52.9 98.57 223.2)
 
@@ -173,7 +156,7 @@
 
 (clear-record @record '(:channels :sw_name))
 
-@record
+(:verification @record)
 
 (some (fn [x] (= x :sw_name)) (keys @record))
 
@@ -191,18 +174,14 @@
 
 (conj {} {:key1 1 :key2 2 :key3 3} {:key4 4})
 
-(assoc-in {:key1 1.2 :key2 32 :key3 200} [:key1] (5.4 5.4))
-
-(active tasks)
-
 ;; documentations
 
 (require '[clojure.repl :refer :all])
 
 (find-doc "hash-map")
 
-(doc jdbc/execute!)
+(doc get-in)
 
-(dir clojure.string)
+(dir clojure.core)
 
 )
