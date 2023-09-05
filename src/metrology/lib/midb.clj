@@ -16,19 +16,33 @@
 
 (defn insert-conditions!
   "Вставка данных условий поверки в БД."
-  ([date temp moist press volt freq other location c]
-    (jdbc/execute! (str "insert into conditions values (null, "
-         (apply str (db/prepare-vals date temp moist
-                     press volt freq other location c))
-         ");")))
+  ([m]
+    (jdbc/insert! midb :conditions m))
   ([date temp moist press volt]
-    (insert-conditions! date temp moist press volt 50 nil "ОЦСМ" nil)))
+    (insert-conditions! (hash-map :date date
+                                  :temperature temp
+                                  :humidity moist
+                                  :pressure press
+                                  :voltage 50 
+                                  :location "ОЦСМ"))))
 
 (defn get-conditions
   "Возвращает запись БД с условиями поверки на заданную дату."
   [date]
   (jdbc/query midb
               ["select * from conditions where date = ?" date]))
+
+(defn find-mi
+  "Возвращает список записей поверок соответсвующих запросу.
+   Запрос: заводской номер или номер реестра или наименование типа СИ."
+  [s]
+  (jdbc/query midb [q/find-mi (str "%" s "%")]))
+
+(defn find-counteragent
+  "Возвращает список контрагентов соответствующих запросу."
+  [s]
+  (jdbc/query midb [q/counteragents (str "%" s "%")]))
+
 
 (defn copy-verification!
   "Копировать строку таблицы verification."
@@ -96,11 +110,11 @@
   (let [id-to (inc (get-last-id "verification"))]
     (conj (copy-verification! id-from)
           (map (fn [f] (f id-from id-to))
-               [copy-v-gso!
-                copy-v-refs!
-                copy-v-opt-refs!
-                copy-v-operations!
-                copy-measurements!]))))
+               (list copy-v-gso!
+                     copy-v-refs!
+                     copy-v-opt-refs!
+                     copy-v-operations!
+                     copy-measurements!)))))
 
 (defn get-verification
   "Возвращает hash-map записи verification."
@@ -115,72 +129,141 @@
         (map (fn [table]
                (hash-map
                  (keyword table)
-                 (first (jdbc/query midb
+                 (jdbc/query midb
                              [(str "select * from " table " where v_id = ?;")
-                              id]))))
+                              id])))
              (list "v_gso" "v_refs" "v_opt_refs"
               "v_operations" "measurements"))))
 
+(defn assoc-multi
+  [m nm]
+  (reduce (fn [a b]
+            (let [[k v] b]
+              (assoc a k v)))
+          m
+          nm))
+
+(defn update-record!
+  [table record changes]
+  (jdbc/update! midb
+                table
+                (assoc-multi (table record) changes)
+                ["id = ?" ((comp :id table) record)]))
+
+(defn all-refs
+  [id]
+  (jdbc/query midb [q/all-refs id]))
+
+(defn check-gso
+  [coll column]
+  (map (fn [num]
+         (first (jdbc/query midb
+                     [(str "select id, number_1c, pass_number, expiration_date
+                            from gso
+                            where " column " = ?") num])))
+       coll))
+
+(defn set-gso!
+  [v_id coll]
+  (do (delete-v-gso! v_id)
+      (jdbc/insert-multi! midb
+                      :v_gso
+                      (vec (map (fn [m] (hash-map :v_id v_id :gso_id (:id m)))
+                                coll)))))
+
 (comment
 
-(conj (hash-map :verification (get-verification 2060))
-  (apply hash-map (list {:key1 23423} {:key2 3223})))
-      
-(apply conj {:key0 0} '({:key1 1} {:key2 2} {:key3 3}))
-
-(reset! record (get-record 2060))
-
-(get-in @record [:verification :serial_number])
-
-(->> @record
-     :verification
-     :serial_number)
-
-(reverse (list 1 2 3 4))
-
-(pop (list 1 2 3 4))
-
-(get-last-id "verification")
-
-(copy-record! 2060)
-
-(delete-record! 2061)
-
-(insert-conditions! "2023-08-29" 22.7 52.9 98.57 223.2)
-
-(get-conditions "2023-08-30")
-
 (def record (atom nil))
+(def changes (atom nil))
+(def current (atom nil))
 
-(reduce (fn [a b] (assoc a b nil)) @record '(:channels :sw_name :protocol))
+(find-mi "ГХ-М")
 
-(clear-record @record '(:channels :sw_name))
+(find-counteragent "ГОК")
 
 (:verification @record)
 
-(some (fn [x] (= x :sw_name)) (keys @record))
+;Установить ГСО по номерам паспортов ГСО.
+(set-gso! @current (check-gso '("11101-23" "00808-23" "007465-22"
+                                "02463-22" "06869-23" "00810-23")
+                          "pass_number"))
 
-(reset! record (new-record midb "conditions"))
+;Проверить ГСО в записи.
+(check-gso (map (fn [x] (:gso_id x))
+                (:v_gso @record))
+           "id")
 
-(reset! record (first (jdbc/query midb "Select * from verification limit 1;")))
+(check-gso '("11101-23" "00808-23" "007465-22" "02463-22" "06869-23" "00810-23")
+                          "pass_number")
 
-(swap! record clear-record)
+(for [f (list copy-v-refs! copy-v-operations! copy-measurements! copy-v-opt-refs!)
+      n (range 22)]
+      (f 2068 (+ 2069 n)))
 
-(clear-record @record)
+(reset! changes (hash-map
+                     :protocol nil
+                     :protolang nil
+                     :count "9/002928"
+                     :counteragent 79
+                     :conditions 1005
+                     :serial_number "02468"
+                     :manufacture_year 2021
+                     :protocol_number 2061
+                     :comment "Леонтьев"
+                     ;:channels
+                     ;:components
+                     ;:scope
+                     ;:sw_name 8320039
+                     ;:sw_version "не ниже V6.9"
+                     ;:sw_checksum "F8B9"
+                     ;:sw_algorithm "CRC-16"
+                     ;:sw_version_real "V3.04"
+                     ))
 
-(.toString (java.time.LocalDate/now))
+(:verification @record)
 
-(assoc {:key1 1.2 :key2 32 :key3 200} :key1 5.4)
+@changes
 
-(conj {} {:key1 1 :key2 2 :key3 3} {:key4 4})
+;; Обновить запись
+(update-record! :verification @record @changes)
+
+;; Просроченные эталоны
+(filter (fn [m] (not= "" (:expiration m)))
+        (all-refs @current))
+
+(map (fn [m] (:serial_number m)) (all-refs @current))
+
+(get-last-id "verification")
+
+(copy-record! 1307)
+
+;; Копировать существующую запись
+(copy-record! 1307)
+(reset! current (get-last-id "verification"))
+(reset! record (get-record @current))
+
+;; Удалить запись
+(delete-record! 2091)
+
+(get-conditions "2023-09-04")
+
+(insert-conditions! {:date "2023-09-04"
+                     :temperature 23.1
+                     :humidity 50.3
+                     :pressusre 100.91
+                     :voltage 222.4
+                     ;:other "расход ГС (0,1 - 0,3) л/мин."
+                     ;:location "ОГЗ"
+                     ;:comment ""
+                     })
 
 ;; documentations
 
 (require '[clojure.repl :refer :all])
 
-(find-doc "hash-map")
+(find-doc "assoc")
 
-(doc get-in)
+(doc when)
 
 (dir clojure.core)
 

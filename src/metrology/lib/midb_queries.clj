@@ -89,3 +89,56 @@
       measurements
   where
       v_id = ?;")
+
+(def find-mi
+  "Query to select mi."
+  "select
+    v.id,
+    v.protocol_number,
+    v.count,
+    c.date,
+    v.verification_type,
+    v.mi_type,
+    met.registry_number,
+    v.serial_number,
+    v.manufacture_year,
+    v.components,
+    v.scope,
+    v.channels,
+    v.counteragent,
+    ca.name
+from
+    verification as v
+inner join
+    methodology as met
+    on met.id = v.methodology_id
+inner join
+    conditions as c
+    on c.id = v.conditions
+inner join
+    counteragents as ca
+    on ca.id = v.counteragent
+where
+    v.serial_number || ' '
+        || met.registry_number || ' ' || v.mi_type like ?
+order by
+    c.date,
+    v.id")
+
+(def counteragents
+  "Counteragents query."
+  "select
+      id, name, short_name, inn, type, address
+  from
+      counteragents
+  where
+      lower(id || ' ' || name || ' ' || short_name) like ?") 
+
+(def all-refs
+  ""
+  "select
+    *
+from
+    verification_refs
+where
+    v_id = ?")
