@@ -1,7 +1,7 @@
 (def record (atom nil))
 (def current (atom nil))
 
-(pprint (find-mi "elgas"))
+(pprint (find-mi "gasalert%max"))
 
 (pprint (find-counteragent "УЭСП"))
 
@@ -10,14 +10,16 @@
 (reset! current (get-last-id "verification"))
 (pprint (reset! record (get-record @current)))
 
-;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 1340))
-     (range 7))
+(reset! record (get-record 2124))
 
-(let [nums (map (fn [n] (str "KA41310" n))
-                (list 35025 15836 34866 15862 34773 15767))
-      start-id 2117
-      start-protocol-number 2117]
+;; Создать однотипные записи по массиву зав. №.
+(map (fn [s] (copy-record! 1076))
+     (range 2))
+
+(let [nums (map (fn [n] (str "MA213-00317" n))
+                (list 5 6))
+      start-id 2143
+      start-protocol-number 2143]
   (map (fn [n i]
          (jdbc/update!
            midb
@@ -25,9 +27,9 @@
            (hash-map
              :protocol nil
              :protolang nil
-             :count "9/002904"
+             :count "9/0029573"
              :counteragent 57
-             :conditions 1000
+             :conditions 1003
              :serial_number n
              :manufacture_year 2013
              :protocol_number (+ start-protocol-number i)
@@ -45,7 +47,7 @@
        nums
        (range (count nums))))
 
-(copy-v-gso! 2092 2123)
+(copy-v-gso! 2123 2144)
 
 ;; Удалить записи с id >=
 (map (fn [i]
@@ -55,7 +57,7 @@
 ;; Удалить запись
 (delete-record! 2091)
 
-(pprint (get-conditions "2023-08-29"))
+(pprint (get-conditions "2023-08-28"))
 
 (insert-conditions! {:date "2023-09-05"
                      :temperature 22.8
@@ -76,9 +78,9 @@
                           "pass_number"))
 
 ;Проверить ГСО в записи.
-(check-gso (map (fn [x] (:gso_id x))
+(pprint (check-gso (map (fn [x] (:gso_id x))
                 (:v_gso @record))
-           "id")
+           "id"))
 
 (pprint (check-gso (list "11101-23" "00808-23" "007465-22"
                      "02463-22" "06869-23" "00810-23")
