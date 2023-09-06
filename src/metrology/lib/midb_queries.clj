@@ -67,10 +67,11 @@
 (def copy-v-operations
   "Query to copy operations."
   "insert into v_operations
-    (v_id, op_id)
+    (v_id, op_id, result)
   select
       ?,
-      op_id
+      op_id,
+      1
   from
       v_operations
   where

@@ -2,6 +2,7 @@
   (:require 
     [clojure.java.jdbc :as jdbc]
     [clojure.string]
+    [clojure.pprint :refer [pprint]]
     [metrology.lib.database :as db]
     [metrology.lib.midb-queries :as q]))
 
@@ -98,8 +99,8 @@
    эталонах, операциях и измерениях."
    [id]
    (map (fn [f] (f id))
-        [delete-v-gso! delete-v-refs! delete-v-opt-refs! delete-v-operations!
-         delete-measurements! delete-verification!]))
+        (list delete-v-gso! delete-v-refs! delete-v-opt-refs! delete-v-operations!
+         delete-measurements! delete-verification!)))
 
 (defn copy-record!
   "Копировать запиь о поверке с данными о применяемых эталонах, операциях
@@ -171,100 +172,28 @@
                       (vec (map (fn [m] (hash-map :v_id v_id :gso_id (:id m)))
                                 coll)))))
 
+(defn gen-vals!
+  ""
+  [id]
+  (let [metr (jdbc/query midb [q/metrology id])]
+    ))
+
+(defn tolerance
+  "Возвращает значение допускаемой основной погрешности выраженное
+   в абсолютных единицах.
+   :m (hash-map :value ; error nominal
+                :type_id ; error type
+                :ref_value ; references value
+                :r_from ; start point of range
+                :r_to ; end point of range"
+   [m]
+   (cond (= (:type_id m) 0)
+           (:value m)
+         (= (:type_id m) 1)
+           (double (/ (* (:value m) (:ref_value)) 100))
+         (= (:type_id m) 2)
+           (double (/ (* (:value m) (- (:r_to m) (:r_from m))) 100))))
+
 (comment
-
-(def record (atom nil))
-(def changes (atom nil))
-(def current (atom nil))
-
-(find-mi "ГХ-М")
-
-(find-counteragent "ГОК")
-
-(:verification @record)
-
-;Установить ГСО по номерам паспортов ГСО.
-(set-gso! @current (check-gso '("11101-23" "00808-23" "007465-22"
-                                "02463-22" "06869-23" "00810-23")
-                          "pass_number"))
-
-;Проверить ГСО в записи.
-(check-gso (map (fn [x] (:gso_id x))
-                (:v_gso @record))
-           "id")
-
-(check-gso '("11101-23" "00808-23" "007465-22" "02463-22" "06869-23" "00810-23")
-                          "pass_number")
-
-(for [f (list copy-v-refs! copy-v-operations! copy-measurements! copy-v-opt-refs!)
-      n (range 22)]
-      (f 2068 (+ 2069 n)))
-
-(reset! changes (hash-map
-                     :protocol nil
-                     :protolang nil
-                     :count "9/002928"
-                     :counteragent 79
-                     :conditions 1005
-                     :serial_number "02468"
-                     :manufacture_year 2021
-                     :protocol_number 2061
-                     :comment "Леонтьев"
-                     ;:channels
-                     ;:components
-                     ;:scope
-                     ;:sw_name 8320039
-                     ;:sw_version "не ниже V6.9"
-                     ;:sw_checksum "F8B9"
-                     ;:sw_algorithm "CRC-16"
-                     ;:sw_version_real "V3.04"
-                     ))
-
-(:verification @record)
-
-@changes
-
-;; Обновить запись
-(update-record! :verification @record @changes)
-
-;; Просроченные эталоны
-(filter (fn [m] (not= "" (:expiration m)))
-        (all-refs @current))
-
-(map (fn [m] (:serial_number m)) (all-refs @current))
-
-(get-last-id "verification")
-
-(copy-record! 1307)
-
-;; Копировать существующую запись
-(copy-record! 1307)
-(reset! current (get-last-id "verification"))
-(reset! record (get-record @current))
-
-;; Удалить запись
-(delete-record! 2091)
-
-(get-conditions "2023-09-04")
-
-(insert-conditions! {:date "2023-09-04"
-                     :temperature 23.1
-                     :humidity 50.3
-                     :pressusre 100.91
-                     :voltage 222.4
-                     ;:other "расход ГС (0,1 - 0,3) л/мин."
-                     ;:location "ОГЗ"
-                     ;:comment ""
-                     })
-
-;; documentations
-
-(require '[clojure.repl :refer :all])
-
-(find-doc "assoc")
-
-(doc when)
-
-(dir clojure.core)
 
 )
