@@ -1,25 +1,25 @@
 (def record (atom nil))
 (def current (atom nil))
 
-(pprint (find-mi "gasalert%max"))
+(pprint (find-mi "414"))
 
-(pprint (find-counteragent "УЭСП"))
+(pprint (find-counteragent "УТТ"))
 
 ;; Копировать существующую запись
 (copy-record! 2013)
 (reset! current (get-last-id "verification"))
 (pprint (reset! record (get-record @current)))
 
-(reset! record (get-record 2124))
+(reset! record (get-record 1960))
 
 ;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 1076))
-     (range 2))
+(map (fn [s] (copy-record! 934))
+     (range 1))
 
-(let [nums (map (fn [n] (str "MA213-00317" n))
-                (list 5 6))
-      start-id 2143
-      start-protocol-number 2143]
+(let [nums (map (fn [n] (str "" n))
+                (list "ER414191287"))
+      start-id 2191
+      start-protocol-number 2183]
   (map (fn [n i]
          (jdbc/update!
            midb
@@ -27,11 +27,11 @@
            (hash-map
              :protocol nil
              :protolang nil
-             :count "9/0029573"
-             :counteragent 57
-             :conditions 1003
+             :count "9/002845"
+             :counteragent 50
+             :conditions 1008
              :serial_number n
-             :manufacture_year 2013
+             :manufacture_year 2019
              :protocol_number (+ start-protocol-number i)
              ;:comment "Леонтьев"
              ;:channels
@@ -57,13 +57,13 @@
 ;; Удалить запись
 (delete-record! 2091)
 
-(pprint (get-conditions "2023-08-28"))
+(pprint (get-conditions "2023-09-07"))
 
-(insert-conditions! {:date "2023-09-05"
-                     :temperature 22.8
-                     :humidity 53.0
-                     :pressure 101.02
-                     :voltage 224.4
+(insert-conditions! {:date "2023-09-07"
+                     :temperature 22.9
+                     :humidity 52.7
+                     :pressure 100.02
+                     :voltage 221.4
                      ;:other "расход ГС (0,1 - 0,3) л/мин."
                      ;:location "ОГЗ"
                      ;:comment ""
@@ -79,7 +79,7 @@
 
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
-                (:v_gso @record))
+                (:v_gso (get-record 2186)))
            "id"))
 
 (pprint (check-gso (list "11101-23" "00808-23" "007465-22"
@@ -143,11 +143,22 @@
 
 ;; Просроченные эталоны
 (pprint (filter (fn [m] (not= "" (:expiration m)))
-        (all-refs @current)))
+        (all-refs 345)))
+
+(pprint (all-refs 2186))
 
 (map (fn [m] (:serial_number m)) (all-refs @current))
 
-(get-last-id "verification")
+(get-record (get-last-id "verification"))
+
+(defn get-last
+  []
+  (let [m (:verification (get-record (get-last-id "verification")))]
+    (apply hash-map (flatten (map (fn [k]
+             (list k (k m)))
+         (list :id :protocol_number))))))
+
+(get-last)
 
 ;; documentations
 
@@ -155,7 +166,7 @@
 
 (find-doc "assoc")
 
-(doc when)
+(doc repeat)
 
 (dir clojure.core)
 

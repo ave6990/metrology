@@ -143,3 +143,26 @@ from
     verification_refs
 where
     v_id = ?")
+
+(def metrology
+  ""
+  "select
+      m.id,
+      m.ref_value,
+      met.value,
+      met.r_from,
+      met.r_to,
+      met.type_id,
+      ch.low_unit,
+      ch.view_range_from,
+      ch.view_range_to
+  from
+      measurements as m
+  inner join
+      metrology as met
+      on met.id = m.metrology_id
+  inner join
+      channels as ch
+      on ch.id = met.channel_id
+  where v_id = ?
+  ")
