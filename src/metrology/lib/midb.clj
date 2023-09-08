@@ -164,19 +164,57 @@
                             where " column " = ?") num])))
        coll))
 
-(defn set-gso!
-  [v_id coll]
-  (do (delete-v-gso! v_id)
-      (jdbc/insert-multi! midb
-                      :v_gso
-                      (vec (map (fn [m] (hash-map :v_id v_id :gso_id (:id m)))
-                                coll)))))
+(defn set-v-gso!
+  [v-id coll]
+  (do (delete-v-gso! v-id)
+      (jdbc/insert-multi!
+        midb
+        :v_gso
+        (vec (map (fn [el] (hash-map :v_id v-id :gso_id el))
+                  coll)))))
+
+(defn set-v-refs!
+  [v-id coll]
+  (do (delete-v-refs! v-id)
+      (jdbc/insert-multi!
+        midb
+        :v_refs
+        (vec (map (fn [el] (hash-map :v_id v-id :ref_id el))
+                  coll)))))
+
+(defn set-v-opt-refs!
+  [v-id coll]
+  (do (delete-v-opt-refs! v-id)
+      (jdbc/insert-multi!
+        midb
+        :v_opt_refs
+        (vec (map (fn [el] (hash-map :v_id v-id :ref_id el))
+                  coll)))))
 
 (defn gen-vals!
   ""
   [id]
   (let [metr (jdbc/query midb [q/metrology id])]
     ))
+
+(defn ins-channel!
+  "Вставить запись канала измерения и метрологических характеристик."
+  [ch-obj mc-list]
+  (let [ch-id
+          (->>
+            (jdbc/insert!
+              midb
+              :channels
+              ch-obj)
+            first
+            vals
+            first)]
+    (map (fn [m]
+             (jdbc/insert!
+               midb
+               :metrology
+               (assoc m :channel_id ch-id)))
+         mc-list)))
 
 (defn tolerance
   "Возвращает значение допускаемой основной погрешности выраженное

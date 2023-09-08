@@ -166,3 +166,12 @@ where
       on ch.id = met.channel_id
   where v_id = ?
   ")
+
+(def get-methodology
+  "select
+      *
+  from
+      methodology
+  where
+      lower(id || ', ' || registry_number ||
+          ', ' || mi_types) like ?")
