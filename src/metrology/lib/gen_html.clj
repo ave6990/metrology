@@ -22,7 +22,10 @@
        ([]
         (~tag "")))))
 
+(rest '(1 2 3 4))
+
 (html-tag html)
+(html-tag head)
 (html-tag section)
 (html-tag div)
 (html-tag header)
@@ -35,7 +38,21 @@
 (html-tag p)
 
 (spit "/media/sf_YandexDisk/Ermolaev/midb/protocol.html"
-      (html (head head-content) (section (header) (main (p "Hello!")) (footer))))
+      (html
+        (head head-content)
+        (section
+          (header)
+          (main
+            (p "Hello!"))
+          (footer))))
+
+(html
+  (head head-content)
+  (section
+    (header)
+    (main
+      (p "Hello!"))
+    (footer)))
 
 (def head-content
   "  <meta charset=\"utf-8\">
