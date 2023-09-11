@@ -9,6 +9,15 @@
           (string/split s #"\n"))
   (str "  " (string/join "\n  " (string/split s #"\n"))))
 
+(defn set-attributes
+ "Преобразуеть hash-map в строку с аттрибутами html-тэгов."
+  [m]
+  (reduce (fn [s [k v]] (str s " "
+                             (string/replace (str k) ":" "")
+                             "=\"" v "\""))
+          ""
+          m))
+
 (defmacro html-tag
   [tag]
   (let [s (gensym "s")]
@@ -16,16 +25,24 @@
        ([& ~s]
         (string/join "\n" 
                      (list 
-                       ~(str \< tag \>)
-                       (indent (string/join "\n" ~s))
+                       (str ~(str \< tag)
+                            (if (map? (first ~s))
+                                (set-attributes (first ~s))
+                                "")
+                            ~(str \>))
+                       (indent (string/join "\n" (if (map? (first ~s))
+                                                     (rest ~s)
+                                                     ~s)))
                        ~(str \< \/ tag \>))))
        ([]
         (~tag "")))))
 
-(rest '(1 2 3 4))
-
 (html-tag html)
 (html-tag head)
+(html-tag title)
+(html-tag style)
+(html-tag script)
+(html-tag body)
 (html-tag section)
 (html-tag div)
 (html-tag header)
@@ -36,130 +53,48 @@
 (html-tag th)
 (html-tag td)
 (html-tag p)
+(html-tag time)
+(html-tag strong)
+(html-tag ul)
+(html-tag ol)
+(html-tag li)
 
-(spit "/media/sf_YandexDisk/Ermolaev/midb/protocol.html"
-      (html
-        (head head-content)
-        (section
-          (header)
-          (main
-            (p "Hello!"))
-          (footer))))
+(defn doctype
+  "<!doctype html>"
+  [& xs]
+  (str "<!doctype html>\n" (string/join "\n" xs)))
 
-(html
-  (head head-content)
-  (section
-    (header)
-    (main
-      (p "Hello!"))
-    (footer)))
+(defn meta
+  "Tag _meta_ with attributes."
+  [m]
+  (str "<meta"
+       (if (= (class m) java.lang.String)
+           (str " " m)
+           (reduce (fn [s [k v]]
+                     (str s " name=\""
+                           (string/replace k ":" "")
+                           "\" content=\"" v "\""))
+                   ""
+                   m))
+       ">"))
 
-(def head-content
-  "  <meta charset=\"utf-8\">
-  <meta name=\"author\" content=\"Aleksandr Ermolaev\">
-  <meta name=\"e-mail\" content=\"ave6990@ya.ru\">
-  <meta name=\"version\" content=\"2023-04-19\">
-  <title>protocols</title>
-  <style type=\"text/css\">
-    html {
-      font-family: Times New Roman;
-      font-size: 12pt;
-    }
-    section {
-      position: relative;
-      height: 100%;
-      page-break-after: always;
-    }
-    .appendix-section {
-      margin: 0 0 6pt 0;  
-    }
-    .capitalize {
-      text-transform: uppercase;
-    }
-    p {
-      margin: 0;
-      text-align: justify;
-    }
-    header {
-      margin: 0 0 10pt 0;
-    }
-    .header1 > p {
-      text-align: center;
-    }
-    .field {
-      margin: 0 0 6pt 0;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      border: 1px solid;
-      font-size: 10pt;
-      line-height: 0.9;
-    }
-    td, th {
-      border: 1px solid;
-    }
-    .measurement-table th {
-      max-width: 25%;
-    }
-    .centered-cell {
-      text-align: center;
-    }
-    .channel-cell {
-      white-space: nowrap;
-      min-width: 20%;
-    }
-    .sign {
-      margin: 10pt 0;
-      position: relative;
-    }
-    ol {
-      margin: 0;
-      padding: 0 0.35cm;
-    }
-    .comment {
-      font-size: 9pt;
-    }
-    footer > p {
-      position: absolute;
-      top: 26.5cm;
-      right: 0;
-    }
-    @media print {
-      @page {
-        margin: 1cm;
-      }
-    }
-    .two-column {
-      margin: 0 0 6pt 0;
-      display: flex;
-      flex-direction: row;
-    }
-    .two-column > p {
-      flex: 1;
-    }
-    .sign > img {
-    	position: absolute;
-     	top: -3.5cm;
-     	left: 3.5cm;
-      	transform: scale(0.28);
-    }
-  </style>
-  <script type=\"text/javascript\">
-    document.addEventListener(\"dblclick\", (event) => {
-      console.log(document.getElementsByClassName(\"sign_img\"))
-      const signs = document.getElementsByClassName(\"sign_img\")
-      for (const el of signs) {
-        el.style.visibility = el.style.visibility == \"visible\" ? \"hidden\" : \"visible\"
-      }
-    })
-  </script>")
-
+(def br
+  "<br>")
 
 (comment
 
+(spit "/media/sf_YandexDisk/Ermolaev/midb/protocol.html"
+      (html
+        (head)
+        (body
+          (section
+            (header)
+            (main
+              (p {:id "greeting"} "Hello!"))
+            (footer)))))
+
 (require '[clojure.repl :refer :all])
 
-(doc string/split)
+(doc time)
 
 )
