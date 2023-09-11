@@ -56,7 +56,7 @@
      (range 13))
 
 ;; Удалить запись
-(delete-record! 2091)
+(delete-record! 2216)
 
 (pprint (get-conditions "2023-09-07"))
 
@@ -195,8 +195,8 @@
   []
   (let [m (:verification (get-record (get-last-id "verification")))]
     (apply hash-map (flatten (map (fn [k]
-             (list k (k m)))
-         (list :id :protocol_number))))))
+                               (list k (k m)))
+                             (list :id :protocol_number))))))
 
 (get-last)
 

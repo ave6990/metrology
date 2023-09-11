@@ -127,6 +127,8 @@
   "Возвращает hash-map записи о поверке."
   [id]
   (apply conj (hash-map :verification (get-verification id))
+              (hash-map :conditions
+                        (get-conditions-by-v-id id))
               (map (fn [table]
                      (hash-map
                        (keyword table)
@@ -137,6 +139,27 @@
                                     id])))
                    (list "v_gso" "v_refs" "v_opt_refs"
                     "v_operations" "measurements"))))
+
+(apply conj {:k1 1} {:k2 2 :k3 3} {:k4 4} '({:k5 5 :k6 6}))
+
+(get-conditions-by-v-id 1960)
+
+(defn get-conditions-by-v-id 
+  [id]
+  (->>
+    ["select *
+      from conditions
+      where id = ?"
+          (->>
+            ["select conditions
+              from verification
+              where id = ?" id]
+            (jdbc/query midb)
+            first
+            :conditions
+           )]
+    (jdbc/query midb)
+    first))
 
 (defn assoc-multi
   [m nm]
