@@ -1,4 +1,4 @@
-(ns metrology.lib.gen-html
+tts metrology.lib.gen-html
   (:require [clojure.string :as string]))
 
 (defn indent
@@ -37,6 +37,27 @@
        ([]
         (~tag "")))))
 
+(defmacro html-tag-unpaired
+  "Unpaired tag with an attributes."
+  [tag]
+  (let [s (gensym "s")
+        k (gensym "k")
+        v (gensym "v")
+        m (gensym "m")]
+    `(defn ~tag
+       ~(str "String representation of html tag _" tag "_ with an atributes.")
+       ([~m]
+       (str ~(str "<" tag)
+            (reduce (fn [~s [~k ~v]]
+                      (str ~s " "
+                           (string/replace ~k ":" "")
+                           "=\"" ~v "\""))
+                    ""
+                    ~m)
+           ">"))
+       ([]
+        ~(str "<" tag ">")))))
+
 (html-tag html)
 (html-tag head)
 (html-tag title)
@@ -58,28 +79,19 @@
 (html-tag ul)
 (html-tag ol)
 (html-tag li)
+(html-tag em)
+(html-tag span)
+(html-tag a)
+(html-tag-unpaired meta)
+(html-tag-unpaired br)
+(html-tag-unpaired img)
+(html-tag-unpaired input)
+(html-tag-unpaired hr)
 
 (defn doctype
   "<!doctype html>"
   [& xs]
   (str "<!doctype html>\n" (string/join "\n" xs)))
-
-(defn meta
-  "Tag _meta_ with attributes."
-  [m]
-  (str "<meta"
-       (if (= (class m) java.lang.String)
-           (str " " m)
-           (reduce (fn [s [k v]]
-                     (str s " name=\""
-                           (string/replace k ":" "")
-                           "\" content=\"" v "\""))
-                   ""
-                   m))
-       ">"))
-
-(def br
-  "<br>")
 
 (comment
 
@@ -94,6 +106,10 @@
             (footer)))))
 
 (require '[clojure.repl :refer :all])
+
+(require '[clojure.string :as string])
+
+(require '[clojure.pprint :refer [pprint]])
 
 (doc time)
 

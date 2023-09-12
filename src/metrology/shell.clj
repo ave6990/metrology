@@ -1,26 +1,25 @@
 (def record (atom nil))
 (def current (atom nil))
+(def protocol (atom nil))
 
-(pprint (find-mi "ГХ-М"))
+(pprint (find-mi "Ока"))
 
-(pprint (find-counteragent "ЦМСЧ"))
+(pprint (find-methodology "Ока"))
 
-;; Копировать существующую запись
-(copy-record! 2013)
-(reset! current (get-last-id "verification"))
-(pprint (reset! record (get-record @current)))
+(pprint (find-counteragent "ОРЕНБУ%МИНЕР"))
 
-(reset! record (get-record 1960))
+(reset! record (get-record 2220))
+
+(pprint (reset! protocol (get-protocol-data 2220)))
 
 ;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 2116))
-     (range 23))
+(map (fn [s] (copy-record! 2224))
+     (range 3))
 
-(let [nums (map (fn [n] (str "02" n))
-                (list 254 261 311 249 252 01731 266 269 246 265 310 258
-                      267 253 247 251 272 264 302 260 255 256 273))
-      start-id 2192
-      start-protocol-number 2169]
+(let [nums (map (fn [n] (str "21031" n))
+                (list 93 94 96))
+      start-id 2225
+      start-protocol-number 2222]
   (map (fn [n i]
          (jdbc/update!
            midb
@@ -28,15 +27,15 @@
            (hash-map
              :protocol nil
              :protolang nil
-             :count "9/002928"
-             :counteragent 79
-             :conditions 1008
+             :count "9/002803"
+             :counteragent 78
+             :conditions 1010
              :serial_number n
              :manufacture_year 2021
              :protocol_number (+ start-protocol-number i)
              ;:comment "Леонтьев"
              ;:channels
-             ;:components
+             ;:components "БД горючих газов №№: "
              ;:scope
              ;:sw_name 8320039
              ;:sw_version "не ниже V6.9"
@@ -60,11 +59,11 @@
 
 (pprint (get-conditions "2023-09-07"))
 
-(insert-conditions! {:date "2023-09-07"
-                     :temperature 22.9
-                     :humidity 52.7
-                     :pressure 100.02
-                     :voltage 221.4
+(insert-conditions! {:date "2023-09-12"
+                     :temperature 22.7
+                     :humidity 51.3
+                     :pressure 100.23
+                     :voltage 224.6
                      ;:other "расход ГС (0,1 - 0,3) л/мин."
                      ;:location "ОГЗ"
                      ;:comment ""
@@ -80,11 +79,17 @@
                  (check-gso (list "13305-22" "12211-22")
                             "pass_number")))
 
-(set-v-refs! 3000
-             (list ))
+(set-v-gso! 2224 
+            (list 315))
 
-(set-v-opt-refs! 2215
-             (list 2758 2756 2670 2643))
+(set-v-refs! 2219
+             (list 2765 2820))
+
+(set-v-opt-refs! 2216
+                 (list 2643 2758 2831 2756 2670))
+
+(set-v-operations! 2216
+                   (list 60 608 1063 1672 1673))
 
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
@@ -108,16 +113,16 @@
   :verification
   (hash-map
      :engineer 3514
-     :count "9/002944"
-     :counteragent 577
-     :conditions 1008
+     :count "9/0029591"
+     :counteragent 198
+     :conditions 1010
      :verification_type 1
-     :protocol_number 2162
-     :mi_type "ГКМП-02-ИНСОВТ"
-     :methodology_id 369
-     :serial_number 1548
-     :manufacture_year 2018
-     :channels 1
+     :protocol_number 2211
+     :mi_type "СТГ1-1Д10(в)"
+     :methodology_id 90
+     :serial_number 1198
+     :manufacture_year 2005
+     :channels 2
      :area "05"
      :interval 12
      ;:components
@@ -267,7 +272,7 @@
 
 (find-doc "assoc")
 
-(doc repeat)
+(doc get-in)
 
 (dir clojure.core)
 

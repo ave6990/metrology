@@ -167,7 +167,7 @@ where
   where v_id = ?
   ")
 
-(def get-methodology
+(def find-methodology
   "select
       *
   from

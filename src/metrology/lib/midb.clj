@@ -39,6 +39,11 @@
   [s]
   (jdbc/query midb [q/find-mi (str "%" s "%")]))
 
+(defn find-methodology
+  "Возвращает список записей методик поверки соответствующих запросу."
+  [s]
+  (jdbc/query midb [q/find-methodology (str "%" s "%")]))
+
 (defn find-counteragent
   "Возвращает список контрагентов соответствующих запросу."
   [s]
@@ -123,12 +128,27 @@
   (first (jdbc/query midb
               ["select * from verification where id = ?" id]))) 
 
+(defn get-v-operations
+  ""
+  [id]
+  (jdbc/query
+    midb
+    ["select * from view_v_operations where v_id = ?" id]))
+
+(defn get-protocol
+  ""
+  [id]
+  (first (jdbc/query
+           midb
+           ["select * from protocol where id = ?" id])))
+
 (defn get-record
   "Возвращает hash-map записи о поверке."
   [id]
-  (apply conj (hash-map :verification (get-verification id))
-              (hash-map :conditions
-                        (get-conditions-by-v-id id))
+  (conj (hash-map :verification (get-verification id))
+              (hash-map :protocol (get-protocol id))
+              (hash-map :operations
+                        (get-v-operations id))
               (map (fn [table]
                      (hash-map
                        (keyword table)
@@ -140,10 +160,13 @@
                    (list "v_gso" "v_refs" "v_opt_refs"
                     "v_operations" "measurements"))))
 
-(apply conj {:k1 1} {:k2 2 :k3 3} {:k4 4} '({:k5 5 :k6 6}))
-
-(get-conditions-by-v-id 1960)
-
+(defn get-protocol-data
+  "Возвращает hash-map данных о поверке."
+  [id]
+  (apply conj (hash-map :protocol (get-protocol id))
+              (hash-map :operations
+                        (get-v-operations id))))
+ 
 (defn get-conditions-by-v-id 
   [id]
   (->>
@@ -216,6 +239,15 @@
         (vec (map (fn [el] (hash-map :v_id v-id :ref_id el))
                   coll)))))
 
+(defn set-v-operations!
+  [v-id coll]
+  (do (delete-v-opt-refs! v-id)
+      (jdbc/insert-multi!
+        midb
+        :v_operations
+        (vec (map (fn [el] (hash-map :v_id v-id :op_id el :result 1))
+                  coll)))))
+
 (defn gen-vals!
   ""
   [id]
@@ -258,5 +290,7 @@
            (double (/ (* (:value m) (- (:r_to m) (:r_from m))) 100))))
 
 (comment
+
+(doc if-let)
 
 )

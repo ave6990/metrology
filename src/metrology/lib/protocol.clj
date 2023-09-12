@@ -1,21 +1,23 @@
 (ns metrology.lib.protocol
-  (:require [metrology.lib.gen-html :as html]))
+  (:require [metrology.lib.gen-html :refer all]
+            [metrology.lib.midb :refer all]))
 
 (defn protocols
   ""
   []
-  (doctype
-    (html
-      (head
-        (meta "charset=\"utf-8\"")
-        (meta {:author "Aleksandr Ermolaev"})
-        (meta {:e-mail "ave6990@ya.ru"})
-        (meta {:version "2023-04-19"})
-        (title "protocols"))
-        (style {:type "text/css"} styles)
-        (script {:type "text/javascript"} scripts)
-      (body
-        (protocol)))))
+  (bsp->nbsp
+    (doctype
+      (html
+        (head
+          (meta {:charset "utf-8"})
+          (meta {:name "author" :content "Aleksandr Ermolaev"})
+          (meta {:name "e-mail" :content "ave6990@ya.ru"})
+          (meta {:name "version" :content "2023-04-19"})
+          (title "protocols"))
+          (style {:type "text/css"} styles)
+          (script {:type "text/javascript"} scripts)
+        (body
+          (protocol (get-protocol-data 2220)))))))
 
 (defn field
   "Возвращает html поле для вывода данных в протокол."
@@ -25,52 +27,125 @@
       (strong (str name ": "))
       (str value "."))))
 
+(defn find-nbsp-place
+  "Соблдение требований к размещению неразрывных пробелов."
+  [s]
+  (->>
+    (map (fn [re]
+                         (map (fn [el]
+                                  (first el))
+                              (re-seq re s)))
+                     (list #"\d+\s+(\-|÷|±)\s+\d+"
+                           #"\d+\)?\s+(см|кПа|Па|млн|с|м|кг|г|%|°C|\()"
+                           #"(\.|орт)\s+№"
+                           #"(№|СО)\s+\d"))
+    (apply concat)
+    set))
+
+(defn bsp->nbsp
+  ""
+  [s]
+  (reduce (fn [a b]
+              (string/replace a
+                              b
+                              (string/replace b " " " ")))
+          s
+          (find-nbsp-place s)))
+
 (defn protocol
   ""
-  []
+  [m]
   (section {:class "page_1"}
     (header {:class "header1"}
       (p "ФБУ «ОРЕНБУРГСКИЙ ЦСМ»")
       (p "460021, Оренбург, ул.60 лет Октября, 2 «Б»")
       (p "тел/факс (3532) 33-37-05, факс (3532) 33-00-76")
-      (p br)
-      (p {:class "capitalize"} "протокол первичной поверки")
-      (p "№ 9/61-2191-2023 от "
-         (time "07.09.2023")
-         " г."))
+      (p (br))
+      (p {:class "capitalize"} "протокол "
+                               (get-in m [:protocol :verification_type])
+                              " поверки")
+      (p (str "№ " (get-in m [:protocol :department])
+         "/" (get-in m [:protocol :engineer])
+         "-" (get-in m [:protocol :protocol_number])
+         "-" (get-in m [:protocol :year]) " от "
+         (time (get-in m [:protocol :date]))
+         " г.")))
     (main
       (field "Наименование, тип"
-             "Газоопределители химические, ГХ-М")
+             (str (get-in m [:protocol :name])))
       (div {:class "two-column"}
         (p
           (strong "Заводской номер: ")
-          "02273")
+          (get-in m [:protocol :serial_number]))
         (p
           (strong "Год изготовления: ")
-          "2020 г."))
+          (get-in m [:protocol :manufacture_year])
+          " г."))
       (field "Регистрационный номер"
-             "68261-17")
+             (get-in m [:protocol :registry_number]))
       (field "В составе"
-             "Аспиратор АМ-5, (100±5) см³")
+             (get-in m [:protocol :components]))
       (field "Поверено в объеме"
-             "в диапазоне (100±5) см³")
+             (get-in m [:protocol :scope]))
       (field "Наименование, адрес владельца"
-             "ПАО «ГАЙСКИЙ ГОК», 462631, Оренбургская обл, Гай г, Промышленная ул, дом № 1")
+             (str (get-in m [:protocol :counteragent])
+                  (get-in m [:protocol :address])))
       (field "НД на поверку"
-             "МП 242-2129-2017 с Изменением № 1 «Газоопределители химичесчкие ГХ-М. Методика поверки»")
+             (get-in m [:protocol :methodology]))
       (field "Условия поверки"
-             "температура воздуха: 22,9 (20 ± 5) °C; относительная влажность: 52,7 (≤ 80) %; атмосферное давление: 100,02 (101,3 ± 3,3) кПа")
+             (str "температура воздуха: "
+                  (get-in m [:protocol :temperature])
+                  " " (get-in m [:protocol :pr_temperature]) "; "
+                  "относительная влажность: "
+                  (get-in m [:protocol :humidity])
+                  " " (get-in m [:protocol :pr_humidity]) "; "
+                  "атмосферное давление: "
+                  (get-in m [:protocol :pressure])
+                  " " (get-in m [:protocol :pr_pressure])
+                  (if-let [other (get-in m [:protocol :other])]
+                          other
+                          "")))
       (field "Средства поверки"
-             "Измеритель объема, ИО-1М, мод. ИО-1М(100) , зав. № 0101; ; Барометр-анероид контрольный, М-67, зав. № 1465; Секундомер электронный, Интеграл С-01, зав. № 414235; Прибор комбинированный, Testo 608-Н1, зав. № 41391837")
+             (str (get-in m [:protocol :mi_references])
+                  (if-let [opt-ref (get-in m [:protocol :optional_references])]
+                          opt-ref
+                          "")))
       (div {:class "field"}
         (p {:class "capitalize"}
           (strong "Результаты поверки")))
-      (div {:class "field"}
+      (div {:class "field"})
         ;; операции поверки с заключением
-        ))))
+      (field "Заключение"
+             (get-in m [:protocol :conclusion]))
+      (p {:class "sign"}
+        "Подпись лица выполнявшего поверку"
+        (span {:class "placeholder"} "____________________")
+        (img {:class "sign_img" :src "signs/sign_number.img"})
+        (get-in m [:protocol :engineer_name]))
+      (p "Сведения о результатах поверки переданы в ФИФ ОЕИ.")
+      (footer 
+        (p "Страница 1 из "
+         (span {:contenteditable "true"} 2)))
+      (section {:class "page_2"}
+        (header {:class "header2"}
+          (p
+            "Приложение к протоколу первичной поверки "
+            (str "№ " (get-in m [:protocol :department])
+            "/" (get-in m [:protocol :engineer])
+            "-" (get-in m [:protocol :protocol_number])
+            "-" (get-in m [:protocol :year]) " от "
+            (time (get-in m [:protocol :date]))
+            " г.")))
+        (main)
+        (footer
+          (p
+            "Страница 2 из "
+            (span {:contenteditable "true"} "2")))))))
 
 (spit "/media/sf_YandexDisk/Ermolaev/midb/protocol.html"
       (protocols))
+
+(meta {:charset "utf-8"})
 
 (def styles
 "html {
@@ -164,3 +239,11 @@ footer > p {
     el.style.visibility = el.style.visibility == \"visible\" ? \"hidden\" : \"visible\"
   }
 })")
+
+(comment
+
+(require '[clojure.java.jdbc :as jdbc])
+
+(require '[clojure.string :as string])
+
+)
