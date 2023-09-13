@@ -273,6 +273,13 @@
                (assoc m :channel_id ch-id)))
          mc-list)))
 
+(defn get-operations
+  "Возвращает коллекцию операций поверки по заданному v_id."
+  [id]
+  (jdbc/query
+    midb
+    ["select * from view_operations where v_id = ?" id]))
+
 (defn tolerance
   "Возвращает значение допускаемой основной погрешности выраженное
    в абсолютных единицах.

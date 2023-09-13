@@ -1,23 +1,7 @@
 (ns metrology.lib.protocol
   (:require [metrology.lib.gen-html :refer all]
-            [metrology.lib.midb :refer all]))
-
-(defn protocols
-  ""
-  []
-  (bsp->nbsp
-    (doctype
-      (html
-        (head
-          (meta {:charset "utf-8"})
-          (meta {:name "author" :content "Aleksandr Ermolaev"})
-          (meta {:name "e-mail" :content "ave6990@ya.ru"})
-          (meta {:name "version" :content "2023-04-19"})
-          (title "protocols"))
-          (style {:type "text/css"} styles)
-          (script {:type "text/javascript"} scripts)
-        (body
-          (protocol (get-protocol-data 2220)))))))
+            [metrology.lib.midb :refer all]
+            [clojure.math :as math]))
 
 (defn field
   "Возвращает html поле для вывода данных в протокол."
@@ -26,6 +10,13 @@
     (p
       (strong (str name ": "))
       (str value "."))))
+
+(defn date-iso->local
+  "Преобразует дату из формата ISO в локальный формат."
+  [s]
+  (->> (string/split s #"\-")
+       reverse
+       (string/join ".")))
 
 (defn find-nbsp-place
   "Соблдение требований к размещению неразрывных пробелов."
@@ -38,7 +29,9 @@
                      (list #"\d+\s+(\-|÷|±)\s+\d+"
                            #"\d+\)?\s+(см|кПа|Па|млн|с|м|кг|г|%|°C|\()"
                            #"(\.|орт)\s+№"
-                           #"(№|СО)\s+\d"))
+                           #"(№|СО)\s+\d"
+                           #"(р(\-|ай)он\.?|ул\.?|г\.?|д(ом)?\.?)\s+[№а-яА-Я]+"
+                           #"[а-яА-Я]+\s+(р(\-|ай)|обл\.?|ул\.?|г\.?|д\.?)"))
     (apply concat)
     set))
 
@@ -52,9 +45,24 @@
           s
           (find-nbsp-place s)))
 
-(defn protocol
+ (defn operations
   ""
+  [id]
+  (div {:class "field"}
+    (ol
+      (string/join
+        "\n"
+        (map (fn [m]
+                 (li 
+                   (p
+                     (str (:name m) ":")
+                     (em (:result m)))
+                   (p {:class "comment"} (:comment m))))
+             (get-operations id))))))
+     
+(defn page_1
   [m]
+  "Первая страница протокола."
   (section {:class "page_1"}
     (header {:class "header1"}
       (p "ФБУ «ОРЕНБУРГСКИЙ ЦСМ»")
@@ -68,7 +76,7 @@
          "/" (get-in m [:protocol :engineer])
          "-" (get-in m [:protocol :protocol_number])
          "-" (get-in m [:protocol :year]) " от "
-         (time (get-in m [:protocol :date]))
+         (time (date-iso->local (get-in m [:protocol :date])))
          " г.")))
     (main
       (field "Наименование, тип"
@@ -80,7 +88,7 @@
         (p
           (strong "Год изготовления: ")
           (get-in m [:protocol :manufacture_year])
-          " г."))
+          " г."))
       (field "Регистрационный номер"
              (get-in m [:protocol :registry_number]))
       (field "В составе"
@@ -88,7 +96,7 @@
       (field "Поверено в объеме"
              (get-in m [:protocol :scope]))
       (field "Наименование, адрес владельца"
-             (str (get-in m [:protocol :counteragent])
+             (str (get-in m [:protocol :counteragent]) "; "
                   (get-in m [:protocol :address])))
       (field "НД на поверку"
              (get-in m [:protocol :methodology]))
@@ -113,34 +121,64 @@
       (div {:class "field"}
         (p {:class "capitalize"}
           (strong "Результаты поверки")))
-      (div {:class "field"})
-        ;; операции поверки с заключением
+      (operations (get-in m [:protocol :id]))
       (field "Заключение"
              (get-in m [:protocol :conclusion]))
       (p {:class "sign"}
         "Подпись лица выполнявшего поверку"
         (span {:class "placeholder"} "____________________")
-        (img {:class "sign_img" :src "signs/sign_number.img"})
+        (img {:class "sign_img"
+              :src (str "signs/sign_"
+                        (math/round (mod (* 100 (rand)) 72))
+                        ".png")})
         (get-in m [:protocol :engineer_name]))
-      (p "Сведения о результатах поверки переданы в ФИФ ОЕИ.")
-      (footer 
-        (p "Страница 1 из "
-         (span {:contenteditable "true"} 2)))
-      (section {:class "page_2"}
-        (header {:class "header2"}
-          (p
-            "Приложение к протоколу первичной поверки "
-            (str "№ " (get-in m [:protocol :department])
-            "/" (get-in m [:protocol :engineer])
-            "-" (get-in m [:protocol :protocol_number])
-            "-" (get-in m [:protocol :year]) " от "
-            (time (get-in m [:protocol :date]))
-            " г.")))
-        (main)
-        (footer
-          (p
-            "Страница 2 из "
-            (span {:contenteditable "true"} "2")))))))
+      (p "Сведения о результатах поверки переданы в ФИФ ОЕИ."))
+    (footer 
+      (p "Страница 1 из "
+        (span {:contenteditable "true"} 2)))))
+
+(defn page_2
+  "Приложение к протоколу поверки."
+  [m]
+  (section {:class "page_2"}
+    (header {:class "header2"}
+      (p
+        "Приложение к протоколу первичной поверки "
+        (str "№ " (get-in m [:protocol :department])
+        "/" (get-in m [:protocol :engineer])
+        "-" (get-in m [:protocol :protocol_number])
+        "-" (get-in m [:protocol :year]) " от "
+        (time (date-iso->local (get-in m [:protocol :date])))
+        " г.")))
+    (main)
+    (footer
+      (p
+        "Страница 2 из "
+        (span {:contenteditable "true"} "2")))))
+
+(defn protocol
+  ""
+  [m]
+    (article
+      (page_1 m)
+      (page_2 m)))
+
+(defn protocols
+  ""
+  []
+  (bsp->nbsp
+    (doctype
+      (html
+        (head
+          (meta {:charset "utf-8"})
+          (meta {:name "author" :content "Aleksandr Ermolaev"})
+          (meta {:name "e-mail" :content "ave6990@ya.ru"})
+          (meta {:name "version" :content "2023-04-19"})
+          (title "protocols"))
+          (style {:type "text/css"} styles)
+          (script {:type "text/javascript"} scripts)
+        (body
+          (protocol (get-protocol-data 2220)))))))
 
 (spit "/media/sf_YandexDisk/Ermolaev/midb/protocol.html"
       (protocols))
@@ -245,5 +283,7 @@ footer > p {
 (require '[clojure.java.jdbc :as jdbc])
 
 (require '[clojure.string :as string])
+
+(require '[clojure.math :as math])
 
 )

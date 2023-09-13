@@ -82,6 +82,7 @@ tts metrology.lib.gen-html
 (html-tag em)
 (html-tag span)
 (html-tag a)
+(html-tag article)
 (html-tag-unpaired meta)
 (html-tag-unpaired br)
 (html-tag-unpaired img)
