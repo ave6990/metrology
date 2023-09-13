@@ -70,6 +70,8 @@ tts metrology.lib.gen-html
 (html-tag main)
 (html-tag footer)
 (html-tag table)
+(html-tag thead)
+(html-tag tbody)
 (html-tag tr)
 (html-tag th)
 (html-tag td)

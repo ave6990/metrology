@@ -30,6 +30,7 @@
                            #"\d+\)?\s+(см|кПа|Па|млн|с|м|кг|г|%|°C|\()"
                            #"(\.|орт)\s+№"
                            #"(№|СО)\s+\d"
+                           #"[а-я]+\s+(НД)"
                            #"(р(\-|ай)он\.?|ул\.?|г\.?|д(ом)?\.?)\s+[№а-яА-Я]+"
                            #"[а-яА-Я]+\s+(р(\-|ай)|обл\.?|ул\.?|г\.?|д\.?)"))
     (apply concat)
@@ -60,7 +61,7 @@
                    (p {:class "comment"} (:comment m))))
              (get-operations id))))))
      
-(defn page_1
+(defn page-1
   [m]
   "Первая страница протокола."
   (section {:class "page_1"}
@@ -70,60 +71,62 @@
       (p "тел/факс (3532) 33-37-05, факс (3532) 33-00-76")
       (p (br))
       (p {:class "capitalize"} "протокол "
-                               (get-in m [:protocol :verification_type])
+                               (:verification_type m)
                               " поверки")
-      (p (str "№ " (get-in m [:protocol :department])
-         "/" (get-in m [:protocol :engineer])
-         "-" (get-in m [:protocol :protocol_number])
-         "-" (get-in m [:protocol :year]) " от "
-         (time (date-iso->local (get-in m [:protocol :date])))
+      (p (str "№ " (:department m)
+         "/" (:engineer m)
+         "-" (:protocol_number m)
+         "-" (:year m) " от "
+         (time (date-iso->local (:date m)))
          " г.")))
     (main
       (field "Наименование, тип"
-             (str (get-in m [:protocol :name])))
+             (str (:name m)))
       (div {:class "two-column"}
         (p
           (strong "Заводской номер: ")
-          (get-in m [:protocol :serial_number]))
+          (:serial_number m))
         (p
           (strong "Год изготовления: ")
-          (get-in m [:protocol :manufacture_year])
+          (:manufacture_year m)
           " г."))
       (field "Регистрационный номер"
-             (get-in m [:protocol :registry_number]))
+             (:registry_number m))
       (field "В составе"
-             (get-in m [:protocol :components]))
+             (:components m))
       (field "Поверено в объеме"
-             (get-in m [:protocol :scope]))
+             (:scope m))
       (field "Наименование, адрес владельца"
-             (str (get-in m [:protocol :counteragent]) "; "
-                  (get-in m [:protocol :address])))
+             (str (:counteragent m) "; "
+                  (:address m)))
       (field "НД на поверку"
-             (get-in m [:protocol :methodology]))
+             (:methodology m))
       (field "Условия поверки"
              (str "температура воздуха: "
-                  (get-in m [:protocol :temperature])
-                  " " (get-in m [:protocol :pr_temperature]) "; "
+                  (:temperature m)
+                  " " (:pr_temperature m) "; "
                   "относительная влажность: "
-                  (get-in m [:protocol :humidity])
-                  " " (get-in m [:protocol :pr_humidity]) "; "
+                  (:humidity m)
+                  " " (:pr_humidity m) "; "
                   "атмосферное давление: "
-                  (get-in m [:protocol :pressure])
-                  " " (get-in m [:protocol :pr_pressure])
-                  (if-let [other (get-in m [:protocol :other])]
+                  (:pressure m)
+                  " " (:pr_pressure m)
+                  (if-let [other (:other m)]
                           other
                           "")))
       (field "Средства поверки"
-             (str (get-in m [:protocol :mi_references])
-                  (if-let [opt-ref (get-in m [:protocol :optional_references])]
+             (str (:mi_references m)
+                  (if-let [opt-ref (:optional_references m)]
                           opt-ref
                           "")))
       (div {:class "field"}
         (p {:class "capitalize"}
           (strong "Результаты поверки")))
-      (operations (get-in m [:protocol :id]))
+      (div {:class "field"}
+        (ol
+          (:operations m)))
       (field "Заключение"
-             (get-in m [:protocol :conclusion]))
+             (:conclusion m))
       (p {:class "sign"}
         "Подпись лица выполнявшего поверку"
         (span {:class "placeholder"} "____________________")
@@ -131,26 +134,76 @@
               :src (str "signs/sign_"
                         (math/round (mod (* 100 (rand)) 72))
                         ".png")})
-        (get-in m [:protocol :engineer_name]))
+        (:engineer_name m))
       (p "Сведения о результатах поверки переданы в ФИФ ОЕИ."))
     (footer 
       (p "Страница 1 из "
         (span {:contenteditable "true"} 2)))))
 
-(defn page_2
+(defn sw-version
+  ""
+  [m]
+  (li {:class "appendix-section"}
+      (p "Подтверждение соответствия программного обеспечения:")
+      (table {:class "measurement-table"}
+        (thead
+          (tr
+            (th "Идентификационное наименование ПО")
+            (th "Идентификационный номер ПО")
+            (if (:sw_version_real m)
+                (th "Действительный идентификационный номер ПО"))
+            (th "Цифровой идентификатор ПО")
+            (th "Алгоритм вычисления цифрового идентификатора ПО"))
+        (tbody
+          (tr
+            (string/join "\n"
+                         (map (fn [s]
+                                  (if s
+                                      (th {:class "centered-cell"} s)))
+                              (list (:sw_name m)
+                                    (:sw_version m)
+                                    (:sw_version_real m)
+                                    (:sw_checksum m)
+                                    (:sw_algorithm m))))))))))
+
+(defn measurements-table
+  ""
+  [coll]
+  (li {:class "appendix-section"}
+    (p "Определение основной погрешности:")
+    (table {:class "measurement-table"}
+      (thead
+        (tr 
+          (th "Канал измерений, диапазон")
+          (th "Опорное значение")
+          (th "Измеренное значение")
+          (th "Действительное значение основной погрешности")
+          (th "Предел допускаемого значение основной погрешности")
+          (th "Вариация показаний")))
+      (tbody
+        (string/join (map (fn [m]
+                              (tr
+                                (td {:class "channel-cell"}
+                                    (str :component))))
+                          coll))))))
+
+(defn page-2
   "Приложение к протоколу поверки."
   [m]
   (section {:class "page_2"}
     (header {:class "header2"}
       (p
         "Приложение к протоколу первичной поверки "
-        (str "№ " (get-in m [:protocol :department])
-        "/" (get-in m [:protocol :engineer])
-        "-" (get-in m [:protocol :protocol_number])
-        "-" (get-in m [:protocol :year]) " от "
-        (time (date-iso->local (get-in m [:protocol :date])))
+        (str "№ " (:department m)
+        "/" (:engineer m)
+        "-" (:protocol_number m)
+        "-" (:year m) " от "
+        (time (date-iso->local (:date m)))
         " г.")))
-    (main)
+    (main
+      (ol
+        (when (:sw_version m)
+              (sw-version m))))
     (footer
       (p
         "Страница 2 из "
@@ -160,12 +213,12 @@
   ""
   [m]
     (article
-      (page_1 m)
-      (page_2 m)))
+      (page-1 m)
+      (page-2 m)))
 
 (defn protocols
   ""
-  []
+  [verifications]
   (bsp->nbsp
     (doctype
       (html
@@ -178,12 +231,20 @@
           (style {:type "text/css"} styles)
           (script {:type "text/javascript"} scripts)
         (body
-          (protocol (get-protocol-data 2220)))))))
+          (string/join "\n"
+                       (map (fn [m] (protocol m))
+                            verifications)))))))
 
-(spit "/media/sf_YandexDisk/Ermolaev/midb/protocol.html"
-      (protocols))
+(defn gen-protocols
+  "Генерирует протоколы поверки в файл protocol.html."
+  [where]
+  (spit "/media/sf_YandexDisk/Ermolaev/midb/protocol.html"
+        (protocols (get-protocols-data where))))
 
-(meta {:charset "utf-8"})
+
+(sw-version (get-protocols-data "id = 1960"))
+
+(gen-protocols "id >= 1960 and id < 1962")
 
 (def styles
 "html {

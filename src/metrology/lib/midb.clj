@@ -135,18 +135,10 @@
     midb
     ["select * from view_v_operations where v_id = ?" id]))
 
-(defn get-protocol
-  ""
-  [id]
-  (first (jdbc/query
-           midb
-           ["select * from protocol where id = ?" id])))
-
 (defn get-record
   "Возвращает hash-map записи о поверке."
   [id]
   (conj (hash-map :verification (get-verification id))
-              (hash-map :protocol (get-protocol id))
               (hash-map :operations
                         (get-v-operations id))
               (map (fn [table]
@@ -160,13 +152,23 @@
                    (list "v_gso" "v_refs" "v_opt_refs"
                     "v_operations" "measurements"))))
 
-(defn get-protocol-data
-  "Возвращает hash-map данных о поверке."
-  [id]
-  (apply conj (hash-map :protocol (get-protocol id))
-              (hash-map :operations
-                        (get-v-operations id))))
- 
+(defn get-protocols-data
+  ""
+  [where]
+  (let [data (jdbc/query
+                midb
+                (str "select * from protocol where " where))
+        measurements (jdbc/query
+                        midb
+                        (str "select * from view_v_measurements where " where))]
+    (map (fn [m]
+             (assoc m
+                    :measurements
+                    (doall (filter (fn [r]
+                                (= (:id r) (:id m)))
+                            measurements))))
+         data)))
+
 (defn get-conditions-by-v-id 
   [id]
   (->>
