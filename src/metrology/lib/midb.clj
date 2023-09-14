@@ -4,7 +4,8 @@
     [clojure.string]
     [clojure.pprint :refer [pprint]]
     [metrology.lib.database :as db]
-    [metrology.lib.midb-queries :as q]))
+    [metrology.lib.midb-queries :as q]
+    [metrology.lib.protocol :as pr]))
 
 (db/defdb midb)
 
@@ -282,21 +283,25 @@
     midb
     ["select * from view_operations where v_id = ?" id]))
 
-(defn tolerance
-  "Возвращает значение допускаемой основной погрешности выраженное
-   в абсолютных единицах.
-   :m (hash-map :value ; error nominal
-                :type_id ; error type
-                :ref_value ; references value
-                :r_from ; start point of range
-                :r_to ; end point of range"
-   [m]
-   (cond (= (:type_id m) 0)
-           (:value m)
-         (= (:type_id m) 1)
-           (double (/ (* (:value m) (:ref_value)) 100))
-         (= (:type_id m) 2)
-           (double (/ (* (:value m) (- (:r_to m) (:r_from m))) 100))))
+(defn gen-protocols
+  "Генерирует протоколы поверки в файл protocol.html."
+  [where]
+  (spit "/media/sf_YandexDisk/Ermolaev/midb/protocol.html"
+        (pr/protocols (get-protocols-data where))))
+
+(defn gen-values!
+  "Записывает в БД случайные значения результатов измерений в пределах
+   основной погрешности."
+  [where]
+  (map (fn [prot] 
+           (map (fn [m]
+                    (jdbc/update!
+                      midb
+                      :measurements
+                      {:value (pr/gen-value m)}
+                      ["id = ?" (:measurement_id m)]))
+                (:measurements prot)))
+       (get-protocols-data where)))
 
 (comment
 

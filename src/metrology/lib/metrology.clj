@@ -18,6 +18,18 @@
   ([x y a b]
     (error x y (- b a))))
 
+(defn variation
+  "Возвращает значение вариации в долях от основной погрешности."
+  ([vg vl v-ref err err-type r-from r-to]
+   (case err-type
+     0 (/ (- vg vl) err)
+     1 (/ (/ (- vg vl) v-ref) err)
+     2 (/ (/ (- vg vl)) (- r-to r-from))))
+  ([vg vl err]
+   (variation vg vl 0 err 1 0 0))
+  ([vg vl v-ref err r-from r-to]
+   (variation vg vl 0 err 2 r-from r-to)))
+
 (defn delta
   "Возвращает границы диапазона значений 
    (value - tolerance, value + tolerance)
@@ -60,11 +72,11 @@
       (if (pos? t-val)
           (* -1 (inc (math/ceil t-val)))
           (* -1 (inc (math/floor t-val)))))]
-    (+ (round val exp)
-       (* discrete-val
-          (round (double (/ 
-                           (- val (round val exp))
-                           discrete-val)))))))
+    (round (+ (round val exp)
+     (* discrete-val
+        (round (double (/ 
+                         (- val (round val exp))
+                         discrete-val))))) (inc exp))))
 
 (defn sko
   "Функция вычисления среднего квадратического отклонения."

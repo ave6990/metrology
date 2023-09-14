@@ -1,4 +1,4 @@
-tts metrology.lib.gen-html
+(ns metrology.lib.gen-html
   (:require [clojure.string :as string]))
 
 (defn indent

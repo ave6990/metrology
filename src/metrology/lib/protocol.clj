@@ -1,8 +1,8 @@
 (ns metrology.lib.protocol
-  (:require [metrology.lib.gen-html :refer all]
-            [metrology.lib.midb :refer all]
-            [metrology.lib.metrology :as metr]
-            [clojure.math :as math]))
+  (:require [clojure.math :as math]
+            [clojure.string :as string]
+            [metrology.lib.gen-html :refer :all]
+            [metrology.lib.metrology :as metr]))
 
 (defn field
   "Возвращает html поле для вывода данных в протокол."
@@ -47,21 +47,6 @@
           s
           (find-nbsp-place s)))
 
- (defn operations
-  ""
-  [id]
-  (div {:class "field"}
-    (ol
-      (string/join
-        "\n"
-        (map (fn [m]
-                 (li 
-                   (p
-                     (str (:name m) ":")
-                     (em (:result m)))
-                   (p {:class "comment"} (:comment m))))
-             (get-operations id))))))
-     
 (defn page-1
   [m]
   "Первая страница протокола."
@@ -192,7 +177,7 @@
   ""
   [coll]
   (li {:class "appendix-section"}
-    (p "Определение основной погрешности:")
+    (p "Определение метрологических характеристик:")
     (table {:class "measurement-table"}
       (thead
         (tr 
@@ -200,8 +185,7 @@
           (th "Опорное значение")
           (th "Измеренное значение")
           (th "Действительное значение основной погрешности")
-          (th "Предел допускаемого значение основной погрешности")
-          (th "Вариация показаний")))
+          (th "Предел допускаемого значение основной погрешности")))
       (tbody
         (string/join
           (map (fn [m]
@@ -218,14 +202,19 @@
                                 (td {:class "centered-cell"}
                                     (:error res))
                                 (td {:class "centered-cell"}
-                                    (:error_string m))
-                                (td {:class "centered-cell"}
-                                    #_(:value m)
-                                    "-")))
+                                    (:error_string m))))
                          (when (>= (:error_type m) 5)
                            (td {:class "channel-cell" :colspan 5}
                                (if (= (:error_type m) 5)
-                                   ()
+                                   (string/replace
+                                     (metr/variation
+                                       (:value_2 m)
+                                       (:value m)
+                                       (:ref_value m)
+                                       (:error m)
+                                       (:error_type m)
+                                       (:r_from m)
+                                       (:r_to m) "." ","))
                                    (:chr_string m)))))))
                coll))))))
 
@@ -258,36 +247,6 @@
     (article
       (page-1 m)
       (page-2 m)))
-
-(defn protocols
-  ""
-  [verifications]
-  (bsp->nbsp
-    (doctype
-      (html
-        (head
-          (meta {:charset "utf-8"})
-          (meta {:name "author" :content "Aleksandr Ermolaev"})
-          (meta {:name "e-mail" :content "ave6990@ya.ru"})
-          (meta {:name "version" :content "2023-04-19"})
-          (title "protocols"))
-          (style {:type "text/css"} styles)
-          (script {:type "text/javascript"} scripts)
-        (body
-          (string/join "\n"
-                       (map (fn [m] (protocol m))
-                            verifications)))))))
-
-(defn gen-protocols
-  "Генерирует протоколы поверки в файл protocol.html."
-  [where]
-  (spit "/media/sf_YandexDisk/Ermolaev/midb/protocol.html"
-        (protocols (get-protocols-data where))))
-
-
-(sw-version (get-protocols-data "id = 1960"))
-
-(gen-protocols "id >= 1960 and id < 1962")
 
 (def styles
 "html {
@@ -381,6 +340,64 @@ footer > p {
     el.style.visibility = el.style.visibility == \"visible\" ? \"hidden\" : \"visible\"
   }
 })")
+
+(defn protocols
+  ""
+  [verifications]
+  (bsp->nbsp
+    (doctype
+      (html
+        (head
+          (meta {:charset "utf-8"})
+          (meta {:name "author" :content "Aleksandr Ermolaev"})
+          (meta {:name "e-mail" :content "ave6990@ya.ru"})
+          (meta {:name "version" :content "2023-04-19"})
+          (title "protocols"))
+          (style {:type "text/css"} styles)
+          (script {:type "text/javascript"} scripts)
+        (body
+          (string/join "\n"
+                       (map (fn [m] (protocol m))
+                            verifications)))))))
+
+(defn tolerance
+  "Возвращает значение допускаемой основной погрешности выраженное
+   в абсолютных единицах.
+   :m (hash-map :value ; error nominal
+                :error_type ; error type
+                :ref_value ; references value
+                :r_from ; start point of range
+                :r_to ; end point of range"
+   [m]
+   (cond (= (:error_type m) 0)
+           (:error m)
+         (= (:error_type m) 1)
+           (double (/ (* (:error m) (:ref_value m)) 100))
+         (= (:error_type m) 2)
+           (double (/ (* (:error m) (- (:r_to m) (:r_from m))) 100))
+         (= (:error_type m) 6)
+           (* (:error m) 0.15)))
+
+(defn gen-value
+  "Возвращает случайное число в пределах основной погрешности."
+  [m]
+  (let [ref (if (= (:error_type m) 6)
+                (* (:error m) 0.8)
+                (:ref_value m))
+        diff (* 0.75 (tolerance m))
+        low-unit (if (= (:error_type m) 6)
+                     1
+                     (if (:low_unit m)
+                         (:low_unit m)
+                         0.1))
+        res (metr/discrete (- (+ ref (* (rand) 2 diff)) diff)
+              low-unit)]
+    (cond (and (:view_range_from m) (< res (:view_range_from m)))
+            (:view_range_from m)
+          (and (:view_range_to m) (> res (:view_range_to m)))
+            (:view_range_to m)
+          :else
+            res)))
 
 (comment
 
