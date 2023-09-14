@@ -105,6 +105,10 @@
       n (range 22)]
       (f 2068 (+ 2069 n)))
 
+(copy-v-operations! 4 8)
+
+(copy-measurements! 4 8)
+
 (pprint @record)
 
 ;; Создать запись о поверке.
@@ -117,8 +121,7 @@
      :counteragent 198
      :conditions 1010
      :verification_type 1
-     :protocol_number 2211
-     :mi_type "СТГ1-1Д10(в)"
+     :protocol_number 2211 :mi_type "СТГ1-1Д10(в)"
      :methodology_id 90
      :serial_number 1198
      :manufacture_year 2005
@@ -136,30 +139,6 @@
      ;:upload
      :comment "Леонтьев"
      ))
-
-;; Обновить запись verification
-(update-record!
-  :verification
-  @record
-  (hash-map
-    :protocol nil
-    :protolang nil
-    :count "9/0029711"
-    :counteragent 10646
-    :conditions 1004
-    :serial_number "KA417-1095585"
-    :manufacture_year 2017
-    :protocol_number nil
-    ;:comment "Леонтьев"
-    ;:channels
-    ;:components
-    ;:scope
-    ;:sw_name 8320039
-    ;:sw_version "не ниже V6.9"
-    ;:sw_checksum "F8B9"
-    ;:sw_algorithm "CRC-16"
-    ;:sw_version_real "V3.04"
-    ))
 
 ;;Добавить ГСО
 (jdbc/insert!
@@ -205,11 +184,8 @@
 
 (get-last)
 
+;; Методика поверки
 (jdbc/query midb [q/get-methodology "%19437%"])
-
-;; documentations
-
-(require '[clojure.repl :refer :all])
 
 ;; Методику добавить
 (jdbc/insert!
@@ -236,34 +212,62 @@
   midb
   :verification_operations
   (hash-map
-    :methodology_id 369
+    :methodology_id 326
     :section "6.5"
     :name "Проверка программного обеспечения"
     :verification_type 1
     ;:comment "См. в приложении к протоколу."
     ))
 
+(/ 2.14 4.4)
+
+;; Измерения
+(jdbc/insert!
+  midb
+  :measurements
+  (hash-map
+    :v_id 4
+    :metrology_id 1107
+    :operation_id 1167
+    :ref_value 48.64 
+    ))
+
 ;; Каналы и МХ
 (ins-channel!
-  {:methodology_id 369
+  {:methodology_id 326
    :channel nil
-   :component "O₂"
+   :component "H₂S"
    :range_from 0
-   :range_to 100
-   :units "% об."
+   :range_to 40
+   :units "мг/м³"
    :low_unit 0.1
-   :view_range_from nil
-   :view_range_to nil
+   :view_range_from 0
+   :view_range_to 40
    :comment nil}
   (list {:r_from 0
-         :r_to 100
+         :r_to 10
          :value 2
          :type_id 0
          :units nil
-         :comment nil}))
+         :comment nil}
+        {:r_from 10
+         :r_to 40
+         :value 20
+         :type_id 1
+         :units nil
+         :comment nil}
+        {:value 30
+         :type_id 6
+         :units "с"}))
 
 ;; Генерация протоколов поверки
-(gen-protocols "id >= 2220")
+(gen-protocols "id >= 4 and id <= 8")
+
+;; Генерация результатов измерений
+(gen-values! "id >= 4 and id <= 8")
+
+;; documentations
+(require '[clojure.repl :refer :all])
 
 (find-doc "assoc")
 

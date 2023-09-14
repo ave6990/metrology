@@ -169,8 +169,8 @@
         (string/replace
           (case (:error_type m)
                 0 (metr/discrete (:abs err) discrete-val)
-                1 (metr/discrete (:rel err) discrete-val)
-                2 (metr/discrete (:red err) discrete-val))
+                1 (metr/discrete (:rel err) 0.1)
+                2 (metr/discrete (:red err) 0.1))
           "." ","))))
 
 (defn measurements-table
