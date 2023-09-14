@@ -1,6 +1,7 @@
 (ns metrology.lib.protocol
   (:require [metrology.lib.gen-html :refer all]
             [metrology.lib.midb :refer all]
+            [metrology.lib.metrology :as metr]
             [clojure.math :as math]))
 
 (defn field
@@ -166,6 +167,27 @@
                                     (:sw_checksum m)
                                     (:sw_algorithm m))))))))))
 
+(defn metrology-calc
+  ""
+  [m]
+  (let [discrete-val
+          (if (:low_unit m)
+              (:low_unit m)
+              (0.1))
+        val (metr/discrete
+              (:value m)
+              discrete-val)
+        err (metr/error (:ref_value m) val (:r_from m) (:r_to m))]
+    (hash-map
+      :value (string/replace val "." ",")
+      :error
+        (string/replace
+          (case (:error_type m)
+                0 (metr/discrete (:abs err) discrete-val)
+                1 (metr/discrete (:rel err) discrete-val)
+                2 (metr/discrete (:red err) discrete-val))
+          "." ","))))
+
 (defn measurements-table
   ""
   [coll]
@@ -181,11 +203,31 @@
           (th "Предел допускаемого значение основной погрешности")
           (th "Вариация показаний")))
       (tbody
-        (string/join (map (fn [m]
-                              (tr
-                                (td {:class "channel-cell"}
-                                    (str :component))))
-                          coll))))))
+        (string/join
+          (map (fn [m]
+                   (tr
+                     (td {:class "channel-cell"}
+                         (str (:channel_name m)))
+                     (if (< (:error_type m) 3)
+                         (let [res (metrology-calc m)]
+                           (str (td {:class "centered-cell"}
+                                    (string/replace
+                                      (:ref_value m) "." ","))
+                                (td {:class "centered-cell"}
+                                    (:value res))
+                                (td {:class "centered-cell"}
+                                    (:error res))
+                                (td {:class "centered-cell"}
+                                    (:error_string m))
+                                (td {:class "centered-cell"}
+                                    #_(:value m)
+                                    "-")))
+                         (when (>= (:error_type m) 5)
+                           (td {:class "channel-cell" :colspan 5}
+                               (if (= (:error_type m) 5)
+                                   ()
+                                   (:chr_string m)))))))
+               coll))))))
 
 (defn page-2
   "Приложение к протоколу поверки."
@@ -203,7 +245,8 @@
     (main
       (ol
         (when (:sw_version m)
-              (sw-version m))))
+              (sw-version m))
+        (measurements-table (:measurements m))))
     (footer
       (p
         "Страница 2 из "
@@ -346,5 +389,7 @@ footer > p {
 (require '[clojure.string :as string])
 
 (require '[clojure.math :as math])
+
+(require '[metrology.lib.metrology :as metr])
 
 )

@@ -6,8 +6,10 @@
   "Порешность измерения."
   ([x y]
     {:abs (- x y)
-      :rel (* (double (/ (- x y) y)) 100)
-      :red nil})
+     :rel (if (not (zero? y))
+              (* (double (/ (- x y) y)) 100)
+              nil)
+     :red nil})
   ([x y a]
     (let [res (error x y)]
       {:abs (:abs res)
