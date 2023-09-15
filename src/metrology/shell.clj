@@ -268,18 +268,14 @@
          :units "с"}))
 
 ;; Генерация протоколов поверки
-(gen-protocols "id >= 392 and id <= 418")
+(gen-protocols "id >= 2220 and id <= 2227")
 
 ;; Генерация результатов измерений
 (gen-values! "id >= 2220 and id <= 2227")
 
 (gen-values! "id = 2220")
 
-(pr/gen-value (get (vec (:measurements (first (get-protocols-data "id = 2220")))) 8))
-
-(pr/gen-value {:error 15 :error_type 6})
-
-(* 2.25 0.75)
+(pr/gen-value (get (vec (:measurements (first (get-protocols-data "id = 2220")))) 7))
 
 ;; documentations
 (require '[clojure.repl :refer :all])

@@ -173,7 +173,16 @@
                 (metr/error val
                             (metr/discrete (:ref_value m) discrete-val)
                             (:r_from m)
-                            (:r_to m)))]
+                            (:r_to m)))
+        variation (if (:value_2 m)
+                      (metr/variation
+                         (:value_2 m)
+                         (:value m)
+                         (:ref_value m)
+                         (:error m)
+                         (:error_type m)
+                         (:r_from m)
+                         (:r_to m)))]
     (if (:value m)
         (hash-map
           :value (string/replace val "." ",")
@@ -183,8 +192,14 @@
                     0 (metr/discrete (:abs err) discrete-val)
                     1 (metr/discrete (:rel err) 0.1)
                     2 (metr/discrete (:red err) 0.1))
-              "." ","))
-        (hash-map :value "-" :error "-"))))
+              "." ",")
+          :variation
+            (if (not= variation nil)
+                (string/replace
+                  variation
+                  "." ",")
+                nil))
+        (hash-map :value "-" :error "-" :variation "-"))))
 
 (defn measurements-table
   ""
@@ -224,15 +239,7 @@
                          (when (>= (:error_type m) 5)
                            (td {:class "channel-cell" :colspan 5}
                                (if (= (:error_type m) 5)
-                                   (string/replace
-                                     (metr/variation
-                                       (:value_2 m)
-                                       (:value m)
-                                       (:ref_value m)
-                                       (:error m)
-                                       (:error_type m)
-                                       (:r_from m)
-                                       (:r_to m) "." ","))
+                                   (str "вариация показаний: " #_(:variation (metrology-calc m)))
                                    (:chr_string m)))))))
                coll))))))
 
@@ -411,12 +418,14 @@ footer > p {
                          (:low_unit m)
                          0.1))
         res (metr/discrete (- (+ ref (* (rand) 2 diff)) diff)
-              low-unit)]
+                           low-unit)]
     (if (< (:error_type m) 3)
         (cond (and (:view_range_from m) (< res (:view_range_from m)))
                 (:view_range_from m)
               (and (:view_range_to m) (> res (:view_range_to m)))
-                (:view_range_to m))
+                (:view_range_to m)
+              :else
+                res)
         res)))
 
 (comment

@@ -251,12 +251,6 @@
         (vec (map (fn [el] (hash-map :v_id v-id :op_id el :result 1))
                   coll)))))
 
-(defn gen-vals!
-  ""
-  [id]
-  (let [metr (jdbc/query midb [q/metrology id])]
-    ))
-
 (defn ins-channel!
   "Вставить запись канала измерения и метрологических характеристик."
   [ch-obj mc-list]
@@ -298,8 +292,8 @@
                     (jdbc/update!
                       midb
                       :measurements
-                      {:value (pr/gen-value m)
-                       :value_2 (pr/gen-value m)}
+                      {:value (if (not= (:error_type m) 5)
+                                  (pr/gen-value m))}
                       ["id = ?" (:measurement_id m)]))
                 (:measurements prot)))
        (get-protocols-data where)))
