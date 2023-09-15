@@ -2,24 +2,24 @@
 (def current (atom nil))
 (def protocol (atom nil))
 
-(pprint (find-mi "Ока"))
+(pprint (find-mi "Сенсон"))
 
 (pprint (find-methodology "Ока"))
 
-(pprint (find-counteragent "ОРЕНБУ%МИНЕР"))
+(pprint (find-counteragent "СЖС%ВОСТ"))
 
 (reset! record (get-record 2220))
 
 (pprint (reset! protocol (get-protocol-data 2220)))
 
 ;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 2224))
-     (range 3))
+(map (fn [s] (copy-record! 2230))
+     (range 1))
 
-(let [nums (map (fn [n] (str "21031" n))
-                (list 93 94 96))
-      start-id 2225
-      start-protocol-number 2222]
+(let [nums (map (fn [n] (str "19110" n))
+                (list 153))
+      start-id 2231
+      start-protocol-number 2216]
   (map (fn [n i]
          (jdbc/update!
            midb
@@ -27,15 +27,16 @@
            (hash-map
              :protocol nil
              :protolang nil
-             :count "9/002803"
-             :counteragent 78
+             :count "9/002866"
+             :counteragent 230
              :conditions 1010
              :serial_number n
-             :manufacture_year 2021
+             :manufacture_year 2019
              :protocol_number (+ start-protocol-number i)
-             ;:comment "Леонтьев"
+             :comment "Леонтьев"
+             :upload 1
              ;:channels
-             ;:components "БД горючих газов №№: "
+             :components "датчик № СМ19110124"
              ;:scope
              ;:sw_name 8320039
              ;:sw_version "не ниже V6.9"
@@ -55,9 +56,9 @@
      (range 13))
 
 ;; Удалить запись
-(delete-record! 2216)
+(delete-record! 2230)
 
-(pprint (get-conditions "2023-09-07"))
+(pprint (get-conditions "2023-09-11"))
 
 (insert-conditions! {:date "2023-09-12"
                      :temperature 22.7
@@ -73,10 +74,10 @@
 (pprint (:verification @record))
 
 ;Установить ГСО по номерам паспортов ГСО.
-(set-v-gso! 2215
+(set-v-gso! 2231
             (map (fn [m]
                      (:id m))
-                 (check-gso (list "13305-22" "12211-22")
+                 (check-gso (list "08198-23")
                             "pass_number")))
 
 (set-v-gso! 2224 
@@ -107,7 +108,8 @@
 
 (copy-v-operations! 4 8)
 
-(copy-measurements! 4 8)
+(map (fn [v] (copy-measurements! 2224 v))
+     (range 2225 2228))
 
 (pprint @record)
 
@@ -219,57 +221,70 @@
     ;:comment "См. в приложении к протоколу."
     ))
 
-(/ 2.14 4.4)
+(/ 4.23 4.4)
 
 ;; Измерения
-(jdbc/insert!
-  midb
-  :measurements
-  (hash-map
-    :v_id 4
-    :metrology_id 1107
-    :operation_id 1167
-    :ref_value 48.64 
-    ))
+(map (fn [ref]
+         (jdbc/insert!
+           midb
+           :measurements
+           (hash-map
+             :v_id 2224
+             :metrology_id 1118
+             :operation_id 850
+             :ref_value ref
+             )))
+    (list nil))
 
 ;; Каналы и МХ
 (ins-channel!
-  {:methodology_id 326
+  {:methodology_id 68
    :channel nil
-   :component "H₂S"
+   :component "CH₄"
    :range_from 0
-   :range_to 40
-   :units "мг/м³"
-   :low_unit 0.1
+   :range_to 2.2
+   :units "% об."
+   :low_unit 0.01
    :view_range_from 0
-   :view_range_to 40
+   :view_range_to 5
    :comment nil}
   (list {:r_from 0
-         :r_to 10
-         :value 2
-         :type_id 0
+         :r_to 0.88
+         :value 25
+         :type_id 2
          :units nil
          :comment nil}
-        {:r_from 10
-         :r_to 40
-         :value 20
+        {:r_from 0.88
+         :r_to 2.2
+         :value 25
          :type_id 1
          :units nil
          :comment nil}
-        {:value 30
+        {:value 0.5
+         :type_id 5
+         :units ""}
+        {:value 15
          :type_id 6
          :units "с"}))
 
 ;; Генерация протоколов поверки
-(gen-protocols "id >= 4 and id <= 8")
+(gen-protocols "id >= 392 and id <= 418")
 
 ;; Генерация результатов измерений
-(gen-values! "id >= 4 and id <= 8")
+(gen-values! "id >= 2220 and id <= 2227")
+
+(gen-values! "id = 2220")
+
+(pr/gen-value (get (vec (:measurements (first (get-protocols-data "id = 2220")))) 8))
+
+(pr/gen-value {:error 15 :error_type 6})
+
+(* 2.25 0.75)
 
 ;; documentations
 (require '[clojure.repl :refer :all])
 
-(find-doc "assoc")
+(find-doc "assoc
 
 (doc get-in)
 

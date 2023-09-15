@@ -148,9 +148,15 @@
                                       (th {:class "centered-cell"} s)))
                               (list (:sw_name m)
                                     (:sw_version m)
-                                    (:sw_version_real m)
-                                    (:sw_checksum m)
-                                    (:sw_algorithm m))))))))))
+                                    (if (:sw_version_real m)
+                                        (:sw_version_real m)
+                                        nil)
+                                    (if (:sw_checksum m)
+                                        (:sw_checksum m)
+                                        "-")
+                                    (if (:sw_checksum m)
+                                        (:sw_algorithm m)
+                                        "-"))))))))))
 
 (defn metrology-calc
   ""
@@ -158,20 +164,27 @@
   (let [discrete-val
           (if (:low_unit m)
               (:low_unit m)
-              (0.1))
-        val (metr/discrete
-              (:value m)
-              discrete-val)
-        err (metr/error (:ref_value m) val (:r_from m) (:r_to m))]
-    (hash-map
-      :value (string/replace val "." ",")
-      :error
-        (string/replace
-          (case (:error_type m)
-                0 (metr/discrete (:abs err) discrete-val)
-                1 (metr/discrete (:rel err) 0.1)
-                2 (metr/discrete (:red err) 0.1))
-          "." ","))))
+              0.1)
+        val (if (:value m)
+                (metr/discrete
+                  (:value m)
+                  discrete-val))
+        err (if (:value m)
+                (metr/error val
+                            (metr/discrete (:ref_value m) discrete-val)
+                            (:r_from m)
+                            (:r_to m)))]
+    (if (:value m)
+        (hash-map
+          :value (string/replace val "." ",")
+          :error
+            (string/replace
+              (case (:error_type m)
+                    0 (metr/discrete (:abs err) discrete-val)
+                    1 (metr/discrete (:rel err) 0.1)
+                    2 (metr/discrete (:red err) 0.1))
+              "." ","))
+        (hash-map :value "-" :error "-"))))
 
 (defn measurements-table
   ""
@@ -196,7 +209,12 @@
                          (let [res (metrology-calc m)]
                            (str (td {:class "centered-cell"}
                                     (string/replace
-                                      (:ref_value m) "." ","))
+                                      (metr/discrete
+                                        (:ref_value m)
+                                        (if (:low_unit m)
+                                            (:low_unit m)
+                                            0.1))
+                                      "." ","))
                                 (td {:class "centered-cell"}
                                     (:value res))
                                 (td {:class "centered-cell"}
@@ -224,7 +242,9 @@
   (section {:class "page_2"}
     (header {:class "header2"}
       (p
-        "Приложение к протоколу первичной поверки "
+        (str "Приложение к протоколу " 
+             (:verification_type m)
+             " поверки ")
         (str "№ " (:department m)
         "/" (:engineer m)
         "-" (:protocol_number m)
@@ -392,12 +412,12 @@ footer > p {
                          0.1))
         res (metr/discrete (- (+ ref (* (rand) 2 diff)) diff)
               low-unit)]
-    (cond (and (:view_range_from m) (< res (:view_range_from m)))
-            (:view_range_from m)
-          (and (:view_range_to m) (> res (:view_range_to m)))
-            (:view_range_to m)
-          :else
-            res)))
+    (if (< (:error_type m) 3)
+        (cond (and (:view_range_from m) (< res (:view_range_from m)))
+                (:view_range_from m)
+              (and (:view_range_to m) (> res (:view_range_to m)))
+                (:view_range_to m))
+        res)))
 
 (comment
 

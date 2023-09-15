@@ -298,7 +298,8 @@
                     (jdbc/update!
                       midb
                       :measurements
-                      {:value (pr/gen-value m)}
+                      {:value (pr/gen-value m)
+                       :value_2 (pr/gen-value m)}
                       ["id = ?" (:measurement_id m)]))
                 (:measurements prot)))
        (get-protocols-data where)))
