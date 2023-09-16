@@ -280,7 +280,7 @@
 (defn gen-protocols
   "Генерирует протоколы поверки в файл protocol.html."
   [where]
-  (spit "/media/sf_YandexDisk/Ermolaev/midb/protocol.html"
+  (spit "/mnt/d/UserData/YandexDisk/Ermolaev/midb/protocol.html" ;"/media/sf_YandexDisk/Ermolaev/midb/protocol.html"
         (pr/protocols (get-protocols-data where))))
 
 (defn gen-values!

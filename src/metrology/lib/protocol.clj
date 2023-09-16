@@ -9,7 +9,7 @@
   [name value]
   (div {:class "field"}
     (p
-      (strong (str name ": "))
+      (strong (str name ":"))
       (str value "."))))
 
 (defn date-iso->local
@@ -70,12 +70,12 @@
              (str (:name m)))
       (div {:class "two-column"}
         (p
-          (strong "Заводской номер: ")
-          (:serial_number m))
+          (strong "Заводской номер:")
+          (str (:serial_number m) "."))
         (p
-          (strong "Год изготовления: ")
+          (strong "Год изготовления:")
           (:manufacture_year m)
-          " г."))
+          "г."))
       (field "Регистрационный номер"
              (:registry_number m))
       (field "В составе"
@@ -174,15 +174,18 @@
                             (metr/discrete (:ref_value m) discrete-val)
                             (:r_from m)
                             (:r_to m)))
-        variation (if (:value_2 m)
-                      (metr/variation
-                         (:value_2 m)
-                         (:value m)
-                         (:ref_value m)
-                         (:error m)
-                         (:error_type m)
-                         (:r_from m)
-                         (:r_to m)))]
+        vari (if (:value_2 m)
+                      (metr/round 
+                        (metr/variation
+                          (:value_2 m)
+                          (:value m)
+                          (:ref_value m)
+                          (:error m)
+                          (:error_type m)
+                          (:r_from m)
+                          (:r_to m))
+                        2)
+                      "-")]
     (if (:value m)
         (hash-map
           :value (string/replace val "." ",")
@@ -194,11 +197,9 @@
                     2 (metr/discrete (:red err) 0.1))
               "." ",")
           :variation
-            (if (not= variation nil)
-                (string/replace
-                  variation
-                  "." ",")
-                nil))
+            (string/replace
+              vari
+              "." ","))
         (hash-map :value "-" :error "-" :variation "-"))))
 
 (defn measurements-table
@@ -213,7 +214,8 @@
           (th "Опорное значение")
           (th "Измеренное значение")
           (th "Действительное значение основной погрешности")
-          (th "Предел допускаемого значение основной погрешности")))
+          (th "Предел допускаемого значение основной погрешности")
+          (th "Вариация показаний")))
       (tbody
         (string/join
           (map (fn [m]
@@ -235,12 +237,14 @@
                                 (td {:class "centered-cell"}
                                     (:error res))
                                 (td {:class "centered-cell"}
-                                    (:error_string m))))
-                         (when (>= (:error_type m) 5)
+                                    (:error_string m))
+                                (td {:class "centered-cell"}
+                                    (if (:variation res)
+                                      (:variation res)
+                                      "-"))))
+                         (when (> (:error_type m) 5)
                            (td {:class "channel-cell" :colspan 5}
-                               (if (= (:error_type m) 5)
-                                   (str "вариация показаний: " #_(:variation (metrology-calc m)))
-                                   (:chr_string m)))))))
+                               (:chr_string m))))))
                coll))))))
 
 (defn page-2

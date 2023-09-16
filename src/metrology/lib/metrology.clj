@@ -22,9 +22,9 @@
   "Возвращает значение вариации в долях от основной погрешности."
   ([vg vl v-ref err err-type r-from r-to]
    (case err-type
-     0 (/ (- vg vl) err)
-     1 (/ (/ (- vg vl) v-ref) err)
-     2 (/ (/ (- vg vl)) (- r-to r-from))))
+     0 (double (/ (- vg vl) err))
+     1 (* 100 (double (/ (- vg vl) v-ref err)))
+     2 (* 100 (double (/ (- vg vl) (- r-to r-from) err)))))
   ([vg vl err]
    (variation vg vl 0 err 1 0 0))
   ([vg vl v-ref err r-from r-to]
