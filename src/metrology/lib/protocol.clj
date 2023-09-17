@@ -47,24 +47,45 @@
           s
           (find-nbsp-place s)))
 
+(defn protocol-number
+  [m]
+  (str (:department m)
+       "/" (:engineer m)
+       "-" (:protocol_number m)
+       "-" (:year m)))
+
+(defn protocol-header
+  ""
+  [m]
+  (header {:class "header1"}
+          (p "ФБУ «ОРЕНБУРГСКИЙ ЦСМ»")
+          (p "460021, Оренбург, ул.60 лет Октября, 2 «Б»")
+          (p "тел/факс (3532) 33-37-05, факс (3532) 33-00-76")
+          (p (br))
+          (p {:class "capitalize"} "протокол "
+                                   (:verification_type m)
+                                  " поверки")
+          (p "№"
+             (protocol-number m)
+             "от"
+             (time (date-iso->local (:date m)))
+             "г.")))
+
+(defn page-footer
+  ""
+  [n-page count-page]
+    (footer 
+      (p "Страница"
+         n-page
+         "из"
+        (span {:contenteditable "true"}
+              count-page))))
+
 (defn page-1
   [m]
   "Первая страница протокола."
   (section {:class "page_1"}
-    (header {:class "header1"}
-      (p "ФБУ «ОРЕНБУРГСКИЙ ЦСМ»")
-      (p "460021, Оренбург, ул.60 лет Октября, 2 «Б»")
-      (p "тел/факс (3532) 33-37-05, факс (3532) 33-00-76")
-      (p (br))
-      (p {:class "capitalize"} "протокол "
-                               (:verification_type m)
-                              " поверки")
-      (p (str "№ " (:department m)
-         "/" (:engineer m)
-         "-" (:protocol_number m)
-         "-" (:year m) " от "
-         (time (date-iso->local (:date m)))
-         " г.")))
+    (protocol-header m)
     (main
       (field "Наименование, тип"
              (str (:name m)))
@@ -122,9 +143,7 @@
                         ".png")})
         (:engineer_name m))
       (p "Сведения о результатах поверки переданы в ФИФ ОЕИ."))
-    (footer 
-      (p "Страница 1 из "
-        (span {:contenteditable "true"} 2)))))
+    (page-footer 1 2)))
 
 (defn sw-version
   ""
@@ -267,10 +286,7 @@
         (when (:sw_version m)
               (sw-version m))
         (measurements-table (:measurements m))))
-    (footer
-      (p
-        "Страница 2 из "
-        (span {:contenteditable "true"} "2")))))
+    (page-footer 2 2)))
 
 (defn protocol
   ""
