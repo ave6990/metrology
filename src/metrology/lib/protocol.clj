@@ -65,8 +65,7 @@
           (p {:class "capitalize"} "протокол "
                                    (:verification_type m)
                                   " поверки")
-          (p "№"
-             (protocol-number m)
+          (p (str "№ " (protocol-number m))
              "от"
              (time (date-iso->local (:date m)))
              "г.")))
@@ -95,8 +94,8 @@
           (str (:serial_number m) "."))
         (p
           (strong "Год изготовления:")
-          (:manufacture_year m)
-          "г."))
+          (str (:manufacture_year m)
+               " г.")))
       (field "Регистрационный номер"
              (:registry_number m))
       (field "В составе"
@@ -224,47 +223,48 @@
 (defn measurements-table
   ""
   [coll]
-  (li {:class "appendix-section"}
-    (p "Определение метрологических характеристик:")
-    (table {:class "measurement-table"}
-      (thead
-        (tr 
-          (th "Канал измерений, диапазон")
-          (th "Опорное значение")
-          (th "Измеренное значение")
-          (th "Действительное значение основной погрешности")
-          (th "Предел допускаемого значение основной погрешности")
-          (th "Вариация показаний")))
-      (tbody
-        (string/join
-          (map (fn [m]
-                   (tr
-                     (td {:class "channel-cell"}
-                         (str (:channel_name m)))
-                     (if (< (:error_type m) 3)
-                         (let [res (metrology-calc m)]
-                           (str (td {:class "centered-cell"}
-                                    (string/replace
-                                      (metr/discrete
-                                        (:ref_value m)
-                                        (if (:low_unit m)
-                                            (:low_unit m)
-                                            0.1))
-                                      "." ","))
-                                (td {:class "centered-cell"}
-                                    (:value res))
-                                (td {:class "centered-cell"}
-                                    (:error res))
-                                (td {:class "centered-cell"}
-                                    (:error_string m))
-                                (td {:class "centered-cell"}
-                                    (if (:variation res)
-                                      (:variation res)
-                                      "-"))))
-                         (when (> (:error_type m) 5)
-                           (td {:class "channel-cell" :colspan 5}
-                               (:chr_string m))))))
-               coll))))))
+  (if (not (zero? (count coll)))
+    (li {:class "appendix-section"}
+      (p "Определение метрологических характеристик:")
+      (table {:class "measurement-table"}
+        (thead
+          (tr 
+            (th "Канал измерений, диапазон")
+            (th "Опорное значение")
+            (th "Измеренное значение")
+            (th "Действительное значение основной погрешности")
+            (th "Предел допускаемого значение основной погрешности")
+            (th "Вариация показаний")))
+        (tbody
+          (string/join
+            (map (fn [m]
+                     (tr
+                       (td {:class "channel-cell"}
+                           (str (:channel_name m)))
+                       (if (< (:error_type m) 3)
+                           (let [res (metrology-calc m)]
+                             (str (td {:class "centered-cell"}
+                                      (string/replace
+                                        (metr/discrete
+                                          (:ref_value m)
+                                          (if (:low_unit m)
+                                              (:low_unit m)
+                                              0.1))
+                                        "." ","))
+                                  (td {:class "centered-cell"}
+                                      (:value res))
+                                  (td {:class "centered-cell"}
+                                      (:error res))
+                                  (td {:class "centered-cell"}
+                                      (:error_string m))
+                                  (td {:class "centered-cell"}
+                                      (if (:variation res)
+                                        (:variation res)
+                                        "-"))))
+                           (when (> (:error_type m) 5)
+                             (td {:class "channel-cell" :colspan 5}
+                                 (:chr_string m))))))
+                 coll)))))))
 
 (defn page-2
   "Приложение к протоколу поверки."

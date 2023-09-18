@@ -2,24 +2,26 @@
 (def current (atom nil))
 (def protocol (atom nil))
 
-(pprint (find-mi "Сенсон"))
+(load-icu)
 
-(pprint (find-methodology "Ока"))
+(pprint (find-mi "58111"))
 
-(pprint (find-counteragent "СЖС%ВОСТ"))
+(pprint (find-methodology "58111"))
+
+(pprint (find-counteragent "СТРЕЛА"))
 
 (reset! record (get-record 2220))
 
 (pprint (reset! protocol (get-protocol-data 2220)))
 
 ;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 2230))
-     (range 1))
+(map (fn [s] (copy-record! 1078))
+     (range 2))
 
-(let [nums (map (fn [n] (str "19110" n))
-                (list 153))
-      start-id 2231
-      start-protocol-number 2216]
+(let [nums (map (fn [n] (str "" n))
+                (list 6303))
+      start-id 2242
+      start-protocol-number 2237]
   (map (fn [n i]
          (jdbc/update!
            midb
@@ -27,16 +29,16 @@
            (hash-map
              :protocol nil
              :protolang nil
-             :count "9/002866"
-             :counteragent 230
-             :conditions 1010
+             :count "9/0029824"
+             :counteragent 6862
+             :conditions 1011
              :serial_number n
-             :manufacture_year 2019
+             :manufacture_year 2021
              :protocol_number (+ start-protocol-number i)
-             :comment "Леонтьев"
-             :upload 1
+             ;:comment "Леонтьев"
+             ;:upload 1
              ;:channels
-             :components "датчик № СМ19110124"
+             ;:components "O₂ (кислород); CH₄ (метан); CO₂ (диоксид углерода)"
              ;:scope
              ;:sw_name 8320039
              ;:sw_version "не ниже V6.9"
@@ -58,13 +60,13 @@
 ;; Удалить запись
 (delete-record! 2230)
 
-(pprint (get-conditions "2023-09-11"))
+(pprint (get-conditions "2023-09-13"))
 
-(insert-conditions! {:date "2023-09-12"
-                     :temperature 22.7
-                     :humidity 51.3
-                     :pressure 100.23
-                     :voltage 224.6
+(insert-conditions! {:date "2023-09-14"
+                     :temperature 22.8
+                     :humidity 53.7
+                     :pressure 100.25
+                     :voltage 220.9
                      ;:other "расход ГС (0,1 - 0,3) л/мин."
                      ;:location "ОГЗ"
                      ;:comment ""
@@ -119,15 +121,16 @@
   :verification
   (hash-map
      :engineer 3514
-     :count "9/0029591"
-     :counteragent 198
-     :conditions 1010
+     :count "9/0029829"
+     :counteragent 12
+     :conditions 1012
      :verification_type 1
-     :protocol_number 2211 :mi_type "СТГ1-1Д10(в)"
-     :methodology_id 90
-     :serial_number 1198
-     :manufacture_year 2005
-     :channels 2
+     :protocol_number 2238
+     :mi_type "SGW CO0 NX"
+     :methodology_id 280
+     :serial_number 226556
+     :manufacture_year 2014
+     :channels 1
      :area "05"
      :interval 12
      ;:components
@@ -171,7 +174,7 @@
 (pprint (filter (fn [m] (not= "" (:expiration m)))
         (all-refs 345)))
 
-(pprint (all-refs 2215))
+(pprint (all-refs 1078))
 
 (map (fn [m] (:serial_number m)) (all-refs @current))
 
@@ -209,16 +212,26 @@
    :other nil
    :limited nil})
 
+;; Методика поверки - изменить запись
+(jdbc/update!
+  midb
+  :methodology
+  {:temperature "20 ± 5"
+   :humidity "30 ÷ 80"
+   :pressure "101.3 ± 4.0"}
+  ["id = ?" 280])
+
 ;; Операции методики поверки
 (jdbc/insert!
   midb
   :verification_operations
   (hash-map
-    :methodology_id 326
-    :section "6.5"
-    :name "Проверка программного обеспечения"
+    :methodology_id 280
+    :section "6.3"
+    :name "Подтверждение соответствия программного обеспечения (для сигнализаторов
+    "
     :verification_type 1
-    ;:comment "См. в приложении к протоколу."
+    :comment "См. в приложении к протоколу."
     ))
 
 (/ 4.23 4.4)
@@ -267,11 +280,20 @@
          :type_id 6
          :units "с"}))
 
+;; Контрагенты изменение записи
+(jdbc/update!
+  midb
+  :counteragents
+  {:address "460028, Оренбургская область, город Оренбург, улица Заводская, 30"
+   :name "ОАО «НЕФТЕМАСЛОЗАВОД»"
+   :short_name "ОАО «НЕФТЕМАСЛОЗАВОД»"}
+  ["id = ?" 4274])
+
 ;; Генерация протоколов поверки
-(gen-protocols "id >= 2220 and id <= 2227")
+(gen-protocols "id >= 2241 and id <= 2242")
 
 ;; Генерация результатов измерений
-(gen-values! "id >= 2220 and id <= 2227")
+(gen-values! "id >= 2236 and id <= 2240")
 
 (gen-values! "id = 2220")
 

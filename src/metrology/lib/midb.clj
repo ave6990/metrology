@@ -9,6 +9,15 @@
 
 (db/defdb midb)
 
+(defn load-icu
+  ;; {TOFIX} не работает.
+  []
+  (try
+    (jdbc/query
+      midb
+      "select load_extension('/media/sf_YandexDisk/Ermolaev/midb/icu.so');")
+    (catch Exception e (print e))))
+
 (defn get-last-id
   "Получить id последней записи заданной таблицы."
   [s]
