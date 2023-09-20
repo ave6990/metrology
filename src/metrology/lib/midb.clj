@@ -5,9 +5,11 @@
     [clojure.pprint :refer [pprint]]
     [metrology.lib.database :as db]
     [metrology.lib.midb-queries :as q]
+    [metrology.lib.chemistry :as ch]
     [metrology.lib.protocol :as pr]))
 
 (db/defdb midb)
+(db/defdb auto)
 
 (defn load-icu
   ;; {TOFIX} не работает.

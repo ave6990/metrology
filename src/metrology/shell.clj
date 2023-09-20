@@ -4,24 +4,24 @@
 
 (load-icu)
 
-(pprint (find-mi "58111"))
+(pprint (find-mi "Микросенс"))
 
 (pprint (find-methodology "58111"))
 
-(pprint (find-counteragent "СТРЕЛА"))
+(pprint (find-counteragent "ОГПЗ"))
 
 (reset! record (get-record 2220))
 
 (pprint (reset! protocol (get-protocol-data 2220)))
 
 ;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 1078))
-     (range 2))
+(map (fn [s] (copy-record! 2327))
+     (range 3))
 
-(let [nums (map (fn [n] (str "" n))
-                (list 6303))
-      start-id 2242
-      start-protocol-number 2237]
+(let [nums (map (fn [n] (str "040" n))
+                (list "091" "106" "117" "118"))
+      start-id 2327
+      start-protocol-number 2319]
   (map (fn [n i]
          (jdbc/update!
            midb
@@ -29,46 +29,49 @@
            (hash-map
              :protocol nil
              :protolang nil
-             :count "9/0029824"
-             :counteragent 6862
-             :conditions 1011
+             :count "9/0029899"
+             :counteragent 166
+             :conditions 1015
              :serial_number n
-             :manufacture_year 2021
+             :manufacture_year 2020
              :protocol_number (+ start-protocol-number i)
              ;:comment "Леонтьев"
              ;:upload 1
-             ;:channels
-             ;:components "O₂ (кислород); CH₄ (метан); CO₂ (диоксид углерода)"
+             ;:channels 3
+             ;:components "БД №№: 22878, 22335"
              ;:scope
              ;:sw_name 8320039
              ;:sw_version "не ниже V6.9"
              ;:sw_checksum "F8B9"
              ;:sw_algorithm "CRC-16"
-             ;:sw_version_real "V3.04"
+             ;:sw_version_real "v7044"
              )
            ["id = ?" (+ start-id i)]))
        nums
        (range (count nums))))
 
+(map (fn [id] (copy-v-gso! 2308 id))
+     (range 2301 2327))
+
 (copy-v-gso! 2123 2144)
 
 ;; Удалить записи с id >=
 (map (fn [i]
-         (delete-record! (+ 2117 i)))
-     (range 13))
+         (delete-record! (+ 2308 i)))
+     (range 19))
 
 ;; Удалить запись
-(delete-record! 2230)
+(delete-record! 2305)
 
-(pprint (get-conditions "2023-09-13"))
+(pprint (get-conditions "2023-09-18"))
 
 (insert-conditions! {:date "2023-09-14"
-                     :temperature 22.8
-                     :humidity 53.7
+                     :temperature 20.3
+                     :humidity 60.2
                      :pressure 100.25
-                     :voltage 220.9
+                     :voltage 223.3
                      ;:other "расход ГС (0,1 - 0,3) л/мин."
-                     ;:location "ОГЗ"
+                     :location "УЭСП"
                      ;:comment ""
                      })
 
@@ -76,20 +79,22 @@
 (pprint (:verification @record))
 
 ;Установить ГСО по номерам паспортов ГСО.
-(set-v-gso! 2231
+(set-v-gso! 2243
             (map (fn [m]
                      (:id m))
                  (check-gso (list "08198-23")
                             "pass_number")))
 
-(set-v-gso! 2224 
-            (list 315))
+(set-v-gso! 2300 
+            (list 347))
 
-(set-v-refs! 2219
-             (list 2765 2820))
+(set-v-refs! 2276
+             (list 2846 2820))
 
-(set-v-opt-refs! 2216
-                 (list 2643 2758 2831 2756 2670))
+(delete-v-refs! 2260)
+
+(set-v-opt-refs! 2243
+                 (list 2831 2643 2670 2762 2756))
 
 (set-v-operations! 2216
                    (list 60 608 1063 1672 1673))
@@ -105,13 +110,15 @@
 
 ;; Копировать ГСО, эталоны, операции и результаты измерений в несколько записей.
 (for [f (list copy-v-refs! copy-v-operations! copy-measurements! copy-v-opt-refs!)
-      n (range 22)]
-      (f 2068 (+ 2069 n)))
+      n (range 10)]
+      (f 2276 (+ 2277 n)))
 
 (copy-v-operations! 4 8)
 
-(map (fn [v] (copy-measurements! 2224 v))
-     (range 2225 2228))
+(map (fn [v] (copy-measurements! 2329 v))
+     (range 2330 2228))
+
+(copy-measurements! 2329 2330)
 
 (pprint @record)
 
@@ -142,7 +149,7 @@
      ;:sw_version_real "V3.04"
      ;:voltage nil
      ;:upload
-     :comment "Леонтьев"
+     ;:comment "Леонтьев"
      ))
 
 ;;Добавить ГСО
@@ -174,11 +181,30 @@
 (pprint (filter (fn [m] (not= "" (:expiration m)))
         (all-refs 345)))
 
-(pprint (all-refs 1078))
+(pprint (all-refs 2327))
 
-(map (fn [m] (:serial_number m)) (all-refs @current))
+(map (fn [m]
+         ({:number_1c (:number_1c m)
+           :components (:components m)
+           :expiration_date (:expiration_date m)}))
+     (all-refs 2327))
+
+(pprint (map (fn [m]
+             (hash-map
+              :number_1c (:number_1c m)
+              :components (:components m)
+              :expiration_date (:expiration_date m)))
+         (all-refs 2327)))
 
 (get-record (get-last-id "verification"))
+
+(defn mc-ppm->mg
+  [m]
+  (if ( = "млн⁻¹" (:units m))
+      (hash-map
+        :units "мг/м³"
+        :range_from)
+      m))
 
 (defn get-last
   []
@@ -228,13 +254,10 @@
   (hash-map
     :methodology_id 280
     :section "6.3"
-    :name "Подтверждение соответствия программного обеспечения (для сигнализаторов
-    "
+    :name "Подтверждение соответствия программного обеспечения"
     :verification_type 1
     :comment "См. в приложении к протоколу."
     ))
-
-(/ 4.23 4.4)
 
 ;; Измерения
 (map (fn [ref]
@@ -242,41 +265,43 @@
            midb
            :measurements
            (hash-map
-             :v_id 2224
-             :metrology_id 1118
-             :operation_id 850
+             :v_id 2327
+             :metrology_id 1133
+             :operation_id 1165
              :ref_value ref
              )))
-    (list nil))
+    (list 50))
+
+(ch/ppm->mg "NH3" 95)
 
 ;; Каналы и МХ
 (ins-channel!
-  {:methodology_id 68
+  {:methodology_id 322
    :channel nil
-   :component "CH₄"
+   :component "NH3"
    :range_from 0
-   :range_to 2.2
-   :units "% об."
-   :low_unit 0.01
+   :range_to 70.8 
+   :units "мг/м³"
+   :low_unit 0.1
    :view_range_from 0
-   :view_range_to 5
-   :comment nil}
+   :view_range_to 150
+   :comment "диапазон показаний условно!"}
   (list {:r_from 0
-         :r_to 0.88
-         :value 25
-         :type_id 2
+         :r_to 7.1
+         :value 1.4
+         :type_id 0
          :units nil
          :comment nil}
-        {:r_from 0.88
-         :r_to 2.2
-         :value 25
+        {:r_from 7.1
+         :r_to 70.8
+         :value 20
          :type_id 1
          :units nil
          :comment nil}
-        {:value 0.5
+        #_{:value 0.5
          :type_id 5
          :units ""}
-        {:value 15
+        #_{:value 80
          :type_id 6
          :units "с"}))
 
@@ -290,17 +315,57 @@
   ["id = ?" 4274])
 
 ;; Генерация протоколов поверки
-(gen-protocols "id >= 2241 and id <= 2242")
+(gen-protocols "id >= 2220 and id <= 2227")
 
 ;; Генерация результатов измерений
-(gen-values! "id >= 2236 and id <= 2240")
+(gen-values! "id >= 2277 and id <= 2286")
 
-(gen-values! "id = 2220")
+(gen-values! "id >= 2327")
 
 (pr/gen-value (get (vec (:measurements (first (get-protocols-data "id = 2220")))) 7))
 
+;; Cars
+;; Insert record
+(do
+  (jdbc/insert!
+    auto
+    :travel_order
+    {:auto_id 1
+     :count "9/0029903"
+     :date_departure "2023-09-19T09:25"
+     :date_arrive "2023-09-19T13:30"
+     :odometr_departure 232305
+     :fuel_departure 24.2
+     :odometr_arrive 232363
+     :fuel_add 0})
+  (pprint
+    (jdbc/query
+      auto
+      "select * from view_travel_order order by id desc limit 1;")))
+
 ;; documentations
 (require '[clojure.repl :refer :all])
+
+(require '[clojure.java.shell :refer [sh]])
+
+;; Дата изменения скана протокола = дата поверки
+(let [scan-path "/media/sf_Y_DRIVE/СКАНЫ РЕЗЕРВНОЕ КОПИРОВАНИЕ/2023/Ермолаев/"
+      data (jdbc/query
+             midb
+             "select protocol_number, date
+              from verification
+              inner join conditions
+                on conditions.id = verification.conditions
+              where protocol_number >= 357
+                and protocol_number  <= 383")]
+  (map (fn [m]
+           (sh
+             "touch"
+             (str scan-path
+                  (str "9-61-" (:protocol_number m) "-2023.pdf"))
+             "-mad"
+             (str (:date m) "T17:30")))
+       data))
 
 (find-doc "assoc
 
