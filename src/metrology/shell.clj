@@ -4,7 +4,7 @@
 
 (load-icu)
 
-(pprint (find-mi "Микросенс"))
+(pprint (find-mi "СГОЭС-2"))
 
 (pprint (find-methodology "58111"))
 
@@ -15,8 +15,8 @@
 (pprint (reset! protocol (get-protocol-data 2220)))
 
 ;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 2327))
-     (range 3))
+(map (fn [s] (copy-record! 1861))
+     (range 2))
 
 (let [nums (map (fn [n] (str "040" n))
                 (list "091" "106" "117" "118"))
@@ -181,7 +181,7 @@
 (pprint (filter (fn [m] (not= "" (:expiration m)))
         (all-refs 345)))
 
-(pprint (all-refs 2327))
+(pprint (all-refs 1861))
 
 (map (fn [m]
          ({:number_1c (:number_1c m)
@@ -331,17 +331,21 @@
     auto
     :travel_order
     {:auto_id 1
-     :count "9/0029903"
-     :date_departure "2023-09-19T09:25"
-     :date_arrive "2023-09-19T13:30"
-     :odometr_departure 232305
-     :fuel_departure 24.2
-     :odometr_arrive 232363
+     :count "9/0029904"
+     :date_departure "2023-09-20T09:30"
+     :date_arrive "2023-09-19T12:30"
+     :odometr_departure 232363
+     :fuel_departure 18.86
+     :odometr_arrive 232387
      :fuel_add 0})
   (pprint
     (jdbc/query
       auto
       "select * from view_travel_order order by id desc limit 1;")))
+
+(jdbc/query
+  auto
+  "select * from view_travel_order order by id desc limit 1;")
 
 ;; documentations
 (require '[clojure.repl :refer :all])

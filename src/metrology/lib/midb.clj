@@ -181,6 +181,23 @@
                             measurements))))
          data)))
 
+(defn get-report-data
+  ""
+  [where]
+  (let [v-data (jdbc/query
+                midb
+                (str q/report-verifications where))
+        measurements (jdbc/query
+                      midb
+                      (str "select * from view_v_measurements where " where))
+        operations (jdbc/query
+                    midb
+                    (str q/get-operations where))
+        refs (jdbc/query
+              midb
+              (str "select * from verification_refs where " where))]
+    ()))
+
 (defn get-conditions-by-v-id 
   [id]
   (->>
