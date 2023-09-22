@@ -315,7 +315,7 @@
   ["id = ?" 4274])
 
 ;; Генерация протоколов поверки
-(gen-protocols "id >= 2220 and id <= 2227")
+(gen-protocols "id >= 2327 and id <= 2330")
 
 ;; Генерация результатов измерений
 (gen-values! "id >= 2277 and id <= 2286")
@@ -331,13 +331,13 @@
     auto
     :travel_order
     {:auto_id 1
-     :count "9/0029904"
-     :date_departure "2023-09-20T09:30"
-     :date_arrive "2023-09-19T12:30"
-     :odometr_departure 232363
-     :fuel_departure 18.86
-     :odometr_arrive 232387
-     :fuel_add 0})
+     :count "9/0029905"
+     :date_departure "2023-09-22T08:40"
+     :date_arrive "2023-09-22T14:30"
+     :odometr_departure 232818
+     :fuel_departure 5.77
+     :odometr_arrive 233097
+     :fuel_add 40})
   (pprint
     (jdbc/query
       auto
@@ -346,6 +346,24 @@
 (jdbc/query
   auto
   "select * from view_travel_order order by id desc limit 1;")
+
+(get-report-data "id >= 2327")
+
+(jdbc/query
+  midb
+  (str q/report-verifications "id >= 2327"))
+
+(jdbc/query
+  midb
+  ["select * from view_v_measurements where id >= ? and id <= ?" 2327 2330])
+
+(jdbc/query
+  midb
+  (str q/get-operations "v_op.v_id >= 2327"))
+
+(jdbc/query
+  midb
+  (str "select * from verification_refs where " where))
 
 ;; documentations
 (require '[clojure.repl :refer :all])
@@ -360,8 +378,8 @@
               from verification
               inner join conditions
                 on conditions.id = verification.conditions
-              where protocol_number >= 357
-                and protocol_number  <= 383")]
+              where protocol_number >= 2319
+                and protocol_number  <= 2322")]
   (map (fn [m]
            (sh
              "touch"

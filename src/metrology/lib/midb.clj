@@ -181,6 +181,14 @@
                             measurements))))
          data)))
 
+(defn assoc-multi
+  [m nm]
+  (reduce (fn [a b]
+            (let [[k v] b]
+              (assoc a k v)))
+          m
+          nm))
+
 (defn get-report-data
   ""
   [where]
@@ -228,14 +236,6 @@
            )]
     (jdbc/query midb)
     first))
-
-(defn assoc-multi
-  [m nm]
-  (reduce (fn [a b]
-            (let [[k v] b]
-              (assoc a k v)))
-          m
-          nm))
 
 (defn update-record!
   [table record changes]
