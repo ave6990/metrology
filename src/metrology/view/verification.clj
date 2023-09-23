@@ -1,5 +1,6 @@
 (ns metrology.view.verification
-  (:require [metrology.lib.html-gen]))
+  (:require [metrology.lib.html-gen]
+            [clojure.string :as string]))
 
 (defn report-head
   []
@@ -12,23 +13,34 @@
     #_(style {:type "text/css"} styles)
     #_(script {:type "text/javascript"} scripts)))
 
+(defn common-data
+  [m]
+  (table
+    (thead
+      (tr
+        (th "id")
+        (th "date")
+        (th "protocol")))))
+
 (defn record
   [m]
   (section
     {:class record}
+    (hr)
     (common-data m)
     (counteragent m)
     (mi-data m)
     (methodology m)
     (refs m)
-    (gso m)
     (operations m)
     (measurements m)))
 
 (defn records
   [coll]
-  (map (fn [m] (record m))
-       coll)
+  (string/join
+    "\n"
+    (map (fn [m] (record m))
+       coll)))
 
 (defn report
   "Создает содержимое файла report.html."
@@ -42,4 +54,12 @@
              where))
         (main
           (records
-            coll))))))))
+            coll)))))))
+
+(comment
+
+(require '[clojure.string :as string])
+
+(require '[metrology.lib.gen-html :refer :all])
+
+)

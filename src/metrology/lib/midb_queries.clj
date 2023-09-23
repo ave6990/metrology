@@ -168,58 +168,59 @@ where
   ")
 
 (def find-methodology
-  "select
-      *
-  from
-      methodology
-  where
-      lower(id || ', ' || registry_number ||
-          ', ' || mi_types) like ?")
+"select
+  *
+from
+  methodology
+where
+  lower(id || ', ' || registry_number ||
+      ', ' || mi_types) like ?")
 
 (def report-verifications
-  "select
-    v.id as id, v.count, v.verification_type, v.protocol_number, v.mi_type, v.serial_number,
-    v.manufacture_year, v.channels, v.area, v.interval, v.components, v.scope,
-    v.sw_name, v.sw_version, v.sw_checksum, v.sw_algorithm, v.sw_version_real, v.protocol,
-    v.voltage as verification_voltage, v.sign_mi, v.sign_pass, v.upload, v.comment, v.copy_from,
-    c.id as condition_id, c.date, c.temperature as real_temperature,
-    c.humidity as real_humidity, c.pressure as real_pressure, c.voltage as real_voltage,
-    c.frequency as real_frequence, c.other as real_other, c.location,
-    m.id as methodology_id, m.registry_number, m.name as methodology_name,
-    m.short_name as methodology_short_name, m.mi_name, m.date_from, m.date_to,
-    m.temperature, m.humidity, m.pressure, m.voltage, m.frequency, m.other, m.limited,
-    ca.id as counteragent_id, ca.name as counteragent_name,
-    ca.short_name as counteragent_short_name, ca.address, ca.inn
+"select
+  v.id as id, v.count, v.verification_type, v.protocol_number, v.mi_type, v.serial_number,
+  v.manufacture_year, v.channels, v.area, v.interval, v.components, v.scope,
+  v.sw_name, v.sw_version, v.sw_checksum, v.sw_algorithm, v.sw_version_real, v.protocol,
+  v.voltage as verification_voltage, v.sign_mi, v.sign_pass, v.upload, v.comment, v.copy_from,
+  c.id as condition_id, c.date, c.temperature as real_temperature,
+  c.humidity as real_humidity, c.pressure as real_pressure, c.voltage as real_voltage,
+  c.frequency as real_frequence, c.other as real_other, c.location,
+  m.id as methodology_id, m.registry_number, m.name as methodology_name,
+  m.short_name as methodology_short_name, m.mi_name, m.date_from, m.date_to,
+  m.temperature, m.humidity, m.pressure, m.voltage, m.frequency, m.other, m.limited,
+  ca.id as counteragent_id, ca.name as counteragent_name,
+  ca.short_name as counteragent_short_name, ca.address, ca.inn
 from
-    verification as v
+  verification as v
 inner join
-    conditions as c
-    on c.id = v.conditions
+  conditions as c
+  on c.id = v.conditions
 inner join
-    methodology as m
-    on m.id = v.methodology_id
+  methodology as m
+  on m.id = v.methodology_id
 inner join
-    counteragents as ca
-    on ca.id = v.counteragent
+  counteragents as ca
+  on ca.id = v.counteragent
 where
-")
+  v.id >= ? and v.id <= ?")
 
 (def get-operations
-  "select
-    op.id,
-    op.methodology_id,
-    op.section,
-    op.name,
-    op.verification_type,
-    op.comment,
-    op.info,
-    v_op.v_id,
-    v_op.result,
-    v_op.unusability,
-    v_op.comment as operation_comment
+"select
+  op.id,
+  op.methodology_id,
+  op.section,
+  op.name,
+  op.verification_type,
+  op.comment,
+  op.info,
+  v_op.v_id,
+  v_op.result,
+  v_op.unusability,
+  v_op.comment as operation_comment
 from
-    verification_operations as op
+  verification_operations as op
 left join v_operations as v_op
-    on v_op.op_id = op.id
+  on v_op.op_id = op.id
 where
-")
+  v_op.v_id >= ?
+  and v_op.v_id <= ?")

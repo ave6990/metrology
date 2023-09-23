@@ -191,19 +191,21 @@
 
 (defn get-report-data
   ""
-  [where]
+  [from to]
   (let [v-data (jdbc/query
                 midb
-                (str q/report-verifications where))
+                [q/report-verifications from to])
         measurements (jdbc/query
                       midb
-                      (str "select * from view_v_measurements where " where))
+                      ["select * from view_v_measurements
+                          where id >= ? and id <= ?" from to])
         operations (jdbc/query
                     midb
-                    (str q/get-operations where))
+                    [q/get-operations from to])
         refs (jdbc/query
               midb
-              (str "select * from verification_refs where " where))]
+              ["select * from verification_refs
+                      where v_id >= ? and v_id <= ?" from to])]
     (map (fn [m]
              (assoc-multi m
                           {:measurements

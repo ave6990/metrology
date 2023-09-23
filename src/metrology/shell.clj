@@ -347,7 +347,7 @@
   auto
   "select * from view_travel_order order by id desc limit 1;")
 
-(get-report-data "id >= 2327")
+(get-report-data 2327 2328)
 
 (jdbc/query
   midb
