@@ -178,7 +178,7 @@ where
 
 (def report-verifications
 "select
-  v.id as id, v.count, v.verification_type, v.protocol_number, v.mi_type, v.serial_number,
+  v.id as id, v.engineer, v.count, v.verification_type, v.protocol_number, v.mi_type, v.serial_number,
   v.manufacture_year, v.channels, v.area, v.interval, v.components, v.scope,
   v.sw_name, v.sw_version, v.sw_checksum, v.sw_algorithm, v.sw_version_real, v.protocol,
   v.voltage as verification_voltage, v.sign_mi, v.sign_pass, v.upload, v.comment, v.copy_from,
@@ -189,7 +189,8 @@ where
   m.short_name as methodology_short_name, m.mi_name, m.date_from, m.date_to,
   m.temperature, m.humidity, m.pressure, m.voltage, m.frequency, m.other, m.limited,
   ca.id as counteragent_id, ca.name as counteragent_name,
-  ca.short_name as counteragent_short_name, ca.address, ca.inn
+  ca.short_name as counteragent_short_name, ca.address, ca.inn,
+  en.last_name, en.first_name, en.second_name
 from
   verification as v
 inner join
@@ -201,6 +202,9 @@ inner join
 inner join
   counteragents as ca
   on ca.id = v.counteragent
+inner join
+  engineers as en
+  on en.id = v.engineer
 where
   v.id >= ? and v.id <= ?")
 

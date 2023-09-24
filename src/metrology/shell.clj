@@ -349,6 +349,10 @@
 
 (get-report-data 2327 2328)
 
+(spit "/mnt/d/UserData/YandexDisk/Ermolaev/midb/report.html"
+      ;"/media/sf_YandexDisk/Ermolaev/midb/protocol.html"
+      (report (get-report-data 2327 2328)))
+
 (jdbc/query
   midb
   (str q/report-verifications "id >= 2327"))

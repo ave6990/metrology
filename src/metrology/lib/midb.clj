@@ -6,7 +6,8 @@
     [metrology.lib.database :as db]
     [metrology.lib.midb-queries :as q]
     [metrology.lib.chemistry :as ch]
-    [metrology.lib.protocol :as pr]))
+    [metrology.lib.protocol :as pr]
+    [metrology.view.report :as report]))
 
 (db/defdb midb)
 (db/defdb auto)
@@ -116,7 +117,8 @@
    эталонах, операциях и измерениях."
    [id]
    (map (fn [f] (f id))
-        (list delete-v-gso! delete-v-refs! delete-v-opt-refs! delete-v-operations!
+        (list delete-v-gso! delete-v-refs! delete-v-opt-refs!
+         delete-v-operations!
          delete-measurements! delete-verification!)))
 
 (defn copy-record!
@@ -327,6 +329,13 @@
   (spit ;"/mnt/d/UserData/YandexDisk/Ermolaev/midb/protocol.html"
         "/media/sf_YandexDisk/Ermolaev/midb/protocol.html"
         (pr/protocols (get-protocols-data where))))
+
+(defn gen-report
+  "Генерирует отчет о записях в файл report.html."
+  [from to]
+  (spit ;"/mnt/d/UserData/YandexDisk/Ermolaev/midb/report.html"
+        "/media/sf_YandexDisk/Ermolaev/midb/report.html"
+        (report/report (get-report-data from to))))
 
 (defn gen-values!
   "Записывает в БД случайные значения результатов измерений в пределах
