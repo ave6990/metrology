@@ -1,13 +1,17 @@
 (ns metrology.lib.midb
   (:require 
     [clojure.java.jdbc :as jdbc]
-    [clojure.string]
+    [clojure.string :as string]
     [clojure.pprint :refer [pprint]]
     [metrology.lib.database :as db]
     [metrology.lib.midb-queries :as q]
     [metrology.lib.chemistry :as ch]
     [metrology.lib.protocol :as pr]
     [metrology.view.report :as report]))
+
+(def midb-path
+  ;"/mnt/d/UserData/YandexDisk/Ermolaev/midb/"
+  "/media/sf_YandexDisk/Ermolaev/midb/")
 
 (db/defdb midb)
 (db/defdb auto)
@@ -50,7 +54,21 @@
   "Возвращает список записей поверок соответсвующих запросу.
    Запрос: заводской номер или номер реестра или наименование типа СИ."
   [s]
-  (jdbc/query midb [q/find-mi (str "%" s "%")]))
+  (map (fn [m]
+           (:id m))
+       (jdbc/query midb [q/find-mi (str "%" s "%")])))
+
+(defn find-verification
+  ""
+  ([s]
+    (map (fn [m]
+             (:id m))
+         (jdbc/query
+          midb
+          (string/replace
+            q/find-verification
+            "{where}"
+            s)))))
 
 (defn find-methodology
   "Возвращает список записей методик поверки соответствующих запросу."
@@ -193,21 +211,33 @@
 
 (defn get-report-data
   ""
-  [from to]
+  [coll]
   (let [v-data (jdbc/query
                 midb
-                [q/report-verifications from to])
+                (str
+                  q/report-verifications
+                  "("
+                  (string/join ", " coll)
+                  ")"))
         measurements (jdbc/query
                       midb
-                      ["select * from view_v_measurements
-                          where id >= ? and id <= ?" from to])
+                      (str "select * from view_v_measurements
+                          where id in ("
+                          (string/join ", " coll)
+                          ")"))
         operations (jdbc/query
                     midb
-                    [q/get-operations from to])
+                    (str
+                      q/get-operations
+                      "("
+                      (string/join ", " coll)
+                      ")"))
         refs (jdbc/query
               midb
-              ["select * from verification_refs
-                      where v_id >= ? and v_id <= ?" from to])]
+              (str "select * from verification_refs
+                      where v_id in ("
+                      (string/join ", " coll)
+                      ")"))]
     (map (fn [m]
              (assoc-multi m
                           {:measurements
@@ -326,16 +356,29 @@
 (defn gen-protocols
   "Генерирует протоколы поверки в файл protocol.html."
   [where]
-  (spit ;"/mnt/d/UserData/YandexDisk/Ermolaev/midb/protocol.html"
-        "/media/sf_YandexDisk/Ermolaev/midb/protocol.html"
-        (pr/protocols (get-protocols-data where))))
+  (spit
+    (str midb-path
+         "protocol.html")
+         (pr/protocols (get-protocols-data where))))
 
 (defn gen-report
-  "Генерирует отчет о записях в файл report.html."
-  [from to]
-  (spit ;"/mnt/d/UserData/YandexDisk/Ermolaev/midb/report.html"
-        "/media/sf_YandexDisk/Ermolaev/midb/report.html"
-        (report/report (get-report-data from to))))
+  "генерирует отчет о записях в файл report.html."
+  ([coll]
+   (spit
+     (str midb-path
+          "report.html")
+         (report/report (get-report-data coll))))
+   ([from to]
+    (gen-report (range from (inc to)))))
+
+(defn gso
+  []
+  (spit
+    (str midb-path "gso.html")
+    (report/gso
+      (jdbc/query
+        midb
+        "select * from gso"))))
 
 (defn gen-values!
   "Записывает в БД случайные значения результатов измерений в пределах

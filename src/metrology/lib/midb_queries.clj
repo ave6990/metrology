@@ -94,20 +94,26 @@
 (def find-mi
   "Query to select mi."
   "select
-    v.id,
-    v.protocol_number,
-    v.count,
+    v.id
+from
+    verification as v
+inner join
+    methodology as met
+    on met.id = v.methodology_id
+inner join
+    conditions as c
+    on c.id = v.conditions
+where
+    v.serial_number || ' '
+        || met.registry_number || ' ' || v.mi_type like ?
+order by
     c.date,
-    v.verification_type,
-    v.mi_type,
-    met.registry_number,
-    v.serial_number,
-    v.manufacture_year,
-    v.components,
-    v.scope,
-    v.channels,
-    v.counteragent,
-    ca.name
+    v.id")
+
+(def find-verification
+""
+"select
+    v.id
 from
     verification as v
 inner join
@@ -117,11 +123,10 @@ inner join
     conditions as c
     on c.id = v.conditions
 inner join
-    counteragents as ca
-    on ca.id = v.counteragent
+  counteragents as ca
+  on ca.id = v.counteragent
 where
-    v.serial_number || ' '
-        || met.registry_number || ' ' || v.mi_type like ?
+  {where}
 order by
     c.date,
     v.id")
@@ -193,7 +198,7 @@ where
   en.last_name, en.first_name, en.second_name
 from
   verification as v
-inner join
+left join
   conditions as c
   on c.id = v.conditions
 inner join
@@ -206,7 +211,7 @@ inner join
   engineers as en
   on en.id = v.engineer
 where
-  v.id >= ? and v.id <= ?")
+  v.id in ")
 
 (def get-operations
 "select
@@ -226,5 +231,4 @@ from
 left join v_operations as v_op
   on v_op.op_id = op.id
 where
-  v_op.v_id >= ?
-  and v_op.v_id <= ?")
+  v_op.v_id in ")

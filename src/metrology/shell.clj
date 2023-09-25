@@ -2,26 +2,43 @@
 (def current (atom nil))
 (def protocol (atom nil))
 
+(gso)
+
 (load-icu)
 
-(pprint (find-mi "СГОЭС-2"))
+;; Найти запись о поверке
+(gen-report
+  (find-verification
+    "v.id >= 2331 and v.id <= 2332"))
 
-(pprint (find-methodology "58111"))
+;; Генерация отчета о поверке
+(gen-report (list 2331))
 
-(pprint (find-counteragent "ОГПЗ"))
+;; Генерация протоколов поверки
+(gen-protocols "id >= 2331 and id <= 2332")
+
+;; Генерация результатов измерений
+(gen-values! "id >= 2332 and id <= 2332")
+
+;; Найти СИ
+(gen-report (find-mi "ШИ"))
+
+(pprint (find-methodology "ШИ"))
+
+(pprint (find-counteragent "НЗХС"))
 
 (reset! record (get-record 2220))
 
 (pprint (reset! protocol (get-protocol-data 2220)))
 
 ;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 1861))
-     (range 2))
+(map (fn [s] (copy-record! 2235))
+     (range 1))
 
-(let [nums (map (fn [n] (str "040" n))
-                (list "091" "106" "117" "118"))
-      start-id 2327
-      start-protocol-number 2319]
+(let [nums (map (fn [n] (str "" n))
+                (list "2009551"))
+      start-id 2331
+      start-protocol-number 2326]
   (map (fn [n i]
          (jdbc/update!
            midb
@@ -29,16 +46,17 @@
            (hash-map
              :protocol nil
              :protolang nil
-             :count "9/0029899"
-             :counteragent 166
-             :conditions 1015
+             :count "9/0029677"
+             :counteragent 83
+             :conditions 1020
+             :mi_type "Ока-92МТ-O₂-H₂-CH₄-NH₃-И11(6)"
              :serial_number n
              :manufacture_year 2020
              :protocol_number (+ start-protocol-number i)
              ;:comment "Леонтьев"
              ;:upload 1
              ;:channels 3
-             ;:components "БД №№: 22878, 22335"
+             ;:components ""
              ;:scope
              ;:sw_name 8320039
              ;:sw_version "не ниже V6.9"
@@ -63,15 +81,15 @@
 ;; Удалить запись
 (delete-record! 2305)
 
-(pprint (get-conditions "2023-09-18"))
+(pprint (get-conditions "2023-09-19"))
 
-(insert-conditions! {:date "2023-09-14"
-                     :temperature 20.3
-                     :humidity 60.2
-                     :pressure 100.25
-                     :voltage 223.3
+(insert-conditions! {:date "2023-09-25"
+                     :temperature 23.3
+                     :humidity 50.6
+                     :pressure 101.85
+                     :voltage 222.8
                      ;:other "расход ГС (0,1 - 0,3) л/мин."
-                     :location "УЭСП"
+                     ;:location "УЭСП"
                      ;:comment ""
                      })
 
@@ -85,16 +103,16 @@
                  (check-gso (list "08198-23")
                             "pass_number")))
 
-(set-v-gso! 2300 
-            (list 347))
+(set-v-gso! 2331 
+            (list 278 285 349 332 334 258))
 
-(set-v-refs! 2276
-             (list 2846 2820))
+(set-v-refs! 2332
+             (list 923))
 
 (delete-v-refs! 2260)
 
-(set-v-opt-refs! 2243
-                 (list 2831 2643 2670 2762 2756))
+(set-v-opt-refs! 2332
+                 (list 2756 2762))
 
 (set-v-operations! 2216
                    (list 60 608 1063 1672 1673))
@@ -128,15 +146,15 @@
   :verification
   (hash-map
      :engineer 3514
-     :count "9/0029829"
-     :counteragent 12
-     :conditions 1012
+     :count "9/0029677"
+     :counteragent 83
+     :conditions 1020
      :verification_type 1
-     :protocol_number 2238
-     :mi_type "SGW CO0 NX"
-     :methodology_id 280
-     :serial_number 226556
-     :manufacture_year 2014
+     :protocol_number 2327
+     :mi_type "ШИ-11"
+     :methodology_id 339
+     :serial_number 300467
+     :manufacture_year 1999
      :channels 1
      :area "05"
      :interval 12
@@ -213,10 +231,7 @@
                                (list k (k m)))
                              (list :id :protocol_number))))))
 
-(get-last)
-
-;; Методика поверки
-(jdbc/query midb [q/get-methodology "%19437%"])
+(get-last-id "verification")
 
 ;; Методику добавить
 (jdbc/insert!
@@ -242,22 +257,34 @@
 (jdbc/update!
   midb
   :methodology
-  {:temperature "20 ± 5"
-   :humidity "30 ÷ 80"
-   :pressure "101.3 ± 4.0"}
-  ["id = ?" 280])
+  {:temperature "15 ÷ 30"
+   ;:humidity "30 ÷ 80"
+   ;:pressure "101.3 ± 4.0"
+   }
+  ["id = ?" 339])
 
 ;; Операции методики поверки
 (jdbc/insert!
   midb
   :verification_operations
   (hash-map
-    :methodology_id 280
-    :section "6.3"
-    :name "Подтверждение соответствия программного обеспечения"
+    :methodology_id 339
+    :section "4.4"
+    :name "Проверка предела допускаемой основной абсолютной погрешности"
     :verification_type 1
     :comment "См. в приложении к протоколу."
     ))
+
+;; Операции поверки
+(map (fn [n]
+         (jdbc/insert!
+           midb
+           :v_operations
+           (hash-map
+             :v_id 2332
+             :op_id n
+             :result 1)))
+     (list 1683 1684 1685 1686))
 
 ;; Измерения
 (map (fn [ref]
@@ -265,43 +292,43 @@
            midb
            :measurements
            (hash-map
-             :v_id 2327
-             :metrology_id 1133
-             :operation_id 1165
+             :v_id 2332
+             :metrology_id 1147
+             :operation_id 1686
              :ref_value ref
              )))
-    (list 50))
+    (list 1 3 5))
 
 (ch/ppm->mg "NH3" 95)
 
 ;; Каналы и МХ
 (ins-channel!
-  {:methodology_id 322
+  {:methodology_id 83
    :channel nil
-   :component "NH3"
+   :component "CH4"
    :range_from 0
-   :range_to 70.8 
-   :units "мг/м³"
-   :low_unit 0.1
+   :range_to 6
+   :units "% об."
+   :low_unit 0.2
    :view_range_from 0
-   :view_range_to 150
+   :view_range_to 6
    :comment "диапазон показаний условно!"}
   (list {:r_from 0
-         :r_to 7.1
-         :value 1.4
+         :r_to 6
+         :value 0.2 
          :type_id 0
          :units nil
          :comment nil}
-        {:r_from 7.1
-         :r_to 70.8
-         :value 20
+        #_{:r_from 20
+         :r_to 100
+         :value 25
          :type_id 1
          :units nil
          :comment nil}
         #_{:value 0.5
          :type_id 5
          :units ""}
-        #_{:value 80
+        #_{:value 120
          :type_id 6
          :units "с"}))
 
@@ -313,16 +340,6 @@
    :name "ОАО «НЕФТЕМАСЛОЗАВОД»"
    :short_name "ОАО «НЕФТЕМАСЛОЗАВОД»"}
   ["id = ?" 4274])
-
-;; Генерация протоколов поверки
-(gen-protocols "id >= 2327 and id <= 2330")
-
-;; Генерация результатов измерений
-(gen-values! "id >= 2277 and id <= 2286")
-
-(gen-values! "id >= 2327")
-
-(pr/gen-value (get (vec (:measurements (first (get-protocols-data "id = 2220")))) 7))
 
 ;; Cars
 ;; Insert record
@@ -346,28 +363,6 @@
 (jdbc/query
   auto
   "select * from view_travel_order order by id desc limit 1;")
-
-(get-report-data 2327 2328)
-
-(spit "/mnt/d/UserData/YandexDisk/Ermolaev/midb/report.html"
-      ;"/media/sf_YandexDisk/Ermolaev/midb/protocol.html"
-      (report (get-report-data 2327 2328)))
-
-(jdbc/query
-  midb
-  (str q/report-verifications "id >= 2327"))
-
-(jdbc/query
-  midb
-  ["select * from view_v_measurements where id >= ? and id <= ?" 2327 2330])
-
-(jdbc/query
-  midb
-  (str q/get-operations "v_op.v_id >= 2327"))
-
-(jdbc/query
-  midb
-  (str "select * from verification_refs where " where))
 
 ;; documentations
 (require '[clojure.repl :refer :all])
@@ -393,7 +388,7 @@
              (str (:date m) "T17:30")))
        data))
 
-(find-doc "assoc
+(find-doc "assoc")
 
 (doc get-in)
 
