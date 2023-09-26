@@ -2,26 +2,26 @@
 (def current (atom nil))
 (def protocol (atom nil))
 
-(gso)
+(gso "lower(components) like 'h2s%'")
 
 (load-icu)
 
 ;; Найти запись о поверке
 (gen-report
   (find-verification
-    "v.id >= 2331 and v.id <= 2332"))
+    "v.id >= 2333 and v.id <= 2335"))
 
 ;; Генерация отчета о поверке
-(gen-report (list 2331))
+(gen-report (list 2333))
 
 ;; Генерация протоколов поверки
 (gen-protocols "id >= 2331 and id <= 2332")
 
 ;; Генерация результатов измерений
-(gen-values! "id >= 2332 and id <= 2332")
+(gen-values! "id >= 2333 and id <= 2334")
 
 ;; Найти СИ
-(gen-report (find-mi "ШИ"))
+(gen-report (find-mi "APSA"))
 
 (pprint (find-methodology "ШИ"))
 
@@ -32,13 +32,13 @@
 (pprint (reset! protocol (get-protocol-data 2220)))
 
 ;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 2235))
+(map (fn [s] (copy-record! 2174))
      (range 1))
 
 (let [nums (map (fn [n] (str "" n))
-                (list "2009551"))
-      start-id 2331
-      start-protocol-number 2326]
+                (list "838-4-20"))
+      start-id 2334
+      start-protocol-number 2324]
   (map (fn [n i]
          (jdbc/update!
            midb
@@ -46,15 +46,16 @@
            (hash-map
              :protocol nil
              :protolang nil
-             :count "9/0029677"
-             :counteragent 83
-             :conditions 1020
-             :mi_type "Ока-92МТ-O₂-H₂-CH₄-NH₃-И11(6)"
+             :count "9/0029770"
+             ;:counteragent 83
+             :conditions 1021
+             ;:mi_type "Ока-92МТ-O₂-H₂-CH₄-NH₃-И11(6)"
              :serial_number n
              :manufacture_year 2020
              :protocol_number (+ start-protocol-number i)
              ;:comment "Леонтьев"
-             ;:upload 1
+             :comment 11
+             :upload 1
              ;:channels 3
              ;:components ""
              ;:scope
@@ -79,9 +80,9 @@
      (range 19))
 
 ;; Удалить запись
-(delete-record! 2305)
+(delete-record! 2333)
 
-(pprint (get-conditions "2023-09-19"))
+(pprint (get-conditions "2023-09-25"))
 
 (insert-conditions! {:date "2023-09-25"
                      :temperature 23.3
@@ -97,10 +98,10 @@
 (pprint (:verification @record))
 
 ;Установить ГСО по номерам паспортов ГСО.
-(set-v-gso! 2243
+(set-v-gso! 2333
             (map (fn [m]
                      (:id m))
-                 (check-gso (list "08198-23")
+                 (check-gso (list "11636-23" "11637-23")
                             "pass_number")))
 
 (set-v-gso! 2331 
@@ -298,6 +299,19 @@
              :ref_value ref
              )))
     (list 1 3 5))
+
+;; Изменить измерения
+(map (fn [id m]
+         (jdbc/update!
+           midb
+           :measurements
+           m
+           ["id = ?" id]))
+     (list 20916 20922 20928 20934)
+     (list {:value_2 0.04}
+           {:value_2 0.485}
+           {:value_2 0.046}
+           {:value_2 0.503}))
 
 (ch/ppm->mg "NH3" 95)
 

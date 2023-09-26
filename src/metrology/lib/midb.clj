@@ -372,13 +372,19 @@
     (gen-report (range from (inc to)))))
 
 (defn gso
-  []
+  ([where]
   (spit
     (str midb-path "gso.html")
     (report/gso
       (jdbc/query
         midb
-        "select * from gso"))))
+        (str "select * from gso"
+             (if (= "" where)
+                 ""
+                 (str " where " where))
+             " order by id desc")))))
+  ([]
+   (gso "")))
 
 (defn gen-values!
   "Записывает в БД случайные значения результатов измерений в пределах

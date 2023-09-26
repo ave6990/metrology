@@ -11,35 +11,60 @@
 }
 table {
   border: 1px solid lightgray;
+  border-collapse: collapse;
   margin: 4pt 0;
 }
-td {
+th, td {
+  padding: 0 3pt;
+  border: 1px solid lightgray;
+}")
+
+(def gso-styles
+"html {
+  color: #393939;
+  font: 10pt sans-serif;
+}
+table {
+  border: 1px solid lightgray;
+  border-collapse: collapse;
+  margin: 4pt 0;
+}
+th, td {
+  max-width: 100px;
   padding: 0 3pt;
   border: 1px solid lightgray;
 }")
 
 (defn report-head
-  [page]
-  (head
-    (meta {:charset "utf-8"})
-    (meta {:name "author" :content "Aleksandr Ermolaev"})
-    (meta {:name "e-mail" :content "ave6990@ya.ru"})
-    (meta {:name "version" :content "2023-09-21"})
-    (title page)
-    (style {:type "text/css"} styles)
-    #_(script {:type "text/javascript"} scripts)))
+  ([page st sc]
+   (head
+     (meta {:charset "utf-8"})
+     (meta {:name "author" :content "Aleksandr Ermolaev"})
+     (meta {:name "e-mail" :content "ave6990@ya.ru"})
+     (meta {:name "version" :content "2023-09-21"})
+     (title page)
+     (style {:type "text/css"} st)
+     (script {:type "text/javascript"} sc)))
+  ([page st]
+   (report-head page st ""))
+  ([page]
+   (report-head page "" "")))
+
+(defn gen-th
+  [coll]
+  (string/join
+    "\n"
+    (map (fn [s]
+             (th s))
+         coll)))
 
 (defn common-data
   [m]
   (table
     (thead
       (tr
-        (th "id")
-        (th "№ протокола")
-        (th "счет")
-        (th "дата")
-        (th "вид поверки")
-        (th "скопировано")))
+        (gen-th (list "id" "№ протокола" "счет" "дата"
+                      "вид поверки" "скопировано"))))
     (tbody
       (tr
         (td (:id m))
@@ -84,11 +109,9 @@ td {
     (tr
       (th "тип СИ")
       (td {:colspan 4} (:mi_type m)))
-    (tr (th "рег. №")
-      (th "год изг.")
-      (th "зав. №")
-      (th "сфера")
-      (th "МПИ"))
+    (tr
+      (gen-th (list "рег. №" "год изг." "зав. №"
+                    "сфера" "МПИ")))
     (tr
       (td (:registry_number m))
       (td (:manufacture_year m))
@@ -102,11 +125,8 @@ td {
       (th "объем")
       (td {:colspan 4} (:scope m)))
     (tr
-      (th "ПО")
-      (th "версия")
-      (th "версия СИ")
-      (th "контр. сумма")
-      (th "алгоритм"))
+      (gen-th (list "ПО" "версия" "версия СИ" "контр. сумма"
+                    "алгоритм")))
     (tr
       (td (:sw_name m))
       (td (:sw_version m))
@@ -130,13 +150,8 @@ td {
   [m]
   (table
     (tr
-      (th)
-      (th "температура")
-      (th "влажность")
-      (th "давление")
-      (th "напряжение")
-      (th "частота")
-      (th "прочие"))
+      (gen-th (list "" "температура" "влажность" "давление"
+                    "напряжение" "частота" "прочие")))
     (tr
       (th "НД")
       (td (:temperature m))
@@ -158,18 +173,9 @@ td {
   [m]
   (table
     (tr
-      (th)
-      (th "тип")
-      (th "id")
-      (th "тип СИ")
-      (th "компонент")
-      (th "значение")
-      (th "зав. №")
-      (th "номер 1С")
-      (th "разряд")
-      (th "дата")
-      (th "срок годности")
-      (th "доступно"))
+      (gen-th (list "" "тип" "id" "тип СИ" "компонент"
+                    "значение" "зав. №" "номер 1С" "разряд"
+                    "дата" "срок годности" "доступно")))
     (string/join
       "\n"
       (map (fn [m]
@@ -192,12 +198,8 @@ td {
   [m]
   (table
     (tr
-      (th "id")
-      (th "пункт НД")
-      (th "наименование")
-      (th "результат")
-      (th "причина непригодности")
-      (th "комментарий"))
+      (th-gen (list "id" "пункт НД" "наименование" "результат"
+                    "причина непригодности" "комментарий")))
     (string/join
       "\n"
       (map (fn [m]
@@ -218,16 +220,16 @@ td {
   [m]
   (table
     (tr 
-      (th "канал")
-      (th "опорное")
-      (th "измеренное")
-      (th "погрешность")
-      (th "предел погрешности")
-      (th "вариация"))
+      (gen-th (list "id" "metr_id" "ch_id" "канал"
+                    "опорное" "измеренное" "значение 2"
+                    "погрешность" "предел погрешности" "вариация")))
     (string/join
       "\n"
       (map (fn [m]
                (tr
+                 (td (:measurement_id m))
+                 (td (:metrology_id m))
+                 (td (:channel_id m))
                  (td (:channel_name m))
                  (if (< (:error_type m) 3)
                      (let [res (pr/metrology-calc m)]
@@ -240,6 +242,7 @@ td {
                                       0.1))
                                 "." ","))
                             (td (:value res))
+                            (td (:value_2 m))
                             (td (:error res))
                             (td (:error_string m))
                             (td
@@ -277,7 +280,7 @@ td {
   [coll]
   (doctype
     (html
-      (report-head "report")
+      (report-head "report" styles)
       (body
         (header
           #_(h1 "Условия выборки:"
@@ -291,24 +294,16 @@ td {
   [coll]
   (doctype
     (html
-      (report-head "gso")
+      (report-head "gso" gso-styles)
       (body
         (header
-          (h1 "ГСО"))
         (main
           (table
             (thead
               (tr
-                (th "id")
-                (th)
-                (th "№ 1С")
-                (th "тип")
-                (th "наличие")
-                (th "состав")
-                (th "значение")
-                (th "погрешность")
-                (th "ед. изм.")
-                (th "№ паспорта")))
+                (gen-th (list "id" "" "№ 1С" "тип" "наличие"
+                              "состав" "значение" "погрешность"
+                              "ед. изм." "№ паспорта"))))
             (tbody
               (string/join
                 "\n"
@@ -324,7 +319,7 @@ td {
                            (td (:uncertainity m))
                            (td (:units m))
                            (td (:pass_number m))))
-                     coll)))))))))
+                     coll))))))))))
 
 (defn metrology
   ""
