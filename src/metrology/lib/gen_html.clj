@@ -72,6 +72,8 @@
 (html-tag header)
 (html-tag main)
 (html-tag footer)
+(html-tag details)
+(html-tag summary)
 (html-tag table)
 (html-tag thead)
 (html-tag tbody)

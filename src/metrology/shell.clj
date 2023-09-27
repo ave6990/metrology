@@ -2,14 +2,20 @@
 (def current (atom nil))
 (def protocol (atom nil))
 
-(gso "lower(components) like 'h2s%'")
+(gso "lower(components) like 'nh3%'
+      and expiration_date > date('now')")
 
 (load-icu)
 
 ;; Найти запись о поверке
 (gen-report
   (find-verification
-    "v.id >= 2333 and v.id <= 2335"))
+    "v.id = 1520"))
+
+;; Найти СИ
+(gen-report
+  (find-verification
+    "lower(v.mi_type) like '%ОГС-ПГП%'"))
 
 ;; Генерация отчета о поверке
 (gen-report (list 2333))
@@ -18,27 +24,22 @@
 (gen-protocols "id >= 2331 and id <= 2332")
 
 ;; Генерация результатов измерений
-(gen-values! "id >= 2333 and id <= 2334")
-
-;; Найти СИ
-(gen-report (find-mi "APSA"))
+(gen-values! "id >= 2336 and id <= 2337")
 
 (pprint (find-methodology "ШИ"))
 
-(pprint (find-counteragent "НЗХС"))
+(pprint (find-counteragent "МОТОРН"))
 
 (reset! record (get-record 2220))
 
-(pprint (reset! protocol (get-protocol-data 2220)))
-
 ;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 2174))
-     (range 1))
+(map (fn [s] (copy-record! 1861))
+     (range 2))
 
-(let [nums (map (fn [n] (str "" n))
-                (list "838-4-20"))
-      start-id 2334
-      start-protocol-number 2324]
+(let [nums (map (fn [n] (str "81" n))
+                (list "670" "942"))
+      start-id 2336
+      start-protocol-number 2328]
   (map (fn [n i]
          (jdbc/update!
            midb
@@ -46,16 +47,16 @@
            (hash-map
              :protocol nil
              :protolang nil
-             :count "9/0029770"
-             ;:counteragent 83
-             :conditions 1021
+             :count "9/0029904"
+             :counteragent 273
+             :conditions 1019
              ;:mi_type "Ока-92МТ-O₂-H₂-CH₄-NH₃-И11(6)"
              :serial_number n
-             :manufacture_year 2020
+             :manufacture_year 2018
              :protocol_number (+ start-protocol-number i)
              ;:comment "Леонтьев"
-             :comment 11
-             :upload 1
+             ;:comment 11
+             ;:upload 1
              ;:channels 3
              ;:components ""
              ;:scope
@@ -82,7 +83,7 @@
 ;; Удалить запись
 (delete-record! 2333)
 
-(pprint (get-conditions "2023-09-25"))
+(pprint (get-conditions "2023-09-20"))
 
 (insert-conditions! {:date "2023-09-25"
                      :temperature 23.3
@@ -216,6 +217,8 @@
          (all-refs 2327)))
 
 (get-record (get-last-id "verification"))
+
+(get-last-id "verification")
 
 (defn mc-ppm->mg
   [m]
@@ -363,12 +366,12 @@
     :travel_order
     {:auto_id 1
      :count "9/0029905"
-     :date_departure "2023-09-22T08:40"
-     :date_arrive "2023-09-22T14:30"
-     :odometr_departure 232818
-     :fuel_departure 5.77
-     :odometr_arrive 233097
-     :fuel_add 40})
+     :date_departure "2023-09-26T11:30"
+     :date_arrive "2023-09-26T14:00"
+     :odometr_departure 233144
+     :fuel_departure 15.78
+     :odometr_arrive 233148
+     :fuel_add 0})
   (pprint
     (jdbc/query
       auto

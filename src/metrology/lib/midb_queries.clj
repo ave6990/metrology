@@ -91,25 +91,6 @@
   where
       v_id = ?;")
 
-(def find-mi
-  "Query to select mi."
-  "select
-    v.id
-from
-    verification as v
-inner join
-    methodology as met
-    on met.id = v.methodology_id
-inner join
-    conditions as c
-    on c.id = v.conditions
-where
-    v.serial_number || ' '
-        || met.registry_number || ' ' || v.mi_type like ?
-order by
-    c.date,
-    v.id")
-
 (def find-verification
 ""
 "select
@@ -119,7 +100,7 @@ from
 inner join
     methodology as met
     on met.id = v.methodology_id
-inner join
+left join
     conditions as c
     on c.id = v.conditions
 inner join
