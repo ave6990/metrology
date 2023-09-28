@@ -5,17 +5,19 @@
 (gso "lower(components) like 'nh3%'
       and expiration_date > date('now')")
 
+(methodology (list 280))
+
 (load-icu)
 
 ;; Найти запись о поверке
 (gen-report
   (find-verification
-    "v.id = 1520"))
+    "v.id >= 1040 and v.id <= 1057"))
 
 ;; Найти СИ
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%ОГС-ПГП%'"))
+    "lower(v.mi_type) like '%СГОЭС-М%'"))
 
 ;; Генерация отчета о поверке
 (gen-report (list 2333))
@@ -26,20 +28,22 @@
 ;; Генерация результатов измерений
 (gen-values! "id >= 2336 and id <= 2337")
 
-(pprint (find-methodology "ШИ"))
+(pprint (find-methodology "СГОЭС-М"))
+
+(pprint (get-methodology-data (list 280)))
 
 (pprint (find-counteragent "МОТОРН"))
 
 (reset! record (get-record 2220))
 
 ;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 1861))
-     (range 2))
+(map (fn [s] (copy-record! 1855))
+     (range 1))
 
-(let [nums (map (fn [n] (str "81" n))
-                (list "670" "942"))
-      start-id 2336
-      start-protocol-number 2328]
+(let [nums (map (fn [n] (str "" n))
+                (list "4986"))
+      start-id 2338
+      start-protocol-number 2330]
   (map (fn [n i]
          (jdbc/update!
            midb
@@ -52,7 +56,7 @@
              :conditions 1019
              ;:mi_type "Ока-92МТ-O₂-H₂-CH₄-NH₃-И11(6)"
              :serial_number n
-             :manufacture_year 2018
+             :manufacture_year 2017
              :protocol_number (+ start-protocol-number i)
              ;:comment "Леонтьев"
              ;:comment 11
@@ -365,13 +369,13 @@
     auto
     :travel_order
     {:auto_id 1
-     :count "9/0029905"
-     :date_departure "2023-09-26T11:30"
-     :date_arrive "2023-09-26T14:00"
-     :odometr_departure 233144
-     :fuel_departure 15.78
-     :odometr_arrive 233148
-     :fuel_add 0})
+     :count "9/0030005"
+     :date_departure "2023-09-27T09:00"
+     :date_arrive "2023-09-27T13:30"
+     :odometr_departure 233148
+     :fuel_departure 15.41
+     :odometr_arrive 233248
+     :fuel_add 15})
   (pprint
     (jdbc/query
       auto

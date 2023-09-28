@@ -254,6 +254,47 @@
                                           operations))}))
          v-data)))
 
+(defn get-methodology-data
+  [coll]
+  (let [met-data
+         (jdbc/query
+           midb
+           (str "select * from methodology
+                 where id in ("
+                 (string/join
+                   ", "
+                   coll)
+                 ")"))
+        metrology-data
+          (jdbc/query
+            midb
+            (str "select * from view_metrology
+                  where id in ("
+                  (string/join
+                    ", "
+                    coll)
+                  ")"))
+        operations-data
+          (jdbc/query
+            midb
+            (str "select * from verification_operations
+                  where methodology_id in ("
+                  (string/join
+                    ", "
+                    coll)
+                  ")"))]
+    (map (fn [m]
+             (assoc-multi m
+                          {:metrology
+                           (doall (filter (fn [r]
+                                              (= (:id r) (:id m)))
+                                          metrology-data))
+                           :operations
+                           (doall (filter (fn [r]
+                                              (= (:methodology_id r) (:id m)))
+                                          operations-data))}))
+         met-data)))
+
 (defn get-conditions-by-v-id 
   [id]
   (->>
@@ -367,15 +408,15 @@
    (spit
      (str midb-path
           "report.html")
-         (report/report (get-report-data coll))))
-   ([from to]
-    (gen-report (range from (inc to)))))
+         (report/verification-report (get-report-data coll))))
+  ([from to]
+   (gen-report (range from (inc to)))))
 
 (defn gso
   ([where]
   (spit
     (str midb-path "gso.html")
-    (report/gso
+    (report/gso-report
       (jdbc/query
         midb
         (str "select * from gso"
@@ -385,6 +426,13 @@
              " order by id desc")))))
   ([]
    (gso "")))
+
+(defn methodology
+  [coll]
+  (spit
+    (str midb-path
+         "methodology.html")
+    (report/methodology-report (get-methodology-data coll))))
 
 (defn gen-values!
   "Записывает в БД случайные значения результатов измерений в пределах

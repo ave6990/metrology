@@ -50,20 +50,24 @@ th, td {
     }
   })")
 
-(defn report-head
-  ([page st sc]
-   (head
-     (meta {:charset "utf-8"})
-     (meta {:name "author" :content "Aleksandr Ermolaev"})
-     (meta {:name "e-mail" :content "ave6990@ya.ru"})
-     (meta {:name "version" :content "2023-09-21"})
-     (title page)
-     (style {:type "text/css"} st)
-     (script {:type "text/javascript"} sc)))
-  ([page st]
-   (report-head page st ""))
-  ([page]
-   (report-head page "" "")))
+(defn report
+  ([page st sc content]
+   (doctype
+     (html
+       (head
+         (meta {:charset "utf-8"})
+         (meta {:name "author" :content "Aleksandr Ermolaev"})
+         (meta {:name "e-mail" :content "ave6990@ya.ru"})
+         (meta {:name "version" :content "2023-09-21"})
+         (title page)
+         (style {:type "text/css"} st)
+         (script {:type "text/javascript"} sc)
+           (report-head "report" styles scripts))
+       content)))
+  ([page st content]
+   (report-head page st "" content))
+  ([page content]
+   (report-head page "" "" content)))
 
 (defn gen-th
   [coll]
@@ -181,7 +185,7 @@ th, td {
         (gen-th (list "" "температура" "влажность" "давление"
                       "напряжение" "частота" "прочие")))
       (tr
-        (th "НД")
+        (th "по НД")
         (td (:temperature m))
         (td (:humidity m))
         (td (:pressure m))
@@ -309,59 +313,108 @@ th, td {
     (map (fn [m] (record m))
        coll)))
 
-(defn report
+(defn verification-report
   "Создает содержимое файла report.html."
   [coll]
-  (doctype
-    (html
-      (report-head "report" styles scripts)
-      (body
-        (header
-          #_(h1 "Условия выборки:"
-             where))
-        (main
-          (records
-            coll))))))
+  (report "report" styles scripts
+    (body
+      (header
+        #_(h1 "Условия выборки:"
+           where))
+      (main
+        (records
+          coll)))))
 
-(defn gso
+(defn gso-report
   ""
   [coll]
-  (doctype
-    (html
-      (report-head "gso" gso-styles scripts)
-      (body
-        (header
-        (main
-          (table
-            (thead
-              (tr
-                (gen-th (list "id" "" "№ 1С" "тип" "наличие"
-                              "состав" "значение" "погрешность"
-                              "ед. изм." "№ паспорта" "дата"
-                              "срок годности"))))
-            (tbody
-              (string/join
-                "\n"
-                (map (fn [m]
-                         (tr
-                           (td (:id m))
-                           (td (:expiration m))
-                           (td (:number_1c m))
-                           (td (str (:type m) " " (:number m)))
-                           (td (:available m))
-                           (td (:components m))
-                           (td (:concentration m))
-                           (td (:uncertainity m))
-                           (td (:units m))
-                           (td (:pass_number m))
-                           (td (:date m))
-                           (td (:expiration_date m))))
-                     coll))))))))))
+  (report "gso" gso-styles scripts
+    (body
+      (header
+      (main
+        (table
+          (thead
+            (tr
+              (gen-th (list "id" "" "№ 1С" "тип" "наличие"
+                            "состав" "значение" "погрешность"
+                            "ед. изм." "№ паспорта" "дата"
+                            "срок годности"))))
+          (tbody
+            (string/join
+              "\n"
+              (map (fn [m]
+                       (tr
+                         (td (:id m))
+                         (td (:expiration m))
+                         (td (:number_1c m))
+                         (td (str (:type m) " " (:number m)))
+                         (td (:available m))
+                         (td (:components m))
+                         (td (:concentration m))
+                         (td (:uncertainity m))
+                         (td (:units m))
+                         (td (:pass_number m))
+                         (td (:date m))
+                         (td (:expiration_date m))))
+                   coll)))))))))
 
-(defn metrology
-  ""
-  [coll]
+(defn full-methodology-table
+  [m]
   ())
+
+(defn metrology-row
+  [m]
+  (str
+    (tr
+      (td {:rowspan 2} (:metrology_id m))
+      (td (:channel_id m))
+      (td (:channel m))
+      (td (:type_id m))
+      (td (:name m))
+      (td (:chr_string m))
+      (td (:operation_id m)))
+    "\n"
+    (tr
+      (string/join "\n"
+        (map (fn [s]
+                 (td {:colspan 2} (s m)))
+             (list :channel_name :channel_comment :metrology_comment))
+        #_(td {:colspan 2} (:channel_name m))
+        #_(td {:colspan 2} (:channel_comment m))
+        #_(td {:colspan 2} (:metrology_comment m))))))
+
+(defn metrology-table
+  [coll]
+  (table
+    (tr
+      (th {:rowspan 2} "МХ id")
+      (gen-th (list "канал id" "канал" "тип id"
+                     "имя МХ" "МХ" "операция")))
+    (tr
+      (string/join "\n"
+        (map (fn [s]
+                 (th {:colspan 2} s))
+             (list "имя канала" "коммент канала" "коммент МХ"))))
+    (string/join "\n"
+      (map (fn [m]
+               (metrology-row m))
+           coll))))
+
+(defn methodology-report
+  [coll]
+  (report "methodology" styles scripts
+    (body
+      (header)
+      (main
+        (string/join "\n"
+          (map (fn [m]
+                   (div
+                     (hr)
+                     (p "Сведения о методике поверки")
+                     (full-methodology-table m)
+                     (p "Метрологические характеристики")
+                     (metrology-table (:metrology m))))
+               coll))))))
 
 (comment
 

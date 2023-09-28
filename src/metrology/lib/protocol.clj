@@ -426,7 +426,9 @@ var blurred = false
                 :r_to ; end point of range"
    [m]
    (cond (= (:error_type m) 0)
-           (:error m)
+           (if (:addition m)
+               (+ (* (:error m) (:ref_value m)) (:addition m))
+               (:error m))
          (= (:error_type m) 1)
            (double (/ (* (:error m) (:ref_value m)) 100))
          (= (:error_type m) 2)
