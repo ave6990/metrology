@@ -360,7 +360,57 @@ th, td {
 
 (defn full-methodology-table
   [m]
-  ())
+  (table
+    (tr
+      (gen-th (list "id" "рег. №" "дата от" "дата до" "сокращенная")))
+    (tr
+      (td (:id m))
+      (td (:registry_number m))
+      (td (:date_from m))
+      (td (:date_to m))
+      (td (:limited m)))
+    (tr
+      (th "название")
+      (td {:colspan 4} (:name m)))
+    (tr
+      (th "сокращенное")
+      (td {:colspan 4} (:short_name m)))
+    (tr
+      (th "СИ")
+      (td {:colspan 4} (:mi_name m)))
+    (tr
+      (th "тип СИ")
+      (td {:colspan 4} (:mi_type m)))))
+
+(defn conditions-table
+  [m]
+  (table
+    (tr
+      (gen-th (list "темп." "влажн." "давл." "напряж." "частота")))
+    (tr
+      (td (:temperature m))
+      (td (:humidity m))
+      (td (:pressure m))
+      (td (:voltage m))
+      (td (:frequency m)))
+    (tr
+      (th "прочие")
+      (td {:colspan 4} (:other m)))))
+
+(defn operations-table
+  [coll]
+  (table
+    (tr
+      (gen-th (list "id" "пункт" "вид поверки" "наименование" "инфо")))
+    (string/join "\n"
+      (map (fn [m]
+               (tr
+                 (td (:id m))
+                 (td (:section m))
+                 (td (:verification_type m))
+                 (td (:name m))
+                 (td (:info m))))
+           coll))))
 
 (defn metrology-row
   [m]
@@ -412,6 +462,10 @@ th, td {
                      (hr)
                      (p "Сведения о методике поверки")
                      (full-methodology-table m)
+                     (p "Условия поверки")
+                     (conditions-table m)
+                     (p "Операции поверки")
+                     (operations-table (:operations m))
                      (p "Метрологические характеристики")
                      (metrology-table (:metrology m))))
                coll))))))
