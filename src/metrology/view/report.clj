@@ -61,13 +61,12 @@ th, td {
          (meta {:name "version" :content "2023-09-21"})
          (title page)
          (style {:type "text/css"} st)
-         (script {:type "text/javascript"} sc)
-           (report-head "report" styles scripts))
+         (script {:type "text/javascript"} sc))
        content)))
   ([page st content]
-   (report-head page st "" content))
+   (report page st "" content))
   ([page content]
-   (report-head page "" "" content)))
+   (report page "" "" content)))
 
 (defn gen-th
   [coll]
@@ -243,10 +242,11 @@ th, td {
                    (td (:id m))
                    (td (:section m))
                    (td (:name m))
+                   ;; Были проблемы с case при условии -1
                    (td (case (:result m)
-                         0 "-"
-                         1 "V"
-                         -1 "X"))
+                             0 "-"
+                             1 "V"
+                             -1 "X"))
                    (td (:unusability m))
                    (td (:comment m))))
              (:operations m))))))
@@ -477,5 +477,11 @@ th, td {
 (require '[metrology.lib.gen-html :refer :all])
 
 (require '[metrology.lib.metrology :as metr])
+
+(operations {:operations {:id 280 :section 3 :name "name" :result 0
+             :unusability "text" :comment nil}})
+
+(:operations {:operations {:id 280 :section 3 :name "name" :result 0
+             :unusability "text" :comment nil}})
 
 )

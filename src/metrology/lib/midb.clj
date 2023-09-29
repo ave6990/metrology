@@ -423,7 +423,7 @@
              (if (= "" where)
                  ""
                  (str " where " where))
-             " order by id desc")))))
+             " order by available desc, components, conc")))))
   ([]
    (gso "")))
 
