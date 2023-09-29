@@ -1,54 +1,54 @@
 ;; ГС-2000
 (require '[metrology.lib.gs2000 :as gs])
 
-((gs/calculator (gs/passports 1)) "H2S" :air 2020 6.7)
+(pprint (gs2000 1 "NO2" 24.3 (list 1.5 10 18)))
+
+(ch/ppm->mg "NO2" 24.3)
+
+(/ 1.077 4.4)
 
 (def record (atom nil))
 (def current (atom nil))
 (def protocol (atom nil))
 
-(gso "lower(components) like 'ch4%'
+(gso "lower(components) like 'h2s%'
       and expiration_date > date('now')")
 
-(methodology (list 307))
-
-(load-icu)
+(methodology (list 68))
 
 ;; Найти запись о поверке
 (gen-report
   (find-verification
-    "v.id >= 2340 and v.id <= 2343"))
+    "v.id >= 2359 and v.id <= 2360"))
 
 ;; Найти СИ
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%alert%clip%xt%'"))
+    "lower(v.mi_type) like '%М 02%'"))
 
 ;; Генерация отчета о поверке
-(gen-report (list 2344))
+(gen-report (list 2359))
 
 ;; Генерация протоколов поверки
-(gen-protocols "id >= 2326 and id <= 2326")
+(gen-protocols "id >= 2359 and id <= 2360")
 
 ;; Генерация результатов измерений
-(gen-values! "id >= 2344")
+(gen-values! "id >= 2359")
 
 (pprint (find-methodology "СГОЭС-М"))
 
-(pprint (get-methodology-data (list 280)))
-
-(pprint (find-counteragent "УЭСП"))
+(pprint (find-counteragent "огистический"))
 
 (reset! record (get-record 2220))
 
 ;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 2344))
-     (range 4))
+(map (fn [s] (copy-record! 2190))
+     (range 1))
 
-(let [nums (map (fn [n] (str "G0251" n))
-                (list "15CR3" "17BR3" "061R2" "052R3" "16AR3"))
-      start-id 2344
-      start-protocol-number 2341]
+(let [nums (map (fn [n] (str "" n))
+                (list "1910489"))
+      start-id 2360
+      start-protocol-number 2357]
   (map (fn [n i]
          (jdbc/update!
            midb
@@ -56,24 +56,24 @@
            (hash-map
              :protocol nil
              :protolang nil
-             :count "9/002879"
-             :counteragent 57
-             :conditions 1002
-             ;:mi_type "МАГ-6 С-П"
+             :count "9/0029623"
+             :counteragent 50
+             :conditions 1013
+             ;:mi_type "ОКА-Т-NH₃-NO₂-CO₂-И11(6)"
              :serial_number n
-             :manufacture_year 2014
+             :manufacture_year 2020
              :protocol_number (+ start-protocol-number i)
              ;:comment "Леонтьев"
              ;:comment 11
              ;:upload 1
              ;:channels 1
-             :components "H₂S (сероводород)"
+             ;:components "датчик Хоббит-ТВ зав. № 672"
              ;:scope
              ;:sw_name "Mag6sc.txt"
              ;:sw_version "не ниже 1.00"
              ;:sw_checksum "f62bb67c59102cee9bbe35e996178c37d53a7aa96f248694a2ff91fe542afb44"
              ;:sw_algorithm "ГОСТ Р 34.11-94"
-             :sw_version_real "v1.64"
+             ;:sw_version_real "v1.64"
              )
            ["id = ?" (+ start-id i)]))
        nums
@@ -86,7 +86,7 @@
 
 (delete-v-gso! 2343)
 
-(set-v-gso! 2343 (list 359))
+(set-v-gso! 2360 (list 237 278 284 332 347))
 
 ;; Удалить записи с id >=
 (map (fn [i]
@@ -96,7 +96,7 @@
 ;; Удалить запись
 (delete-record! 2333)
 
-(pprint (get-conditions "2023-08-30"))
+(pprint (get-conditions "2023-09-14"))
 
 (insert-conditions! {:date "2023-09-25"
                      :temperature 23.3
@@ -137,6 +137,13 @@
 (set-v-operations! 2216
                    (list 60 608 1063 1672 1673))
 
+(jdbc/update!
+  midb
+  :v_operations
+  {:result -1
+   :unusability "ошибка Е3 по каналу измерения O₂"}
+  ["v_id = ? and op_id = ?" 2360 813])
+
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
                         (:v_gso (get-record 2215)))
@@ -162,7 +169,7 @@
 
 (copy-measurements! 2337 2339)
 
-(delete-measurements! 2344)
+(delete-measurements! 2359)
 
 (pprint @record)
 
@@ -320,11 +327,19 @@
            midb
            :measurements
            (hash-map
-             :v_id 2344
-             :metrology_id 283
-             :ref_value ref
+             :v_id 2359
+             :metrology_id (ref 0)
+             :ref_value (ref 1)
              )))
-    (list nil))
+    (list [1143 0] [1143 15.17] [1144 49.41] [1144 89.88]
+          [1144 49.41] [1143 15.17] [1143 0] [1144 89.88]
+          [1146 nil]
+          [1152 0] [1152 1.52] [1153 10.01] [1153 18]
+          [1153 10.01] [1152 1.52] [1152 0] [1153 18]
+          [1155 nil]
+          [1156 0] [1156 0.35] [1157 2.5] [1157 4.75]
+          [1157 2.5] [1156 0.35] [1156 0] [1157 4.75]
+          [1159 nil]))
 
 ;; Изменить измерения
 (map (fn [id m]
@@ -341,42 +356,52 @@
 
 (ch/ppm->mg "NH3" 95)
 
+(ch/mg->ppm "CO2" 27000)
+
 ;; Каналы и МХ
 (ins-channel!
-  {:methodology_id 307
+  {:methodology_id 68
    :channel nil
-   :component "CH4"
+   :component "CO2"
    :range_from 0
    :range_to 5
    :units "% об."
    :low_unit 0.01
    :view_range_from 0
-   :view_range_to 5
+   :view_range_to 7
    :comment "диапазон показаний условно!"}
   (list {:r_from 0
          :r_to 2
-         :value 0.2 
-         :type_id 0
+         :value 25 
+         :type_id 2
          :units nil
-         :operation_id 1410
+         :operation_id 589
          :comment nil}
         {:r_from 2
          :r_to 5
-         :value 10
-         :type_id 1410
+         :value 25
+         :type_id 1
          :units nil
-         :operation_id 1410
+         :operation_id 589
          :comment nil}
         {:value 0.5
          :type_id 5
          :units ""
-         :operation_id 1444}
-        {:value 30
+         :operation_id 850}
+        {:value 120
          :type_id 6
          :units "с"
-         :operation_id 1462}))
+         :operation_id 1048}))
 
-;; Контрагенты изменение записи
+;; Контрагенты
+(jdbc/insert!
+  midb
+  :counteragents
+  {:name "ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ КАЗЕННОЕ УЧРЕЖДЕНИЕ «ЛОГИСТИЧЕСКИЙ КОМПЛЕКС № 29»"
+   :short_name "ФГКУ «ЛОГИСТИЧЕСКИЙ КОМПЛЕКС № 29»"
+   :address "461504, Оренбургская область, р-н Соль-Илецкий, г. Соль-Илецк, ул. Вокзальная, дом 125"
+   :inn "5646007850"})
+
 (jdbc/update!
   midb
   :counteragents
@@ -432,9 +457,13 @@
              (str (:date m) "T17:30")))
        data))
 
+(require '[clojure.repl :refer :all])
+
 (find-doc "assoc")
 
 (doc get-in)
+
+(doc assoc)
 
 (dir clojure.core)
 

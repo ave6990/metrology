@@ -449,6 +449,23 @@
                 (:measurements prot)))
        (get-protocols-data where)))
 
+(defn gs2000
+  ([gen-n gas s-conc t-conc-coll]
+    (map (fn [c]
+             ((gs/calculator (gs/passports gen-n))
+                             gas
+                             :air
+                             s-conc
+                             c))
+         t-conc-coll))
+  ([gen-n s-conc t-conc-coll]
+    (map (fn [c]
+             ((gs/calculator (gs/passports gen-n))
+                             :air
+                             s-conc
+                             c))
+         t-conc-coll)))
+
 (comment
 
 (doc if-let)
