@@ -14,41 +14,43 @@
 (gso "lower(components) like '%'
       and expiration_date > date('now')")
 
-(methodology (list 322))
+(methodology (list 331))
 
 ;; Найти запись о поверке
 (gen-report
   (find-verification
-    "v.id >= 2359 and v.id <= 2360"))
+    "v.id >= 2380 and v.id <= 2385"))
 
 ;; Найти СИ
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%СГГ-20%'"))
+    "lower(v.mi_type) like '%ГХ-М%'"))
 
 ;; Генерация отчета о поверке
-(gen-report (list 2370))
+(gen-report (list 2381))
 
 ;; Генерация протоколов поверки
-(gen-protocols "id >= 2370")
+(gen-protocols "id >= 2380")
 
 ;; Генерация результатов измерений
-(gen-values! "id >= 2370")
+(gen-values! "id >= 2381 and id <= 2381")
 
-(pprint (find-methodology "СГОЭС-М"))
+(pprint (find-methodology "СГГ-20М"))
 
 (pprint (find-counteragent "СОВХОЗНОЕ"))
 
-(reset! record (get-record 2220))
+(reset! record (get-verification (get-last-id "verification")))
+
+(get-v-operations 2380)
 
 ;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 1649))
+(map (fn [s] (copy-record! 2384))
      (range 1))
 
-(let [nums (map (fn [n] (str "" n))
-                (list 844))
-      start-id 2380
-      start-protocol-number 2367]
+(let [nums (map (fn [n] (str "19" n))
+                (list 5097 4996))
+      start-id 2386
+      start-protocol-number 2339]
   (map (fn [n i]
          (jdbc/update!
            midb
@@ -57,23 +59,23 @@
              :protocol nil
              :protolang nil
              :count "9/0029683"
-             :counteragent 373
+             :counteragent 171
              :conditions 1025
-             ;:mi_type "ОКА-Т-NH₃-NO₂-CO₂-И11(6)"
+             ;:mi_type "АНКАТ-64М3-01"
              :serial_number n
-             :manufacture_year nil
+             :manufacture_year 2019
              :protocol_number (+ start-protocol-number i)
-             ;:comment "Леонтьев"
+             :comment "Леонтьев"
              ;:comment 11
              ;:upload 1
-             ;:channels 1
-             ;:components "Детектор ПИД-1 зав. № 1700521"
+             ;:channels 4
+             ;:components "O₂ (кислород); CH₄ (метан); CO (оксид углерода); H₂S (сероводород)"
              ;:scope
              ;:sw_name "Mag6sc.txt"
              ;:sw_version "не ниже 1.00"
              ;:sw_checksum "f62bb67c59102cee9bbe35e996178c37d53a7aa96f248694a2ff91fe542afb44"
              ;:sw_algorithm "ГОСТ Р 34.11-94"
-             :sw_version_real "v4.21"
+             ;:sw_version_real "v4.21"
              )
            ["id = ?" (+ start-id i)]))
        nums
@@ -86,7 +88,7 @@
 
 (delete-v-gso! 2343)
 
-(set-v-gso! 2370 (list 358 359 280 286 322 347 352))
+(set-v-gso! 2384 (list 320 365))
 
 ;; Удалить записи с id >=
 (map (fn [i]
@@ -113,17 +115,19 @@
 (pprint (:verification @record))
 
 ;Установить ГСО по номерам паспортов ГСО.
-(set-v-gso! 2333
+(set-v-gso! 2381
             (map (fn [m]
                      (:id m))
-                 (check-gso (list "11636-23" "11637-23")
+                 (check-gso (list "11101-23" "00808-23"
+                                  "14307-21" "02464-22"
+                                  "00810-23" "08198-23")
                             "pass_number")))
 
 (set-v-gso! 2331 
             (list 278 285 349 332 334 258))
 
-(set-v-refs! 2370
-             (list 2846 2820))
+(set-v-refs! 2381
+             (list 2663 2820))
 
 (delete-v-refs! 2260)
 
@@ -233,6 +237,11 @@
 
 (get-last-id "verification")
 
+(let [data (get-verification (get-last-id "verification"))]
+  (map (fn [k]
+         (k data))
+     (list :id :protocol_number)))
+
 (defn mc-ppm->mg
   [m]
   (if ( = "млн⁻¹" (:units m))
@@ -294,24 +303,30 @@
              :result 1)))
      (list 236 510 1541))
 
-;; Измерения
-(map (fn [ref]
+(defn add-measurements
+  [id coll]
+  (map (fn [ref]
          (jdbc/insert!
            midb
            :measurements
            (hash-map
-             :v_id 2370
+             :v_id id
              :metrology_id (ref 0)
              :ref_value (ref 1)
              )))
-    (list [407 0] [407 14.84] [407 29.19] [407 14.84]
-          [407 0] [407 29.19]
-          [440 0] [440 49.55] [441 95.91] [440 49.55]
-          [440 0] [441 95.91]
-          [1160 0] [1160 43.98] [1161 291.53] [1161 557.29]
-          [1161 291.53] [1160 43.98] [1160 0] [1161 557.29]
-          [1130 0] [1130 10.63] [1131 70.74] [1131 134.45]
-          [1131 70.74] [1130 10.63] [1130 0] [1131 134.45]))
+       coll))
+
+;; Измерения
+(add-measurements
+  2381
+  (list [1162 0] [1162 24.48] [1162 48.18]
+        [1162 24.48] [1162 0] [1162 48.18]
+        [1176 0] [1176 13.42] [1176 29.19]
+        [1176 13.42] [1176 0] [1176 29.19]
+        [1169 1.2] [1170 100] [1170 190]
+        [1170 100] [1170 1.2] [1170 190]
+        [1172 0] [1173 20] [1173 34]
+        [1173 20] [1172 0] [1173 34]))
 
 ;; Изменить измерения
 (map (fn [id m]
@@ -332,38 +347,41 @@
 
 ;; Каналы и МХ
 (ins-channel!
-  {:methodology_id 322
+  {:methodology_id 331
    :channel nil
-   :component "CO"
+   :component "O2"
    :range_from 0
-   :range_to 582
-   :units "мг/м³"
-   :low_unit 1
+   :range_to 30
+   :units "% об."
+   :low_unit 0.1
    :view_range_from 0
-   :view_range_to 1000
-   :comment "диапазон показаний условно!"}
+   :view_range_to 45
+   ;:comment "диапазон показаний условно!"
+   }
   (list {:r_from 0
-         :r_to 46.6
-         :value 4.7
+         :r_to 30
+         :value 0.9
+         :fraction nil
          :type_id 0
          :units nil
-         :operation_id 1165
+         :operation_id 1485
          :comment nil}
-        {:r_from 46.6
-         :r_to 582
-         :value 10
-         :type_id 1
+        #_{:r_from 10
+         :r_to 40
+         :value nil
+         :fraction 0.25
+         :type_id 0
          :units nil
-         :operation_id 1165
+         :operation_id 1485
          :comment nil}
-        #_{:value 0.5
+        {:value 0.5
          :type_id 5
          :units ""
-         :operation_id 850}
-        #_{:value 120
+         :operation_id nil}
+        {:value 15
          :type_id 6
          :units "с"
-         :operation_id 1048}))
+         :operation_id nil}))
 
 ;; Контрагенты
 (jdbc/insert!
@@ -377,10 +395,12 @@
 (jdbc/update!
   midb
   :counteragents
-  {:address "460028, Оренбургская область, город Оренбург, улица Заводская, 30"
-   :name "ОАО «НЕФТЕМАСЛОЗАВОД»"
-   :short_name "ОАО «НЕФТЕМАСЛОЗАВОД»"}
-  ["id = ?" 4274])
+  {
+   :name "ФИЛИАЛ ООО «ГАЗПРОМ ПХГ» «СОВХОЗНОЕ УПХГ»"
+   :short_name "ФИЛИАЛ ООО «ГАЗПРОМ ПХГ» «СОВХОЗНОЕ УПХГ»"
+   ;:address "460028, Оренбургская область, город Оренбург, улица Заводская, 30"
+   }
+  ["id = ?" 171])
 
 ;; Cars
 ;; Insert record
@@ -435,7 +455,7 @@
 
 (doc get-in)
 
-(doc assoc)
+(doc get)
 
 (dir clojure.core)
 

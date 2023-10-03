@@ -160,29 +160,54 @@
   (first (jdbc/query midb
               ["select * from verification where id = ?" id]))) 
 
+(defmacro defn-get
+  [s s-id]
+  (let [id (gensym "id")
+        m (gensym "m")]
+    `(defn ~(symbol (str "get-"
+                         (string/replace s "_" "-")))
+      [~id]
+      (map (fn [~m]
+               (~(keyword s-id) ~m))
+           (jdbc/query
+             midb
+             [~(str "select "
+                    s-id
+                    " from "
+                    s
+                    " where v_id = ?")
+              ~id])))))
+
+(defn-get "v_gso" "gso_id")
+(defn-get "v_refs" "ref_id")
+(defn-get "v_opt_refs" "ref_id")
+(defn-get "v_operations" "op_id")
+
 (defn get-v-operations
   ""
   [id]
   (jdbc/query
     midb
-    ["select * from view_v_operations where v_id = ?" id]))
+    ["select op_id from v_operations where v_id = ?" id]))
 
 (defn get-record
   "Возвращает hash-map записи о поверке."
   [id]
-  (conj (hash-map :verification (get-verification id))
-              (hash-map :operations
-                        (get-v-operations id))
-              (map (fn [table]
-                     (hash-map
-                       (keyword table)
-                       (jdbc/query midb
-                                   [(str "select * from "
-                                         table
-                                         " where v_id = ?;")
-                                    id])))
-                   (list "v_gso" "v_refs" "v_opt_refs"
-                    "v_operations" "measurements"))))
+  (conj (hash-map
+          :verification (get-verification id))
+          (reduce (fn [m table]
+                      (conj m
+                            (hash-map
+                              (keyword table)
+                              (jdbc/query
+                                midb
+                                [(str "select * from "
+                                      table
+                                      " where v_id = ?;")
+                                 2380]))))
+                          {}
+                         (list "v_gso" "v_refs" "v_opt_refs"
+                          "v_operations" "measurements"))))
 
 (defn get-protocols-data
   ""
@@ -218,7 +243,8 @@
                   q/report-verifications
                   "("
                   (string/join ", " coll)
-                  ")"))
+                  ")
+                  order by date desc, id desc"))
         measurements (jdbc/query
                       midb
                       (str "select * from view_v_measurements
@@ -312,8 +338,10 @@
     (jdbc/query midb)
     first))
 
+(conj (list 233 32 245) 140)
+
 (defn update-record!
-  [table record changes]
+  [record table changes]
   (jdbc/update! midb
                 table
                 (assoc-multi (table record) changes)
@@ -472,6 +500,6 @@
 
 (doc flatten)
 
-(doc get)
+(doc assoc)
 
 )

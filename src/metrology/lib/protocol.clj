@@ -191,7 +191,7 @@
                 (metr/error val
                             (metr/round (:ref_value m)
                                         (if (pos? (metr/exponent discrete-val))
-                                            (0)
+                                            0
                                             (* -1 (inc (metr/exponent discrete-val)))))
                             (:r_from m)
                             (:r_to m)))
@@ -432,8 +432,11 @@ var blurred = false
                 :r_to ; end point of range"
    [m]
    (cond (= (:error_type m) 0)
-           (if (:addition m)
-               (+ (* (:error m) (:ref_value m)) (:addition m))
+           (if (:fraction m)
+               (+ (* (:error m) (:fraction m))
+                  (if (:value m)
+                      (:value m)
+                      0))
                (:error m))
          (= (:error_type m) 1)
            (double (/ (* (:error m) (:ref_value m)) 100))

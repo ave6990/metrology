@@ -3,10 +3,12 @@
 
 (defn last-id
   "SQL-запрос возвращающий id послдней записи таблицы.
-  args:
-    `table` - a table name.
-  ret:
-    hash-map"
+  Usage: (last-id table)
+  Specs:
+    Args: (cat
+            :table string?)
+    Ret:
+      hash-map?"
   [table]
   (string/replace
     "select id from ? order by id desc limit 1;"
@@ -161,9 +163,7 @@ where
   ")
 
 (def find-methodology
-"select
-  *
-from
+"select * from
   methodology
 where
   lower(id || ', ' || registry_number ||
