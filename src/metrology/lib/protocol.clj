@@ -189,7 +189,10 @@
                   discrete-val))
         err (if (:value m)
                 (metr/error val
-                            (metr/discrete (:ref_value m) discrete-val)
+                            (metr/round (:ref_value m)
+                                        (if (pos? (metr/exponent discrete-val))
+                                            (0)
+                                            (* -1 (inc (metr/exponent discrete-val)))))
                             (:r_from m)
                             (:r_to m)))
         vari (if (:value_2 m)
@@ -197,7 +200,10 @@
                         (metr/variation
                           (:value_2 m)
                           (:value m)
-                          (:ref_value m)
+                          (metr/round (:ref_value m)
+                                      (if (pos? (metr/exponent discrete-val))
+                                          (0)
+                                          (* -1 (inc (metr/exponent discrete-val)))))
                           (:error m)
                           (:error_type m)
                           (:r_from m)

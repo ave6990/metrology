@@ -273,11 +273,15 @@ th, td {
                        (let [res (pr/metrology-calc m)]
                          (str (td
                                 (string/replace
-                                  (metr/discrete
+                                  (metr/round
                                     (:ref_value m)
-                                    (if (:low_unit m)
-                                        (:low_unit m)
-                                        0.1))
+                                    (let [discrete-val
+                                        (if (:low_unit m)
+                                            (:low_unit m)
+                                            0.1)]
+                                    (if (pos? (metr/exponent discrete-val))
+                                        0
+                                        (* -1 (dec (metr/exponent discrete-val))))))
                                   "." ","))
                               (td (:value res))
                               (td (:value_2 m))

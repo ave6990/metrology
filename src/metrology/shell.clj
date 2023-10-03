@@ -1,7 +1,7 @@
 ;; ГС-2000
 (require '[metrology.lib.gs2000 :as gs])
 
-(pprint (gs2000 1 "NO2" 24.3 (list 1.5 10 18)))
+(pprint (gs2000 1 "H2S" 2020 (list 70.84 134.6)))
 
 (ch/ppm->mg "NO2" 24.3)
 
@@ -11,10 +11,10 @@
 (def current (atom nil))
 (def protocol (atom nil))
 
-(gso "lower(components) like 'h2s%'
+(gso "lower(components) like '%'
       and expiration_date > date('now')")
 
-(methodology (list 68))
+(methodology (list 322))
 
 ;; Найти запись о поверке
 (gen-report
@@ -24,31 +24,31 @@
 ;; Найти СИ
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%М 02%'"))
+    "lower(v.mi_type) like '%СГГ-20%'"))
 
 ;; Генерация отчета о поверке
-(gen-report (list 2359))
+(gen-report (list 2370))
 
 ;; Генерация протоколов поверки
-(gen-protocols "id >= 2359 and id <= 2360")
+(gen-protocols "id >= 2370")
 
 ;; Генерация результатов измерений
-(gen-values! "id >= 2359")
+(gen-values! "id >= 2370")
 
 (pprint (find-methodology "СГОЭС-М"))
 
-(pprint (find-counteragent "огистический"))
+(pprint (find-counteragent "СОВХОЗНОЕ"))
 
 (reset! record (get-record 2220))
 
 ;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 2190))
+(map (fn [s] (copy-record! 1649))
      (range 1))
 
 (let [nums (map (fn [n] (str "" n))
-                (list "1910489"))
-      start-id 2360
-      start-protocol-number 2357]
+                (list 844))
+      start-id 2380
+      start-protocol-number 2367]
   (map (fn [n i]
          (jdbc/update!
            midb
@@ -56,24 +56,24 @@
            (hash-map
              :protocol nil
              :protolang nil
-             :count "9/0029623"
-             :counteragent 50
-             :conditions 1013
+             :count "9/0029683"
+             :counteragent 373
+             :conditions 1025
              ;:mi_type "ОКА-Т-NH₃-NO₂-CO₂-И11(6)"
              :serial_number n
-             :manufacture_year 2020
+             :manufacture_year nil
              :protocol_number (+ start-protocol-number i)
              ;:comment "Леонтьев"
              ;:comment 11
              ;:upload 1
              ;:channels 1
-             ;:components "датчик Хоббит-ТВ зав. № 672"
+             ;:components "Детектор ПИД-1 зав. № 1700521"
              ;:scope
              ;:sw_name "Mag6sc.txt"
              ;:sw_version "не ниже 1.00"
              ;:sw_checksum "f62bb67c59102cee9bbe35e996178c37d53a7aa96f248694a2ff91fe542afb44"
              ;:sw_algorithm "ГОСТ Р 34.11-94"
-             ;:sw_version_real "v1.64"
+             :sw_version_real "v4.21"
              )
            ["id = ?" (+ start-id i)]))
        nums
@@ -86,7 +86,7 @@
 
 (delete-v-gso! 2343)
 
-(set-v-gso! 2360 (list 237 278 284 332 347))
+(set-v-gso! 2370 (list 358 359 280 286 322 347 352))
 
 ;; Удалить записи с id >=
 (map (fn [i]
@@ -96,13 +96,14 @@
 ;; Удалить запись
 (delete-record! 2333)
 
-(pprint (get-conditions "2023-09-14"))
+(pprint (get-conditions "2023-09-28"))
 
-(insert-conditions! {:date "2023-09-25"
-                     :temperature 23.3
-                     :humidity 50.6
-                     :pressure 101.85
-                     :voltage 222.8
+(insert-conditions! {:date "2023-10-02"
+                     :temperature 23.1
+                     :humidity 51.9
+                     :pressure 100.86
+                     :voltage 224.4
+                     :frequency 50
                      ;:other "расход ГС (0,1 - 0,3) л/мин."
                      ;:location "УЭСП"
                      ;:comment ""
@@ -121,8 +122,8 @@
 (set-v-gso! 2331 
             (list 278 285 349 332 334 258))
 
-(set-v-refs! 2332
-             (list 923))
+(set-v-refs! 2370
+             (list 2846 2820))
 
 (delete-v-refs! 2260)
 
@@ -169,7 +170,7 @@
 
 (copy-measurements! 2337 2339)
 
-(delete-measurements! 2359)
+(delete-measurements! 2370)
 
 (pprint @record)
 
@@ -210,44 +211,25 @@
   {:type "ГСО"
     :available 1
     :document "паспорт"
-    :number "10563-2015"
-    :components "NH3+N2"
-    :concentration 22.5
+    :number "10510-2014"
+    :components "C3H8+N2+He"
+    :concentration "0.302+0.206+"
     :units "ppm"
-    :uncertainity 0.3
-    :pass_number "11874-23"
-    :number_1c 1850 
-    :manufacture_date "2023-08-11"
-    :expiration_period 12
-    :expiration_date "2024-08-10"
-    :level 0
-    :date "2023-09-05"
-    :cylinder_number "6414"
+    :uncertainity "0.005+0.003" 
+    :pass_number "02029-23"
+    :number_1c 1687 
+    :manufacture_date "2023-03-10"
+    :expiration_period 24
+    :expiration_date "2025-03-09"
+    :level 1
+    :date "2023-03-27"
+    :cylinder_number "02990"
     :volume 4
-    :pressure 8
+    :pressure 7.5
     ;:comment
   })
 
-;; Просроченные эталоны
-(pprint (filter (fn [m] (not= "" (:expiration m)))
-        (all-refs 345)))
-
 (pprint (all-refs 1861))
-
-(map (fn [m]
-         ({:number_1c (:number_1c m)
-           :components (:components m)
-           :expiration_date (:expiration_date m)}))
-     (all-refs 2327))
-
-(pprint (map (fn [m]
-             (hash-map
-              :number_1c (:number_1c m)
-              :components (:components m)
-              :expiration_date (:expiration_date m)))
-         (all-refs 2327)))
-
-(get-record (get-last-id "verification"))
 
 (get-last-id "verification")
 
@@ -258,15 +240,6 @@
         :units "мг/м³"
         :range_from)
       m))
-
-(defn get-last
-  []
-  (let [m (:verification (get-record (get-last-id "verification")))]
-    (apply hash-map (flatten (map (fn [k]
-                               (list k (k m)))
-                             (list :id :protocol_number))))))
-
-(get-last-id "verification")
 
 ;; Методику добавить
 (jdbc/insert!
@@ -327,19 +300,18 @@
            midb
            :measurements
            (hash-map
-             :v_id 2359
+             :v_id 2370
              :metrology_id (ref 0)
              :ref_value (ref 1)
              )))
-    (list [1143 0] [1143 15.17] [1144 49.41] [1144 89.88]
-          [1144 49.41] [1143 15.17] [1143 0] [1144 89.88]
-          [1146 nil]
-          [1152 0] [1152 1.52] [1153 10.01] [1153 18]
-          [1153 10.01] [1152 1.52] [1152 0] [1153 18]
-          [1155 nil]
-          [1156 0] [1156 0.35] [1157 2.5] [1157 4.75]
-          [1157 2.5] [1156 0.35] [1156 0] [1157 4.75]
-          [1159 nil]))
+    (list [407 0] [407 14.84] [407 29.19] [407 14.84]
+          [407 0] [407 29.19]
+          [440 0] [440 49.55] [441 95.91] [440 49.55]
+          [440 0] [441 95.91]
+          [1160 0] [1160 43.98] [1161 291.53] [1161 557.29]
+          [1161 291.53] [1160 43.98] [1160 0] [1161 557.29]
+          [1130 0] [1130 10.63] [1131 70.74] [1131 134.45]
+          [1131 70.74] [1130 10.63] [1130 0] [1131 134.45]))
 
 ;; Изменить измерения
 (map (fn [id m]
@@ -354,41 +326,41 @@
            {:value_2 0.046}
            {:value_2 0.503}))
 
-(ch/ppm->mg "NH3" 95)
+(ch/ppm->mg "H2S" 95)
 
-(ch/mg->ppm "CO2" 27000)
+(ch/mg->ppm "CO" 500)
 
 ;; Каналы и МХ
 (ins-channel!
-  {:methodology_id 68
+  {:methodology_id 322
    :channel nil
-   :component "CO2"
+   :component "CO"
    :range_from 0
-   :range_to 5
-   :units "% об."
-   :low_unit 0.01
+   :range_to 582
+   :units "мг/м³"
+   :low_unit 1
    :view_range_from 0
-   :view_range_to 7
+   :view_range_to 1000
    :comment "диапазон показаний условно!"}
   (list {:r_from 0
-         :r_to 2
-         :value 25 
-         :type_id 2
+         :r_to 46.6
+         :value 4.7
+         :type_id 0
          :units nil
-         :operation_id 589
+         :operation_id 1165
          :comment nil}
-        {:r_from 2
-         :r_to 5
-         :value 25
+        {:r_from 46.6
+         :r_to 582
+         :value 10
          :type_id 1
          :units nil
-         :operation_id 589
+         :operation_id 1165
          :comment nil}
-        {:value 0.5
+        #_{:value 0.5
          :type_id 5
          :units ""
          :operation_id 850}
-        {:value 120
+        #_{:value 120
          :type_id 6
          :units "с"
          :operation_id 1048}))

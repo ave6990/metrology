@@ -1,9 +1,17 @@
 (ns metrology.lib.midb-queries
-  (:require [clojure.string]))
+  (:require [clojure.string :as string]))
 
-(def last-id
-  "SQL-запрос возвращающий id послдней записи таблицы."
-  "select id from ? order by id desc limit 1;")
+(defn last-id
+  "SQL-запрос возвращающий id послдней записи таблицы.
+  args:
+    `table` - a table name.
+  ret:
+    hash-map"
+  [table]
+  (string/replace
+    "select id from ? order by id desc limit 1;"
+    "?"
+    table))
 
 (def copy-verification
   "Query to copy the record with id from the verification table"
@@ -108,8 +116,8 @@ inner join
 where
   {where}
 order by
-    c.date,
-    v.id")
+    c.date desc,
+    v.id desc")
 
 (def counteragents
   "Counteragents query."

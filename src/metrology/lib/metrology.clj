@@ -68,15 +68,24 @@
   "Округляет значение с учетом заданной дискретности."
   [val discrete-val]
   (let [exp
-    (let [t-val (math/log10 discrete-val)]
-      (if (pos? t-val)
-          (* -1 (inc (math/ceil t-val)))
-          (* -1 (inc (math/floor t-val)))))]
+        (let [t-val (math/log10 discrete-val)]
+          (if (pos? t-val)
+              (* -1 (inc (math/ceil t-val)))
+              (* -1 (inc (math/floor t-val)))))]
     (round (+ (round val exp)
      (* discrete-val
         (round (double (/ 
                          (- val (round val exp))
                          discrete-val))))) (inc exp))))
+
+(defn exponent
+  [val]
+  (let [t-val (if (zero? val)
+                  0
+                  (math/log10 val))]
+    (if (pos? t-val)
+        (math/ceil t-val))
+        (math/floor t-val)))
 
 (defn sko
   "Функция вычисления среднего квадратического отклонения."

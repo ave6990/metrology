@@ -30,7 +30,7 @@
   [s]
   (:id (first (jdbc/query 
                 midb
-                (clojure.string/replace q/last-id "?" s)))))
+                (q/last-id s)))))
 
 (defn insert-conditions!
   "Вставка данных условий поверки в БД."
@@ -468,6 +468,10 @@
 
 (comment
 
-(doc if-let)
+(require '[clojure.repl :refer :all])
+
+(doc flatten)
+
+(doc get)
 
 )
