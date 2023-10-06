@@ -1,9 +1,9 @@
 ;; ГС-2000
 (require '[metrology.lib.gs2000 :as gs])
 
-(pprint (gs2000 1 "H2S" 2020 (list 70.84 134.6)))
+(pprint (gs2000 1 "H2S" 2020 (list 50 75 95)))
 
-(ch/ppm->mg "NO2" 24.3)
+(ch/ppm->mg "CH4" 2200)
 
 (/ 1.077 4.4)
 
@@ -11,46 +11,47 @@
 (def current (atom nil))
 (def protocol (atom nil))
 
-(gso "lower(components) like '%'
+(gso "lower(components) like '%%'
       and expiration_date > date('now')")
 
-(methodology (list 331))
+(methodology (list 289))
+
+(pprint (find-methodology "ОО-3"))
 
 ;; Найти запись о поверке
 (gen-report
   (find-verification
-    "v.id >= 2380 and v.id <= 2385"))
+    "v.id >= 2401 and v.id <= 2410"))
 
 ;; Найти СИ
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%ГХ-М%'"))
+    "lower(v.mi_type) like '%СГГ-20Ми%'
+     --met.registry_number like '%61530%'"))
 
 ;; Генерация отчета о поверке
-(gen-report (list 2381))
+(gen-report (list 2396))
 
 ;; Генерация протоколов поверки
-(gen-protocols "id >= 2380")
+(gen-protocols "id >= 2401")
 
 ;; Генерация результатов измерений
-(gen-values! "id >= 2381 and id <= 2381")
+(gen-values! "id >= 2401 and id <= 2410")
 
-(pprint (find-methodology "СГГ-20М"))
-
-(pprint (find-counteragent "СОВХОЗНОЕ"))
+(pprint (find-counteragent "ГАЗОМОТ"))
 
 (reset! record (get-verification (get-last-id "verification")))
 
 (get-v-operations 2380)
 
 ;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 2384))
-     (range 1))
+(map (fn [s] (copy-record! 2385))
+     (range 2))
 
-(let [nums (map (fn [n] (str "19" n))
-                (list 5097 4996))
-      start-id 2386
-      start-protocol-number 2339]
+(let [nums (map (fn [n] (str "2143" n))
+                (list 18 25))
+      start-id 2402
+      start-protocol-number 2434]
   (map (fn [n i]
          (jdbc/update!
            midb
@@ -58,24 +59,24 @@
            (hash-map
              :protocol nil
              :protolang nil
-             :count "9/0029683"
-             :counteragent 171
-             :conditions 1025
-             ;:mi_type "АНКАТ-64М3-01"
+             :count "9/0029982"
+             :counteragent 273
+             :conditions 1031
+             :mi_type "СГГ-20Микро-01М"
              :serial_number n
-             :manufacture_year 2019
+             :manufacture_year 2021
              :protocol_number (+ start-protocol-number i)
-             :comment "Леонтьев"
+             ;:comment "Леонтьев"
              ;:comment 11
              ;:upload 1
              ;:channels 4
              ;:components "O₂ (кислород); CH₄ (метан); CO (оксид углерода); H₂S (сероводород)"
              ;:scope
-             ;:sw_name "Mag6sc.txt"
-             ;:sw_version "не ниже 1.00"
-             ;:sw_checksum "f62bb67c59102cee9bbe35e996178c37d53a7aa96f248694a2ff91fe542afb44"
-             ;:sw_algorithm "ГОСТ Р 34.11-94"
-             ;:sw_version_real "v4.21"
+             ;:sw_name "MGT F/W"
+             ;:sw_version "0.2.0"
+             ;:sw_checksum nil 
+             ;:sw_algorithm nil
+             ;:sw_version_real "a1.01"
              )
            ["id = ?" (+ start-id i)]))
        nums
@@ -84,11 +85,11 @@
 (map (fn [id] (copy-v-gso! 2337 id))
      (range 2301 2327))
 
-(copy-v-gso! 2123 2144)
+(copy-v-gso! 2396 2399)
 
 (delete-v-gso! 2343)
 
-(set-v-gso! 2384 (list 320 365))
+(set-v-gso! 2401 (list 365 320))
 
 ;; Удалить записи с id >=
 (map (fn [i]
@@ -96,21 +97,20 @@
      (range 19))
 
 ;; Удалить запись
-(delete-record! 2333)
+(delete-record! 2396)
 
-(pprint (get-conditions "2023-09-28"))
+(pprint (get-conditions "2023-10-04"))
 
-(insert-conditions! {:date "2023-10-02"
-                     :temperature 23.1
-                     :humidity 51.9
-                     :pressure 100.86
-                     :voltage 224.4
+(insert-conditions! {:date "2023-10-06"
+                     :temperature 24.0
+                     :humidity 53.5
+                     :pressure 100.33
+                     :voltage 220.5
                      :frequency 50
                      ;:other "расход ГС (0,1 - 0,3) л/мин."
                      ;:location "УЭСП"
                      ;:comment ""
                      })
-
 
 (pprint (:verification @record))
 
@@ -123,11 +123,16 @@
                                   "00810-23" "08198-23")
                             "pass_number")))
 
-(set-v-gso! 2331 
-            (list 278 285 349 332 334 258))
+(set-v-gso! 2400 
+            (list 280 286 365 320 322 352))
 
-(set-v-refs! 2381
-             (list 2663 2820))
+(/ 2.12 4.4)
+
+(set-v-gso! 2386
+            (remove #{258 334} (get-v-gso 2386)))
+
+(set-v-refs! 2400
+             (list 2846 2820))
 
 (delete-v-refs! 2260)
 
@@ -136,11 +141,11 @@
   :v_opt_refs
   {:v_id 2343 :ref_id 2762})
 
-(set-v-opt-refs! 2332
-                 (list 2756 2762))
+(set-v-opt-refs! 2387
+                 (list 2643 2831 2670 2756))
 
-(set-v-operations! 2216
-                   (list 60 608 1063 1672 1673))
+(set-v-operations! 2387
+                   (list 17 291 565 831 1032 1188 1299 1373 1419))
 
 (jdbc/update!
   midb
@@ -163,7 +168,7 @@
       n (range 10)]
       (f 2276 (+ 2277 n)))
 
-(copy-v-refs! 2337 2339)
+(copy-v-refs! 2396 2399)
 
 (copy-v-opt-refs! 2337 2339)
 
@@ -172,9 +177,14 @@
 (map (fn [v] (copy-measurements! 2329 v))
      (range 2330 2228))
 
-(copy-measurements! 2337 2339)
+(copy-measurements! 2396 2399)
 
-(delete-measurements! 2370)
+(delete-measurements! 2403)
+
+(jdbc/delete!
+  midb
+  :measurements
+  ["id >= ?" 21927])
 
 (pprint @record)
 
@@ -184,17 +194,17 @@
   :verification
   (hash-map
      :engineer 3514
-     :count "9/0029904"
+     :count "9/0029846"
      :counteragent 273 
-     :conditions 1019
+     :conditions 1029
      :verification_type 1
-     :protocol_number 2339
-     :mi_type "СГОЭС-М11 метан"
-     :methodology_id 310
-     :serial_number 3727
-     :manufacture_year 2014
-     :channels 1
-     :area "05"
+     :protocol_number 2407
+     :mi_type "ОО-3"
+     :methodology_id 30
+     :serial_number 13
+     :manufacture_year 2011
+     :channels 2
+     :area "14"
      :interval 12
      ;:components
      ;:scope
@@ -203,7 +213,7 @@
      ;:sw_checksum "F8B9"
      ;:sw_algorithm "CRC-16"
      ;:sw_version_real "V3.04"
-     :voltage 24
+     ;:voltage 24
      ;:upload
      ;:comment "Леонтьев"
      ))
@@ -318,15 +328,9 @@
 
 ;; Измерения
 (add-measurements
-  2381
-  (list [1162 0] [1162 24.48] [1162 48.18]
-        [1162 24.48] [1162 0] [1162 48.18]
-        [1176 0] [1176 13.42] [1176 29.19]
-        [1176 13.42] [1176 0] [1176 29.19]
-        [1169 1.2] [1170 100] [1170 190]
-        [1170 100] [1170 1.2] [1170 190]
-        [1172 0] [1173 20] [1173 34]
-        [1173 20] [1172 0] [1173 34]))
+  2403
+  (list [895 0] [895 1.077] [895 2.12]
+        [895 1.077] [895 0] [895 2.12]))
 
 ;; Изменить измерения
 (map (fn [id m]
@@ -347,50 +351,73 @@
 
 ;; Каналы и МХ
 (ins-channel!
-  {:methodology_id 331
+  {:methodology_id 289
    :channel nil
-   :component "O2"
+   :component "NH3"
    :range_from 0
-   :range_to 30
-   :units "% об."
-   :low_unit 0.1
+   :range_to 100
+   :units "мг/м³"
+   :low_unit 1
    :view_range_from 0
-   :view_range_to 45
-   ;:comment "диапазон показаний условно!"
+   :view_range_to 200
+   :comment "диапазон показаний условно!"
    }
   (list {:r_from 0
-         :r_to 30
-         :value 0.9
+         :r_to 20
+         :value 20
          :fraction nil
-         :type_id 0
+         :type_id 2
          :units nil
-         :operation_id 1485
+         :operation_id 1688
          :comment nil}
-        #_{:r_from 10
-         :r_to 40
+        {:r_from 20
+         :r_to 100
          :value nil
-         :fraction 0.25
-         :type_id 0
+         :fraction 20
+         :type_id 1
          :units nil
-         :operation_id 1485
+         :operation_id 1688
          :comment nil}
         {:value 0.5
          :type_id 5
          :units ""
          :operation_id nil}
-        {:value 15
+        {;:r_from 0
+         ;:r_to 10
+         :value 120
          :type_id 6
          :units "с"
-         :operation_id nil}))
+         :operation_id 1687}
+        #_{
+         :r_from 50
+         :r_to 2000
+         :value 30
+         :type_id 6
+         :units "с"
+         :operation_id 1164}
+      #_{:value 0.03
+         :type_id 12
+         :units nil
+         :operation_id 1032
+         :comment "порог 0.81 % об."}
+       #_{:value 15
+         :type_id 7
+         :units "с"
+         :operation_id 1188}
+        #_{:value 30
+         :type_id 16
+         :units "с"
+         :operation_id 1299
+         :comment "время срабатывания защиты "}))
 
 ;; Контрагенты
 (jdbc/insert!
   midb
   :counteragents
-  {:name "ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ КАЗЕННОЕ УЧРЕЖДЕНИЕ «ЛОГИСТИЧЕСКИЙ КОМПЛЕКС № 29»"
-   :short_name "ФГКУ «ЛОГИСТИЧЕСКИЙ КОМПЛЕКС № 29»"
-   :address "461504, Оренбургская область, р-н Соль-Илецкий, г. Соль-Илецк, ул. Вокзальная, дом 125"
-   :inn "5646007850"})
+  {:name "Общество с ограничнной ответственностью «СТРОЙТЕХМОНТАЖ»"
+   :short_name "ООО «СТМ»"
+   :address "460024, Оренбургская область, г. Оренбург, ул. Туркестанская, д. 5, офис 323"
+   :inn "5610246004"})
 
 (jdbc/update!
   midb
@@ -409,13 +436,13 @@
     auto
     :travel_order
     {:auto_id 1
-     :count "9/0030005"
-     :date_departure "2023-09-27T09:00"
-     :date_arrive "2023-09-27T13:30"
-     :odometr_departure 233148
-     :fuel_departure 15.41
-     :odometr_arrive 233248
-     :fuel_add 15})
+     :count "9/029619"
+     :date_departure "2023-10-04T09:00"
+     :date_arrive "2023-10-04T15:30"
+     :odometr_departure 233393
+     :fuel_departure 7.87
+     :odometr_arrive 233523
+     :fuel_add 20})
   (pprint
     (jdbc/query
       auto
@@ -449,13 +476,27 @@
              (str (:date m) "T17:30")))
        data))
 
+(defn control-points
+  ([rng points]
+   (let [s-rng (rng 0)
+         e-rng (rng 1)]
+    (map (fn [p]
+             (+ s-rng (* (- e-rng s-rng) (double (/ p 100)))))
+         points)))
+  ([v-range]
+   (control-points v-range [5 50 95])))
+
+(control-points [10 100])
+
 (require '[clojure.repl :refer :all])
 
 (find-doc "assoc")
 
 (doc get-in)
 
-(doc get)
+(dir clojure.math)
+
+(doc string/split)
 
 (dir clojure.core)
 

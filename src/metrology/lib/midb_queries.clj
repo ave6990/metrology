@@ -177,7 +177,7 @@ where
   v.voltage as verification_voltage, v.sign_mi, v.sign_pass, v.upload, v.comment, v.copy_from,
   c.id as condition_id, c.date, c.temperature as real_temperature,
   c.humidity as real_humidity, c.pressure as real_pressure, c.voltage as real_voltage,
-  c.frequency as real_frequence, c.other as real_other, c.location,
+  c.frequency as real_frequency, c.other as real_other, c.location,
   m.id as methodology_id, m.registry_number, m.name as methodology_name,
   m.short_name as methodology_short_name, m.mi_name, m.date_from, m.date_to,
   m.temperature, m.humidity, m.pressure, m.voltage, m.frequency, m.other, m.limited,

@@ -15,10 +15,15 @@ All notable changes to this project will be documented in this file. This change
 ### Fixed
 - Fixed widget maker to keep working when daylight savings switches over.
 
+...some the white space...
+
 ## 0.1.0 - 2023-08-04
 ### Added
-- Files from the new template.
-- Widget maker public API - `make-widget-sync`.
+- New Clojure project with leiningen.
+- It has a metrology and a chemistry libs rewritten to the Clojure. 
 
-[Unreleased]: https://sourcehost.site/your-name/metrology/compare/0.1.1...HEAD
-[0.1.1]: https://sourcehost.site/your-name/metrology/compare/0.1.0...0.1.1
+Added
+Chanded
+Deprecated
+Removed
+Fixed
