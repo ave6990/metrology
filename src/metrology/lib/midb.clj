@@ -7,6 +7,8 @@
     [metrology.lib.midb-queries :as q]
     [metrology.lib.chemistry :as ch]
     [metrology.lib.protocol :as pr]
+    [metrology.lib.gs2000 :as gs]
+    [metrology.lib.metrology :as metr]
     [metrology.view.report :as report]))
 
 (def midb-path
@@ -472,7 +474,7 @@
                       midb
                       :measurements
                       {:value (if (not= (:error_type m) 5)
-                                  (pr/gen-value m))}
+                                  (metr/gen-value m))}
                       ["id = ?" (:measurement_id m)]))
                 (:measurements prot)))
        (get-protocols-data where)))

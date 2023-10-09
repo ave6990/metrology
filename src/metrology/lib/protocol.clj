@@ -416,57 +416,11 @@ var blurred = false
           (meta {:name "version" :content "2023-04-19"})
           (title "protocols"))
           (style {:type "text/css"} styles)
-          (script {:type "text/javascript"} scripts)
+          (script #_{:type "text/javascript"} #_scripts)
         (body
           (string/join "\n"
                        (map (fn [m] (protocol m))
                             verifications)))))))
-
-(defn tolerance
-  "Возвращает значение допускаемой основной погрешности выраженное
-   в абсолютных единицах.
-   :m (hash-map :value ; error nominal
-                :error_type ; error type
-                :ref_value ; references value
-                :r_from ; start point of range
-                :r_to ; end point of range"
-   [m]
-   (cond (= (:error_type m) 0)
-           (if (:fraction m)
-               (+ (* (:error m) (:fraction m))
-                  (if (:value m)
-                      (:value m)
-                      0))
-               (:error m))
-         (= (:error_type m) 1)
-           (double (/ (* (:error m) (:ref_value m)) 100))
-         (= (:error_type m) 2)
-           (double (/ (* (:error m) (- (:r_to m) (:r_from m))) 100))
-         (= (:error_type m) 6)
-           (* (:error m) 0.15)))
-
-(defn gen-value
-  "Возвращает случайное число в пределах основной погрешности."
-  [m]
-  (let [ref (if (= (:error_type m) 6)
-                (* (:error m) 0.8)
-                (:ref_value m))
-        diff (* 0.75 (tolerance m))
-        low-unit (if (= (:error_type m) 6)
-                     1
-                     (if (:low_unit m)
-                         (:low_unit m)
-                         0.1))
-        res (metr/discrete (- (+ ref (* (rand) 2 diff)) diff)
-                           low-unit)]
-    (if (< (:error_type m) 3)
-        (cond (and (:view_range_from m) (< res (:view_range_from m)))
-                (:view_range_from m)
-              (and (:view_range_to m) (> res (:view_range_to m)))
-                (:view_range_to m)
-              :else
-                res)
-        res)))
 
 (comment
 

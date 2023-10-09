@@ -14,7 +14,7 @@
 (gso "lower(components) like '%%'
       and expiration_date > date('now')")
 
-(methodology (list 289))
+(methodology (list 305))
 
 (pprint (find-methodology "ОО-3"))
 
@@ -26,11 +26,12 @@
 ;; Найти СИ
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%СГГ-20Ми%'
-     --met.registry_number like '%61530%'"))
+    "lower(v.mi_type) like '%ПГ ЭРИС%'
+     --met.registry_number like '%61530%'
+     --v.protocol_number = 2385"))
 
 ;; Генерация отчета о поверке
-(gen-report (list 2396))
+(gen-report (list 2433))
 
 ;; Генерация протоколов поверки
 (gen-protocols "id >= 2401")
@@ -38,20 +39,62 @@
 ;; Генерация результатов измерений
 (gen-values! "id >= 2401 and id <= 2410")
 
-(pprint (find-counteragent "ГАЗОМОТ"))
+(metr/gen-values (get-protocols-data "id = 2401"))
+
+(map (fn [m]
+             (metr/gen-value (assoc m
+                               :channel_error
+                               0.6)))
+          (get-protocols-data "id = 2401"))
+
+(reduce (fn [m v]
+             (assoc m
+                    (:channel_id m)
+                    (- (* (rand) 2 0.6) 0.6)))
+         {}
+         (metr/get-channels
+           (first (get-protocols-data "id = 2401"))))
+
+(metr/get-channels-k
+  (first (get-protocols-data "id = 2401")))
+
+(map (fn [m]
+             (gen-value (assoc m
+                               :channel_error
+                               ((:channel_id m) channels-k))))
+         coll)
+
+(let [coll (:measurements
+             (first
+               (get-protocols-data "id = 2401")))
+      channels-k (metr/get-channels-k coll)]
+    (map (fn [m]
+           (metr/gen-value (assoc m
+                             :channel_error
+                             (get channels-k (:channel_id m)))))
+      coll))
+
+(* 2 (get {2 23} 2))
+
+(metr/get-channels
+  (first (get-protocols-data "id = 2401")))
+
+(pprint (find-counteragent "нтер РАО"))
 
 (reset! record (get-verification (get-last-id "verification")))
 
 (get-v-operations 2380)
 
 ;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 2385))
-     (range 2))
+(map (fn [s] (copy-record! 2433))
+     (range 10))
 
-(let [nums (map (fn [n] (str "2143" n))
-                (list 18 25))
-      start-id 2402
-      start-protocol-number 2434]
+(let [nums (map (fn [n] (str "ER414" n))
+                (list 201321 201331 201355 201350 201333
+                      201354 212518 212564 212570 212573
+                      210834))
+      start-id 2433
+      start-protocol-number 2417]
   (map (fn [n i]
          (jdbc/update!
            midb
@@ -59,16 +102,16 @@
            (hash-map
              :protocol nil
              :protolang nil
-             :count "9/0029982"
-             :counteragent 273
-             :conditions 1031
-             :mi_type "СГГ-20Микро-01М"
+             :count "9/0029854"
+             :counteragent 212
+             :conditions 1030
+             ;:mi_type "СГГ-20Микро-01М"
              :serial_number n
-             :manufacture_year 2021
+             :manufacture_year 2020
              :protocol_number (+ start-protocol-number i)
-             ;:comment "Леонтьев"
+             :comment "Леонтьев"
              ;:comment 11
-             ;:upload 1
+             :upload 1
              ;:channels 4
              ;:components "O₂ (кислород); CH₄ (метан); CO (оксид углерода); H₂S (сероводород)"
              ;:scope
@@ -97,9 +140,9 @@
      (range 19))
 
 ;; Удалить запись
-(delete-record! 2396)
+(delete-record! 2415)
 
-(pprint (get-conditions "2023-10-04"))
+(pprint (get-conditions "2023-10-05"))
 
 (insert-conditions! {:date "2023-10-06"
                      :temperature 24.0
@@ -115,12 +158,12 @@
 (pprint (:verification @record))
 
 ;Установить ГСО по номерам паспортов ГСО.
-(set-v-gso! 2381
+(set-v-gso! 2433
             (map (fn [m]
                      (:id m))
-                 (check-gso (list "11101-23" "00808-23"
-                                  "14307-21" "02464-22"
-                                  "00810-23" "08198-23")
+                 (check-gso (list "02031-23" "00810-23" "11100-23"
+                                  "12210-22" "12197-22" "02462-22"
+                                  "02464-22" "08197-23")
                             "pass_number")))
 
 (set-v-gso! 2400 

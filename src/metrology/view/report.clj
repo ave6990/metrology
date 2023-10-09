@@ -61,7 +61,7 @@ th, td {
          (meta {:name "version" :content "2023-09-21"})
          (title page)
          (style {:type "text/css"} st)
-         (script {:type "text/javascript"} sc))
+         (script #_{:type "text/javascript"} #_sc))
        content)))
   ([page st content]
    (report page st "" content))
