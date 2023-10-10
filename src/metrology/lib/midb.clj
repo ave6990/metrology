@@ -470,13 +470,15 @@
   [where]
   (map (fn [prot] 
            (map (fn [m]
-                    (jdbc/update!
-                      midb
-                      :measurements
-                      {:value (if (not= (:error_type m) 5)
-                                  (metr/gen-value m))}
-                      ["id = ?" (:measurement_id m)]))
-                (:measurements prot)))
+                    (map (fn [r]
+                             (jdbc/update!
+                               midb
+                               :measurements
+                               {:value (:value r)}
+                               ["id = ?"
+                                 (:measurement_id r)]))
+                         (metr/gen-values m)))
+                (list (:measurements prot))))
        (get-protocols-data where)))
 
 (defn gs2000

@@ -37,47 +37,7 @@
 (gen-protocols "id >= 2401")
 
 ;; Генерация результатов измерений
-(gen-values! "id >= 2401 and id <= 2410")
-
-(metr/gen-values (get-protocols-data "id = 2401"))
-
-(map (fn [m]
-             (metr/gen-value (assoc m
-                               :channel_error
-                               0.6)))
-          (get-protocols-data "id = 2401"))
-
-(reduce (fn [m v]
-             (assoc m
-                    (:channel_id m)
-                    (- (* (rand) 2 0.6) 0.6)))
-         {}
-         (metr/get-channels
-           (first (get-protocols-data "id = 2401"))))
-
-(metr/get-channels-k
-  (first (get-protocols-data "id = 2401")))
-
-(map (fn [m]
-             (gen-value (assoc m
-                               :channel_error
-                               ((:channel_id m) channels-k))))
-         coll)
-
-(let [coll (:measurements
-             (first
-               (get-protocols-data "id = 2401")))
-      channels-k (metr/get-channels-k coll)]
-    (map (fn [m]
-           (metr/gen-value (assoc m
-                             :channel_error
-                             (get channels-k (:channel_id m)))))
-      coll))
-
-(* 2 (get {2 23} 2))
-
-(metr/get-channels
-  (first (get-protocols-data "id = 2401")))
+(gen-values! "id = 2443")
 
 (pprint (find-counteragent "нтер РАО"))
 

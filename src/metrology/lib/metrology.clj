@@ -156,40 +156,21 @@
                 res)
         res)))
 
-#_(defn gen-value
-  "Возвращает случайное число в пределах основной погрешности."
-  [m]
-  (let [ref (if (= (:error_type m) 6)
-                (* (:error m) 0.8)
-                (:ref_value m))
-        diff (* 0.75 (tolerance m))
-        low-unit (if (= (:error_type m) 6)
-                     1
-                     (if (:low_unit m)
-                         (:low_unit m)
-                         0.1))
-        res (discrete (- (+ ref (* (rand) 2 diff)) diff)
-                           low-unit)]
-    (if (< (:error_type m) 3)
-        (cond (and (:view_range_from m) (< res (:view_range_from m)))
-                (:view_range_from m)
-              (and (:view_range_to m) (> res (:view_range_to m)))
-                (:view_range_to m)
-              :else
-                res)
-        res)))
-
 (defn gen-values
   [coll]
   (let [k1 0.6
         channels-k (get-channels-k coll)]
     (map (fn [m]
-             (gen-value (assoc m
-                               :channel_error
-                               ((:channel_id m) channels-k))))
+             {:measurement_id (:measurement_id m)
+              :value
+                (->>
+                  (:channel_id m)
+                  (get channels-k)
+                  (assoc m :channel_error)
+                  gen-value)})
          coll)))
 
-(defn get-channels-k
+(defn ^:private get-channels-k
   [coll]
   (let [k1 0.6]
     (reduce (fn [m v]
@@ -199,7 +180,7 @@
            {}
            (get-channels coll))))
 
-(defn get-channels
+(defn ^:private get-channels
   [m]
   (set (map (fn [meas]
                 (:channel_id meas))
