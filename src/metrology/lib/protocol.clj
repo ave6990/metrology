@@ -393,15 +393,15 @@ footer > p {
     el.style.visibility = el.style.visibility == \"visible\" ? \"hidden\" : \"visible\"
   }
 })
-var blurred = false
-  window.addEventListener('blur', (e) => {
-    blurred = true
-  })
-  window.addEventListener('focus', (e) => {
-    if (blurred) {
-      location.reload()
-    }
-  })")
+/*var blurred = false
+window.addEventListener('blur', (e) => {
+  blurred = true
+})
+window.addEventListener('focus', (e) => {
+  if (blurred) {
+    location.reload()
+  }
+})*/")
 
 (defn protocols
   ""
@@ -416,7 +416,7 @@ var blurred = false
           (meta {:name "version" :content "2023-04-19"})
           (title "protocols"))
           (style {:type "text/css"} styles)
-          (script #_{:type "text/javascript"} #_scripts)
+          (script {:type "text/javascript"} scripts)
         (body
           (string/join "\n"
                        (map (fn [m] (protocol m))

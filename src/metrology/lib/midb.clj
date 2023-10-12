@@ -391,7 +391,7 @@
 
 (defn set-v-operations!
   [v-id coll]
-  (do (delete-v-opt-refs! v-id)
+  (do (delete-v-operations! v-id)
       (jdbc/insert-multi!
         midb
         :v_operations

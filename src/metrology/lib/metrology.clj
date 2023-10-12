@@ -119,7 +119,8 @@
            (double (/ (* (:error m) (:ref_value m)) 100))
          (= (:error_type m) 2)
            (double (/ (* (:error m) (- (:r_to m) (:r_from m))) 100))
-         (= (:error_type m) 6)
+         (or (= (:error_type m) 6)
+             (= (:error_type m) 7))
            (* (:error m) 0.15)))
 
 (defn gen-value
@@ -129,7 +130,8 @@
                (:channel_error m)
                0.6) 
         k2 0.15
-        ref (if (= (:error_type m) 6)
+        ref (if (or (= (:error_type m) 6)
+                    (= (:error_type m) 7))
                 (* (:error m) 0.8)
                 (:ref_value m))
         channel-error (if (zero? ref)
@@ -163,11 +165,16 @@
     (map (fn [m]
              {:measurement_id (:measurement_id m)
               :value
-                (->>
-                  (:channel_id m)
-                  (get channels-k)
-                  (assoc m :channel_error)
-                  gen-value)})
+                (try
+                  (->>
+                    (:channel_id m)
+                    (get channels-k)
+                    (assoc m :channel_error)
+                    gen-value)
+                  (catch Exception e
+                    (println (str
+                                "gen-value error!!! \n"
+                                (ex-message e)))))})
          coll)))
 
 (defn ^:private get-channels-k

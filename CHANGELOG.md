@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file. This change
 ### Changed
 - Add a new arity to `make-widget-async` to provide a different widget shape.
 
+## [0.1.2] - 2023-10-10
+### Changed
+- The measurements generating algorithm. Values for the channel
+depends on each other.
+
 ## [0.1.1] - 2023-08-04
 ### Changed
 - Documentation on how to make the widgets.
