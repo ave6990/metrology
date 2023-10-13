@@ -1,11 +1,14 @@
 ;; ГС-2000
 (require '[metrology.lib.gs2000 :as gs])
 
-(pprint (gs2000 1 "H2S" 498 (list 17 34)))
+(pprint (gs2000 1
+                "H2S"
+                498
+                (list )
+                #_(map #(ch/ppm->mg "H2S" %1)
+                     (list 2.5 4.5 5.5 25 45))))
 
 (ch/ppm->mg "CH4" 2200)
-
-(/ 1.077 4.4)
 
 (def record (atom nil))
 (def current (atom nil))
@@ -14,9 +17,9 @@
 (gso "lower(components) like '%%'
       and expiration_date > date('now')")
 
-(methodology (list 291))
+(methodology (list 96))
 
-(pprint (find-methodology "ДАТ-М"))
+(pprint (find-methodology "СГГ-20"))
 
 (jdbc/update!
   midb
@@ -28,23 +31,25 @@
 ;; Найти запись о поверке
 (gen-report
   (find-verification
-    "v.id >= 2478 and v.id <= 2480"))
+    "v.id >= 2494 and v.id <= 2497"))
 
 ;; Найти СИ
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%ДГС ЭРИС%'
-     --and met.registry_number like '%-15%'
-     --v.protocol_number = 2385"))
+    "lower(v.mi_type) like '%414-2%'
+     and components like '%NH%'
+     --and met.registry_number like '%18482-09%'
+     --v.protocol_number = 2385
+     --count like '%0922/0004%'"))
 
 ;; Генерация отчета о поверке
-(gen-report (list 2479 2480))
+(gen-report (list 2498))
 
 ;; Генерация протоколов поверки
-(gen-protocols "id >= 2444")
+(gen-protocols "id >= 2494")
 
 ;; Генерация результатов измерений
-(gen-values! "id >= 2464")
+(gen-values! "id >= 2494")
 
 (pprint (find-counteragent "УНГП"))
 
@@ -53,13 +58,13 @@
 (get-v-operations 2380)
 
 ;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 2478))
+(map (fn [s] (copy-record! 1401))
      (range 1))
 
-(let [nums (map (fn [n] (str "ER2301928" n))
-                (list 59))
-      start-id 2480
-      start-protocol-number 2472]
+(let [nums (map (fn [n] (str "" n))
+                (list 1704))
+      start-id 2497
+      start-protocol-number 2489]
   (map (fn [n i]
          (jdbc/update!
            midb
@@ -67,24 +72,24 @@
            (hash-map
              :protocol nil
              :protolang nil
-             :count "9/0030003"
-             :counteragent 198
-             :conditions 1032
-             :mi_type "ДГС ЭРИС-230, исп. ДГС ЭРИС-230-3-EC"
+             :count "9/029723"
+             :counteragent 50
+             :conditions 1036
+             ;:mi_type "ДАХ-М-05-H₂S-40"
              :serial_number n
-             :manufacture_year 2019
+             :manufacture_year 1995
              :protocol_number (+ start-protocol-number i)
              ;:comment "Леонтьев"
              ;:comment 11
              ;:upload 1
              ;:channels 4
-             :components "сенсор EC-H₂S-50"
+             :components "блоки датчиков №№: 3493, 14578, 1629, 4316, 10102, 13209, 10203, 8904"
              ;:scope
-             :sw_name "DGS-230.bin"
-             :sw_version "не ниже v.1.00.513"
-             ;:sw_checksum "E2C3"
-             ;:sw_algorithm "CRC-16"
-             ;:sw_version_real "2.0"
+             ;:sw_name "RGD CO0 MP1"
+             ;:sw_version "019878A1"
+             ;:sw_checksum nil
+             ;:sw_algorithm nil
+             ;:sw_version_real "2.2"
              )
            ["id = ?" (+ start-id i)]))
        nums
@@ -97,7 +102,7 @@
 
 (delete-v-gso! 2343)
 
-(set-v-gso! 2479 (list 330 331))
+(set-v-gso! 2497 (list 229 319))
 
 ;; Удалить записи с id >=
 (map (fn [i]
@@ -107,13 +112,13 @@
 ;; Удалить запись
 (delete-record! 2415)
 
-(pprint (get-conditions "2023-10-05"))
+(pprint (get-conditions "2023-10-11"))
 
-(insert-conditions! {:date "2023-10-10"
-                     :temperature 21.9
-                     :humidity 52.6
-                     :pressure 99.68
-                     :voltage 222.5
+(insert-conditions! {:date "2023-10-11"
+                     :temperature 23.2
+                     :humidity 52.0
+                     :pressure 98.60
+                     :voltage 220.8
                      :frequency 50
                      ;:other "расход ГС (0,1 - 0,3) л/мин."
                      ;:location "УЭСП"
@@ -137,8 +142,8 @@
 (set-v-gso! 2453
             (remove #{258 334} (get-v-gso 2386)))
 
-(set-v-refs! 2478
-             (list 2663 2820))
+(set-v-refs! 2482
+             (list 2846 2820))
 
 (delete-v-refs! 2260)
 
@@ -147,11 +152,11 @@
   :v_opt_refs
   {:v_id 2343 :ref_id 2762})
 
-(set-v-opt-refs! 2467
-                 (list 2643 2831 2715 2756 2717 2670))
+(set-v-opt-refs! 2489
+                 (list 2643 2831 2762 2756 2670))
 
-(set-v-operations! 2467
-                   (list 121 669 1097 1232 1331))
+(set-v-operations! 2489
+                   (list 185 459 733 957 1131))
 
 (jdbc/update!
   midb
@@ -185,7 +190,7 @@
 
 (copy-measurements! 2396 2399)
 
-(delete-measurements! 2453)
+(delete-measurements! 2482)
 
 (jdbc/delete!
   midb
@@ -204,22 +209,22 @@
      :counteragent 198
      :conditions 1032
      :verification_type 1
-     :protocol_number 2459
-     :mi_type "ДАТ-М-03"
-     :methodology_id 175
-     :serial_number 1012
-     :manufacture_year 2016
+     :protocol_number 2474
+     :mi_type "RGD MET MP1SSE"
+     :methodology_id 251
+     :serial_number 152512
+     :manufacture_year 2012
      :channels 1
      :area "05"
      :interval 12
      ;:components
      ;:scope
-     ;:sw_name 8320039
-     ;:sw_version "не ниже V6.9"
+     :sw_name "*11RGDMM1S01"
+     :sw_version "131204C99"
      ;:sw_checksum "F8B9"
      ;:sw_algorithm "CRC-16"
      ;:sw_version_real "V3.04"
-     :voltage 14
+     ;:voltage 14
      ;:upload
      ;:comment "Леонтьев"
      ))
@@ -334,8 +339,14 @@
 
 ;; Измерения
 (add-measurements
-  2478
-  (list [389 0] [389 1]))
+  2480
+  (list [1242 0] [1242 3.58] [1242 6.46]
+        [1242 3.58] [1242 0] [1242 6.46]
+        [1243 7.97] [1243 35.46] [1243 63.8]
+        [1243 35.46] [1242 7.97] [1243 63.8]))
+
+(map #(/ %1 4.4)
+     (list 0 1.1 2.1 2.3 3.3 4.22))
 
 ;; Изменить измерения
 (map (fn [id m]
@@ -356,11 +367,11 @@
 
 ;; Каналы и МХ
 (ins-channel!
-  {:methodology_id 291
+  {:methodology_id 251
    :channel nil
-   :component "H2S"
+   :component "CH4"
    :range_from 0
-   :range_to 71
+   :range_to 50
    :units "мг/м³"
    :low_unit 0.1
    :view_range_from 0
@@ -368,20 +379,20 @@
    ;:comment "диапазон показаний условно!"
    }
   (list {:r_from 0
-         :r_to 50
-         :value 5
+         :r_to 7.1
+         :value 15
          :fraction nil
-         :type_id 0
+         :type_id 2
          :units nil
          :operation_id 768
          :comment nil}
-        #_{:r_from 20
-         :r_to 200
-         :value 25
+        {:r_from 7.1
+         :r_to 71
+         :value 15
          :fraction nil
          :type_id 1
          :units nil
-         :operation_id 1690
+         :operation_id 768
          :comment nil}
         {:value 0.5
          :type_id 5

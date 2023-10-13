@@ -270,27 +270,32 @@ th, td {
                    (td (:channel_id m))
                    (td (:channel_name m))
                    (if (< (:error_type m) 3)
-                       (let [res (pr/metrology-calc m)]
-                         (str (td
-                                (string/replace
-                                  (metr/round
-                                    (:ref_value m)
-                                    (let [discrete-val
-                                        (if (:low_unit m)
-                                            (:low_unit m)
-                                            0.1)]
-                                    (if (pos? (metr/exponent discrete-val))
-                                        0
-                                        (* -1 (dec (metr/exponent discrete-val))))))
-                                  "." ","))
-                              (td (:value res))
-                              (td (:value_2 m))
-                              (td (:error res))
-                              (td (:error_string m))
-                              (td
-                                (if (:variation res)
-                                  (:variation res)
-                                  "-"))))
+                       (try
+                         (let [res (pr/metrology-calc m)]
+                           (str (td
+                                  (string/replace
+                                    (metr/round
+                                      (:ref_value m)
+                                      (let [discrete-val
+                                          (if (:low_unit m)
+                                              (:low_unit m)
+                                              0.1)]
+                                      (if (pos? (metr/exponent discrete-val))
+                                          0
+                                          (* -1 (dec (metr/exponent discrete-val))))))
+                                    "." ","))
+                                (td (:value res))
+                                (td (:value_2 m))
+                                (td (:error res))
+                                (td (:error_string m))
+                                (td
+                                  (if (:variation res)
+                                    (:variation res)
+                                    "-"))))
+                         (catch Exception e
+                           (println
+                             (str "metrology-calc Error!!!\n"
+                                  (ex-message e)))))
                        (when (> (:error_type m) 5)
                          (td {:class "channel-cell" :colspan 6}
                              (:chr_string m))))))
