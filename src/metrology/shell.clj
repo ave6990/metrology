@@ -6,7 +6,7 @@
                 498
                 (list )
                 #_(map #(ch/ppm->mg "H2S" %1)
-                     (list 2.5 4.5 5.5 25 45))))
+                     (list 5 9.5 14 25 47))))
 
 (ch/ppm->mg "CH4" 2200)
 
@@ -17,9 +17,9 @@
 (gso "lower(components) like '%%'
       and expiration_date > date('now')")
 
-(methodology (list 96))
+(methodology (list 305 351))
 
-(pprint (find-methodology "СГГ-20"))
+(pprint (find-methodology "414"))
 
 (jdbc/update!
   midb
@@ -36,35 +36,37 @@
 ;; Найти СИ
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%414-2%'
-     and components like '%NH%'
+    "lower(v.mi_type) like '%СТМ10%'
+     --and components like '%co %'
+     --and channels = 3
+     --and components like '%co %'
      --and met.registry_number like '%18482-09%'
      --v.protocol_number = 2385
      --count like '%0922/0004%'"))
 
 ;; Генерация отчета о поверке
-(gen-report (list 2498))
+(gen-report (list 2515 2516))
 
 ;; Генерация протоколов поверки
-(gen-protocols "id >= 2494")
+(gen-protocols "id >= 2498")
 
 ;; Генерация результатов измерений
-(gen-values! "id >= 2494")
+(gen-values! "id >= 2532")
 
-(pprint (find-counteragent "УНГП"))
+(pprint (find-counteragent "ГАЗТРАНС"))
 
 (reset! record (get-verification (get-last-id "verification")))
 
 (get-v-operations 2380)
 
 ;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 1401))
+(map (fn [s] (copy-record! 2496))
      (range 1))
 
 (let [nums (map (fn [n] (str "" n))
-                (list 1704))
-      start-id 2497
-      start-protocol-number 2489]
+                (list 884))
+      start-id 2532
+      start-protocol-number 2524]
   (map (fn [n i]
          (jdbc/update!
            midb
@@ -72,24 +74,25 @@
            (hash-map
              :protocol nil
              :protolang nil
-             :count "9/029723"
-             :counteragent 50
-             :conditions 1036
+             :count "9/0029590"
+             :counteragent 93
+             :conditions 1035
+             ;:methodology_id 305
              ;:mi_type "ДАХ-М-05-H₂S-40"
              :serial_number n
-             :manufacture_year 1995
+             :manufacture_year nil
              :protocol_number (+ start-protocol-number i)
              ;:comment "Леонтьев"
              ;:comment 11
              ;:upload 1
-             ;:channels 4
-             :components "блоки датчиков №№: 3493, 14578, 1629, 4316, 10102, 13209, 10203, 8904"
+             :channels 5
+             :components "блоки датчиков №№: 11582, 11510, 1425, 516, 11602"
              ;:scope
              ;:sw_name "RGD CO0 MP1"
-             ;:sw_version "019878A1"
+             ;:sw_version "не ниже v01.29"
              ;:sw_checksum nil
              ;:sw_algorithm nil
-             ;:sw_version_real "2.2"
+             ;:sw_version_real nil
              )
            ["id = ?" (+ start-id i)]))
        nums
@@ -102,7 +105,7 @@
 
 (delete-v-gso! 2343)
 
-(set-v-gso! 2497 (list 229 319))
+(set-v-gso! 2530 (list 322 347 352 288 277 349 282 286))
 
 ;; Удалить записи с id >=
 (map (fn [i]
@@ -112,7 +115,7 @@
 ;; Удалить запись
 (delete-record! 2415)
 
-(pprint (get-conditions "2023-10-11"))
+(pprint (get-conditions "2023-10-12"))
 
 (insert-conditions! {:date "2023-10-11"
                      :temperature 23.2
@@ -155,15 +158,15 @@
 (set-v-opt-refs! 2489
                  (list 2643 2831 2762 2756 2670))
 
-(set-v-operations! 2489
-                   (list 185 459 733 957 1131))
+(set-v-operations! 2530
+                   (list 231 505 779))
 
 (jdbc/update!
   midb
   :v_operations
   {:result -1
-   :unusability "ошибка Е3 по каналу измерения O₂"}
-  ["v_id = ? and op_id = ?" 2360 813])
+   :unusability "превышение значения допускаемой основной погрешности по каналу измерения O₂"}
+  ["v_id = ? and op_id = ?" 2516 779])
 
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
@@ -190,7 +193,7 @@
 
 (copy-measurements! 2396 2399)
 
-(delete-measurements! 2482)
+(delete-measurements! 2530)
 
 (jdbc/delete!
   midb
@@ -339,11 +342,20 @@
 
 ;; Измерения
 (add-measurements
-  2480
-  (list [1242 0] [1242 3.58] [1242 6.46]
-        [1242 3.58] [1242 0] [1242 6.46]
-        [1243 7.97] [1243 35.46] [1243 63.8]
-        [1243 35.46] [1242 7.97] [1243 63.8]))
+  2530
+  (list [4 0] [4 4.97] [4 9.83]
+        [4 4.97] [4 0] [4 9.83]
+        [5 11.19] [5 20.44] [5 29.19]
+        [5 20.44] [5 11.19] [5 29.19]
+        [1112 0] [1112 23] [1112 44]
+        [1112 23] [1112 0] [1112 44]
+        [1113 55] [1113 116] [1113 221]
+        [1113 116] [1113 55] [1113 55]
+        [1249 0] [1249 7] [1249 13]
+        [1249 7] [1249 0] [1249 13]
+        [1250 20] [1250 35] [1250 66]
+        [1250 35] [1250 20] [1250 66]
+        ))
 
 (map #(/ %1 4.4)
      (list 0 1.1 2.1 2.3 3.3 4.22))
@@ -367,50 +379,50 @@
 
 ;; Каналы и МХ
 (ins-channel!
-  {:methodology_id 251
+  {:methodology_id 305
    :channel nil
-   :component "CH4"
+   :component "H2S"
    :range_from 0
-   :range_to 50
+   :range_to 71
    :units "мг/м³"
    :low_unit 0.1
    :view_range_from 0
    :view_range_to 100
-   ;:comment "диапазон показаний условно!"
+   :comment "диапазон показаний условно!"
    }
   (list {:r_from 0
-         :r_to 7.1
-         :value 15
+         :r_to 14.2
+         :value 10
          :fraction nil
          :type_id 2
          :units nil
-         :operation_id 768
+         :operation_id 779
          :comment nil}
-        {:r_from 7.1
+        {:r_from 14.2
          :r_to 71
-         :value 15
+         :value 10
          :fraction nil
          :type_id 1
          :units nil
-         :operation_id 768
+         :operation_id 779
          :comment nil}
         {:value 0.5
          :type_id 5
          :units ""
-         :operation_id 985}
-        #_{;:r_from 0
+         :operation_id nil}
+        {;:r_from 0
          ;:r_to 10
-         :value 60
+         :value 35
          :type_id 6
          :units "с"
          :operation_id nil}
         #_{
-         :r_from 50
-         :r_to 2000
-         :value 30
+         :r_from 0
+         :r_to 71 
+         :value 60
          :type_id 6
          :units "с"
-         :operation_id 1164}
+         :operation_id nil}
         #_{:value 1 
          :type_id 12
          :units nil

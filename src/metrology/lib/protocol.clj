@@ -1,6 +1,7 @@
 (ns metrology.lib.protocol
   (:require [clojure.math :as math]
             [clojure.string :as string]
+            [clojure.pprint :refer [pprint]]
             [metrology.lib.gen-html :refer :all]
             [metrology.lib.metrology :as metr]))
 
@@ -187,23 +188,27 @@
                 (metr/discrete
                   (:value m)
                   discrete-val))
+        val2 (if (:value_2 m)
+                 (metr/discrete
+                   (:value m)
+                   discrete-val))
+        exp (if (pos? (metr/exponent discrete-val))
+                    0
+                    (inc (* -1 (metr/exponent discrete-val))))
+        ref (metr/round
+              (:ref_value m)
+              exp)
         err (if (:value m)
                 (metr/error val
-                            (metr/round (:ref_value m)
-                                        (if (pos? (metr/exponent discrete-val))
-                                            0
-                                            (* -1 (inc (metr/exponent discrete-val)))))
+                            ref
                             (:r_from m)
                             (:r_to m)))
         vari (if (:value_2 m)
                       (metr/round 
                         (metr/variation
-                          (:value_2 m)
-                          (:value m)
-                          (metr/round (:ref_value m)
-                                      (if (pos? (metr/exponent discrete-val))
-                                          (0)
-                                          (* -1 (inc (metr/exponent discrete-val)))))
+                          val2
+                          val
+                          ref
                           (:error m)
                           (:error_type m)
                           (:r_from m)
@@ -213,12 +218,15 @@
     (if (:value m)
         (hash-map
           :value (string/replace val "." ",")
+          :ref (string/replace ref "." ",")
           :error
             (string/replace
               (case (:error_type m)
-                    0 (metr/discrete (:abs err) discrete-val)
-                    1 (metr/discrete (:rel err) 0.1)
-                    2 (metr/discrete (:red err) 0.1))
+                    0 (metr/round
+                        (:abs err)
+                        exp)
+                    1 (metr/round (:rel err) 1)
+                    2 (metr/round (:red err) 1))
               "." ",")
           :variation
             (string/replace
@@ -244,32 +252,33 @@
         (tbody
           (string/join
             (map (fn [m]
-                     (tr
-                       (td {:class "channel-cell"}
-                           (str (:channel_name m)))
-                       (if (< (:error_type m) 3)
-                           (let [res (metrology-calc m)]
-                             (str (td {:class "centered-cell"}
-                                      (string/replace
-                                        (metr/discrete
-                                          (:ref_value m)
-                                          (if (:low_unit m)
-                                              (:low_unit m)
-                                              0.1))
-                                        "." ","))
-                                  (td {:class "centered-cell"}
-                                      (:value res))
-                                  (td {:class "centered-cell"}
-                                      (:error res))
-                                  (td {:class "centered-cell"}
-                                      (:error_string m))
-                                  (td {:class "centered-cell"}
-                                      (if (:variation res)
-                                        (:variation res)
-                                        "-"))))
-                           (when (> (:error_type m) 5)
-                             (td {:class "channel-cell" :colspan 5}
-                                 (:chr_string m))))))
+                     (try
+                       (tr
+                         (td {:class "channel-cell"}
+                             (str (:channel_name m)))
+                         (if (< (:error_type m) 3)
+                             (let [res (metrology-calc m)]
+                               (str (td {:class "centered-cell"}
+                                        ;{TOFIX} use round
+                                        (string/replace
+                                          (:ref res)
+                                          "." ","))
+                                    (td {:class "centered-cell"}
+                                        (:value res))
+                                    (td {:class "centered-cell"}
+                                        (:error res))
+                                    (td {:class "centered-cell"}
+                                        (:error_string m))
+                                    (td {:class "centered-cell"}
+                                        (if (:variation res)
+                                          (:variation res)
+                                          "-"))))
+                             (when (> (:error_type m) 5)
+                               (td {:class "channel-cell" :colspan 5}
+                                   (:chr_string m)))))
+                       (catch Exception e
+                         (print (ex-message e))
+                         (pprint m))))
                  coll)))))))
 
 (defn page-2

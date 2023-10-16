@@ -123,6 +123,22 @@
              (= (:error_type m) 7))
            (* (:error m) 0.15)))
 
+(defn ^:private get-channels
+  [m]
+  (set (map (fn [meas]
+                (:channel_id meas))
+            m)))
+
+(defn ^:private get-channels-k
+  [coll]
+  (let [k1 0.6]
+    (reduce (fn [m v]
+               (assoc m
+                      v
+                      (- (* (rand) 2 k1) k1)))
+           {}
+           (get-channels coll))))
+
 (defn gen-value
   "Возвращает случайное число в пределах основной погрешности."
   [m]
@@ -176,24 +192,6 @@
                                 "gen-value error!!! \n"
                                 (ex-message e)))))})
          coll)))
-
-(defn ^:private get-channels-k
-  [coll]
-  (let [k1 0.6]
-    (reduce (fn [m v]
-               (assoc m
-                      v
-                      (- (* (rand) 2 k1) k1)))
-           {}
-           (get-channels coll))))
-
-(defn ^:private get-channels
-  [m]
-  (set (map (fn [meas]
-                (:channel_id meas))
-            m)))
-
-
 
 (comment
 
