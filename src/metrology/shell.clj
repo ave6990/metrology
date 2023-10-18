@@ -2,11 +2,11 @@
 (require '[metrology.lib.gs2000 :as gs])
 
 (pprint (gs2000 1
-                "H2S"
-                498
-                (list )
+                #_"H2S"
+                8950
+                (list 30 250 475)
                 #_(map #(ch/ppm->mg "H2S" %1)
-                     (list 5 9.5 14 25 47))))
+                     (list 5.8 29))))
 
 (ch/ppm->mg "CH4" 2200)
 
@@ -17,9 +17,11 @@
 (gso "lower(components) like '%%'
       and expiration_date > date('now')")
 
-(methodology (list 305 351))
+(/ 4.22 4.4)
 
-(pprint (find-methodology "414"))
+(methodology (list 320))
+
+(pprint (find-methodology "Микросенс"))
 
 (jdbc/update!
   midb
@@ -31,16 +33,16 @@
 ;; Найти запись о поверке
 (gen-report
   (find-verification
-    "v.id >= 2494 and v.id <= 2497"))
+    "v.id >= 2554 and v.id <= 2600"))
 
 ;; Найти СИ
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%СТМ10%'
+    "lower(v.mi_type) like '%Хоббит%'
      --and components like '%co %'
      --and channels = 3
      --and components like '%co %'
-     --and met.registry_number like '%18482-09%'
+     --and met.registry_number like '%68988%'
      --v.protocol_number = 2385
      --count like '%0922/0004%'"))
 
@@ -48,25 +50,27 @@
 (gen-report (list 2515 2516))
 
 ;; Генерация протоколов поверки
-(gen-protocols "id >= 2498")
+(gen-protocols "id >= 2566")
+
+(* 10.4 1.42)
 
 ;; Генерация результатов измерений
-(gen-values! "id >= 2532")
+(gen-values! "id >= 2566")
 
-(pprint (find-counteragent "ГАЗТРАНС"))
+(pprint (find-counteragent "СТМ-С"))
 
 (reset! record (get-verification (get-last-id "verification")))
 
 (get-v-operations 2380)
 
 ;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 2496))
+(map (fn [s] (copy-record! 2232))
      (range 1))
 
 (let [nums (map (fn [n] (str "" n))
-                (list 884))
-      start-id 2532
-      start-protocol-number 2524]
+                (list "2009464"))
+      start-id 2575
+      start-protocol-number 2567]
   (map (fn [n i]
          (jdbc/update!
            midb
@@ -74,25 +78,25 @@
            (hash-map
              :protocol nil
              :protolang nil
-             :count "9/0029590"
-             :counteragent 93
-             :conditions 1035
+             :count "9/0029985"
+             :counteragent 358
+             :conditions 1041
              ;:methodology_id 305
-             ;:mi_type "ДАХ-М-05-H₂S-40"
+             :mi_type "ХОББИТ-Т-C₃H₈-И11(20)"
              :serial_number n
-             :manufacture_year nil
+             :manufacture_year 2020
              :protocol_number (+ start-protocol-number i)
              ;:comment "Леонтьев"
              ;:comment 11
              ;:upload 1
-             :channels 5
-             :components "блоки датчиков №№: 11582, 11510, 1425, 516, 11602"
+             :channels 1
+             ;:components "H₂S (сероводород)"
              ;:scope
-             ;:sw_name "RGD CO0 MP1"
-             ;:sw_version "не ниже v01.29"
-             ;:sw_checksum nil
-             ;:sw_algorithm nil
-             ;:sw_version_real nil
+             :sw_name "Plow_max_04"
+             :sw_version "40 16 00 02"
+             :sw_checksum "8BFD"
+             :sw_algorithm "CRC 16"
+             :sw_version_real "40 16 00 02"
              )
            ["id = ?" (+ start-id i)]))
        nums
@@ -105,7 +109,7 @@
 
 (delete-v-gso! 2343)
 
-(set-v-gso! 2530 (list 322 347 352 288 277 349 282 286))
+(set-v-gso! 2569 (list 347))
 
 ;; Удалить записи с id >=
 (map (fn [i]
@@ -113,15 +117,15 @@
      (range 19))
 
 ;; Удалить запись
-(delete-record! 2415)
+(delete-record! 2554)
 
-(pprint (get-conditions "2023-10-12"))
+(pprint (get-conditions "2023-10-04"))
 
-(insert-conditions! {:date "2023-10-11"
-                     :temperature 23.2
-                     :humidity 52.0
-                     :pressure 98.60
-                     :voltage 220.8
+(insert-conditions! {:date "2023-10-18"
+                     :temperature 23.3
+                     :humidity 51.7
+                     :pressure 100.44
+                     :voltage 222.4
                      :frequency 50
                      ;:other "расход ГС (0,1 - 0,3) л/мин."
                      ;:location "УЭСП"
@@ -145,7 +149,7 @@
 (set-v-gso! 2453
             (remove #{258 334} (get-v-gso 2386)))
 
-(set-v-refs! 2482
+(set-v-refs! 2569
              (list 2846 2820))
 
 (delete-v-refs! 2260)
@@ -155,18 +159,18 @@
   :v_opt_refs
   {:v_id 2343 :ref_id 2762})
 
-(set-v-opt-refs! 2489
-                 (list 2643 2831 2762 2756 2670))
+(set-v-opt-refs! 2565
+                 (list 2643 2831 2762 2670 2756))
 
-(set-v-operations! 2530
-                   (list 231 505 779))
+(set-v-operations! 2565
+                   (list 229 203 777 1158 1697))
 
 (jdbc/update!
   midb
   :v_operations
   {:result -1
-   :unusability "превышение значения допускаемой основной погрешности по каналу измерения O₂"}
-  ["v_id = ? and op_id = ?" 2516 779])
+   :unusability "ошибка канала измерения O₂"}
+  ["v_id = ? and op_id = ?" 2574 525])
 
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
@@ -193,7 +197,7 @@
 
 (copy-measurements! 2396 2399)
 
-(delete-measurements! 2530)
+(delete-measurements! 2565)
 
 (jdbc/delete!
   midb
@@ -208,25 +212,25 @@
   :verification
   (hash-map
      :engineer 3514
-     :count "9/0030003"
-     :counteragent 198
-     :conditions 1032
+     :count "9/0029873"
+     :counteragent 174
+     :conditions 1029
      :verification_type 1
-     :protocol_number 2474
-     :mi_type "RGD MET MP1SSE"
-     :methodology_id 251
-     :serial_number 152512
-     :manufacture_year 2012
-     :channels 1
+     :protocol_number 2557
+     :mi_type "Микросенс М2"
+     :methodology_id 328
+     :serial_number "017834"
+     :manufacture_year 2018
+     :channels 4
      :area "05"
      :interval 12
-     ;:components
+     :components "O₂ (кислород); CH₄ (метан); H₂S (сероводород); CO (оксид углерода)"
      ;:scope
-     :sw_name "*11RGDMM1S01"
-     :sw_version "131204C99"
-     ;:sw_checksum "F8B9"
-     ;:sw_algorithm "CRC-16"
-     ;:sw_version_real "V3.04"
+     :sw_name "Microsense 1.bin"
+     :sw_version "1.1"
+     :sw_checksum "8D36DF56"
+     :sw_algorithm "CRC32"
+     :sw_version_real "2.64"
      ;:voltage 14
      ;:upload
      ;:comment "Леонтьев"
@@ -239,19 +243,19 @@
   {:type "ГСО"
     :available 1
     :document "паспорт"
-    :number "10510-2014"
-    :components "C3H8+N2+He"
-    :concentration "0.302+0.206+"
-    :units "ppm"
-    :uncertainity "0.005+0.003" 
-    :pass_number "02029-23"
-    :number_1c 1687 
-    :manufacture_date "2023-03-10"
-    :expiration_period 24
-    :expiration_date "2025-03-09"
+    :number "10506-2014"
+    :components "O2+N2"
+    :concentration "13.38"
+    :units "%"
+    :uncertainity "0.11" 
+    :pass_number "14633-23"
+    :number_1c 1919 
+    :manufacture_date "2023-09-13"
+    :expiration_period 12
+    :expiration_date "2025-09-12"
     :level 1
-    :date "2023-03-27"
-    :cylinder_number "02990"
+    :date "2023-10-10"
+    :cylinder_number "01259"
     :volume 4
     :pressure 7.5
     ;:comment
@@ -342,19 +346,9 @@
 
 ;; Измерения
 (add-measurements
-  2530
-  (list [4 0] [4 4.97] [4 9.83]
-        [4 4.97] [4 0] [4 9.83]
-        [5 11.19] [5 20.44] [5 29.19]
-        [5 20.44] [5 11.19] [5 29.19]
-        [1112 0] [1112 23] [1112 44]
-        [1112 23] [1112 0] [1112 44]
-        [1113 55] [1113 116] [1113 221]
-        [1113 116] [1113 55] [1113 55]
-        [1249 0] [1249 7] [1249 13]
-        [1249 7] [1249 0] [1249 13]
-        [1250 20] [1250 35] [1250 66]
-        [1250 35] [1250 20] [1250 66]
+  2569
+  (list [377 0] [377 2.1] [378 49.98] [378 94.97]
+        [378 49.98] [377 2.1] [377 0] [378 94.97]
         ))
 
 (map #(/ %1 4.4)
@@ -379,43 +373,43 @@
 
 ;; Каналы и МХ
 (ins-channel!
-  {:methodology_id 305
+  {:methodology_id 328
    :channel nil
-   :component "H2S"
+   :component "CH₄"
    :range_from 0
-   :range_to 71
-   :units "мг/м³"
+   :range_to 100
+   :units "% НКПР"
    :low_unit 0.1
    :view_range_from 0
    :view_range_to 100
-   :comment "диапазон показаний условно!"
+   ;:comment "диапазон показаний условно!"
    }
   (list {:r_from 0
-         :r_to 14.2
-         :value 10
-         :fraction nil
-         :type_id 2
+         :r_to 60
+         :value 3
+         :fraction nil 
+         :type_id 0
          :units nil
-         :operation_id 779
+         :operation_id 1169
          :comment nil}
-        {:r_from 14.2
-         :r_to 71
-         :value 10
+        {:r_from 60
+         :r_to 100
+         :value 5
          :fraction nil
          :type_id 1
          :units nil
-         :operation_id 779
+         :operation_id 1169
          :comment nil}
         {:value 0.5
          :type_id 5
          :units ""
-         :operation_id nil}
+         :operation_id 1285}
         {;:r_from 0
          ;:r_to 10
-         :value 35
+         :value 60
          :type_id 6
          :units "с"
-         :operation_id nil}
+         :operation_id 1696}
         #_{
          :r_from 0
          :r_to 71 
@@ -443,10 +437,10 @@
 (jdbc/insert!
   midb
   :counteragents
-  {:name "Общество с ограничнной ответственностью «СТРОЙТЕХМОНТАЖ»"
-   :short_name "ООО «СТМ»"
-   :address "460024, Оренбургская область, г. Оренбург, ул. Туркестанская, д. 5, офис 323"
-   :inn "5610246004"})
+  {:name "Общество с ограниченной ответственностью «АВТОКОНТИНЕНТ»"
+   :short_name "ООО «АВТОКОНТИНЕНТ»"
+   :address "460048, Оренбургская обл., г. Оренбург, Автоматики проезд, д. 30, лит Е5, оф 12"
+   :inn "5609193774"})
 
 (jdbc/update!
   midb

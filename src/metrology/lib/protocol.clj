@@ -190,7 +190,7 @@
                   discrete-val))
         val2 (if (:value_2 m)
                  (metr/discrete
-                   (:value m)
+                   (:value_2 m)
                    discrete-val))
         exp (if (pos? (metr/exponent discrete-val))
                     0
@@ -232,7 +232,7 @@
             (string/replace
               vari
               "." ","))
-        (hash-map :value "-" :error "-" :variation "-"))))
+        (hash-map :value "-" :ref "-" :error "-" :variation "-"))))
 
 (defn measurements-table
   ""

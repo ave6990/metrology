@@ -5,8 +5,12 @@ All notable changes to this project will be documented in this file. This change
 ### Changed
 - Add a new arity to `make-widget-async` to provide a different widget shape.
 
-## [0.1.3] - 2023-1016
-## Fixed
+## [0.1.4] - 2023-10-18
+### Fixed
+- Metrology-calc function. Fixed variation calculating.
+
+## [0.1.3] - 2023-10-16
+### Fixed
 - Metrology-calc function. Change discrete function to round.
 - Sync values used in calculating and view table.
 
