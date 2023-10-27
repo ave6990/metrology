@@ -2,13 +2,22 @@
 (require '[metrology.lib.gs2000 :as gs])
 
 (pprint (gs2000 1
-                #_"H2S"
+                "CO"
                 8950
-                (list 30 250 475)
-                #_(map #(ch/ppm->mg "H2S" %1)
-                     (list 5.8 29))))
+                (list 500 862)
+                #_(map #(ch/ppm->mg "CO" %1)
+                     (list 430 740))))
 
-(ch/ppm->mg "CH4" 2200)
+(map #(/ (* %1 32.07) 62.14)
+     '(4.9 7.8 40 70))
+
+(for [x (range 3)
+      y (range 3)]
+  (println (str x "x" y)))
+
+(ch/ppm->mg "CH4" 9660)
+
+(ch/mg->ppm "CH4" 6650)
 
 (def record (atom nil))
 (def current (atom nil))
@@ -17,60 +26,50 @@
 (gso "lower(components) like '%%'
       and expiration_date > date('now')")
 
-(/ 4.22 4.4)
+(methodology (list 247))
 
-(methodology (list 320))
-
-(pprint (find-methodology "Микросенс"))
-
-(jdbc/update!
-  midb
-  :methodology
-  {:short_name "ИБЯЛ.413412.005МП"
-   :date_to "2015-08-01"}
-  ["id = ?" 218])
+(pprint (find-methodology "ДАТ"))
 
 ;; Найти запись о поверке
 (gen-report
   (find-verification
-    "v.id >= 2554 and v.id <= 2600"))
+    "v.id >= 2713 and v.id <= 2800"))
 
 ;; Найти СИ
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%Хоббит%'
-     --and components like '%co %'
+    "lower(v.mi_type) like '%АМ-5Е%'
+     --and components like '%H2S%'
      --and channels = 3
-     --and components like '%co %'
-     --and met.registry_number like '%68988%'
-     --v.protocol_number = 2385
-     --count like '%0922/0004%'"))
+     --and components like '%ch4%7000%'
+     --and met.registry_number like '%24051-02%'
+     --v.protocol_number = 2124
+     --v.serial_number like '%412-1014930%'
+     --count like '%29871%'"))
 
 ;; Генерация отчета о поверке
 (gen-report (list 2515 2516))
 
 ;; Генерация протоколов поверки
-(gen-protocols "id >= 2566")
-
-(* 10.4 1.42)
+(gen-protocols "id >= 2749")
 
 ;; Генерация результатов измерений
-(gen-values! "id >= 2566")
+(gen-values! "id >= 2749 and id <= 2800")
 
-(pprint (find-counteragent "СТМ-С"))
+(pprint (find-counteragent "ОРМЕТ"))
 
 (reset! record (get-verification (get-last-id "verification")))
 
 (get-v-operations 2380)
 
 ;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 2232))
-     (range 1))
+(map (fn [s] (copy-record! 2709))
+     (range 4))
 
 (let [nums (map (fn [n] (str "" n))
-                (list "2009464"))
-      start-id 2575
-      start-protocol-number 2567]
+                (list 783 782 784))
+      start-id 2753
+      start-protocol-number 2745]
   (map (fn [n i]
          (jdbc/update!
            midb
@@ -78,25 +77,25 @@
            (hash-map
              :protocol nil
              :protolang nil
-             :count "9/0029985"
-             :counteragent 358
-             :conditions 1041
+             :count "9/029719"
+             :counteragent 161
+             :conditions 1046
              ;:methodology_id 305
-             :mi_type "ХОББИТ-Т-C₃H₈-И11(20)"
+             ;:mi_type "М 02, исп. М 02-01"
              :serial_number n
              :manufacture_year 2020
              :protocol_number (+ start-protocol-number i)
              ;:comment "Леонтьев"
              ;:comment 11
              ;:upload 1
-             :channels 1
+             ;:channels 1
              ;:components "H₂S (сероводород)"
              ;:scope
-             :sw_name "Plow_max_04"
-             :sw_version "40 16 00 02"
-             :sw_checksum "8BFD"
-             :sw_algorithm "CRC 16"
-             :sw_version_real "40 16 00 02"
+             ;:sw_name "Лидер 04-Main"
+             ;:sw_version "не ниже V3.00"
+             ;:sw_checksum "8BFD"
+             ;:sw_algorithm "CRC 16"
+             ;:sw_version_real "V3.04"
              )
            ["id = ?" (+ start-id i)]))
        nums
@@ -105,11 +104,11 @@
 (map (fn [id] (copy-v-gso! 2337 id))
      (range 2301 2327))
 
-(copy-v-gso! 2396 2399)
+(copy-v-gso! 2574 2579)
 
 (delete-v-gso! 2343)
 
-(set-v-gso! 2569 (list 347))
+(set-v-gso! 2749 (list 387 285 379 381 322 382))
 
 ;; Удалить записи с id >=
 (map (fn [i]
@@ -117,15 +116,15 @@
      (range 19))
 
 ;; Удалить запись
-(delete-record! 2554)
+(delete-record! 2697)
 
-(pprint (get-conditions "2023-10-04"))
+(pprint (get-conditions "2023-10-25"))
 
-(insert-conditions! {:date "2023-10-18"
-                     :temperature 23.3
-                     :humidity 51.7
-                     :pressure 100.44
-                     :voltage 222.4
+(insert-conditions! {:date "2023-10-25"
+                     :temperature 22.1
+                     :humidity 51.4
+                     :pressure 99.00
+                     :voltage 223.3
                      :frequency 50
                      ;:other "расход ГС (0,1 - 0,3) л/мин."
                      ;:location "УЭСП"
@@ -149,7 +148,7 @@
 (set-v-gso! 2453
             (remove #{258 334} (get-v-gso 2386)))
 
-(set-v-refs! 2569
+(set-v-refs! 2749
              (list 2846 2820))
 
 (delete-v-refs! 2260)
@@ -159,11 +158,11 @@
   :v_opt_refs
   {:v_id 2343 :ref_id 2762})
 
-(set-v-opt-refs! 2565
-                 (list 2643 2831 2762 2670 2756))
+(set-v-opt-refs! 2710
+                 (list 2643 2831 2762 2670 2756 2717))
 
-(set-v-operations! 2565
-                   (list 229 203 777 1158 1697))
+(set-v-operations! 2710
+                   (list 80 354 628 880 1072))
 
 (jdbc/update!
   midb
@@ -192,17 +191,17 @@
 
 (copy-v-operations! 4 8)
 
-(map (fn [v] (copy-measurements! 2329 v))
-     (range 2330 2228))
+(map (fn [v] (copy-measurements! 2670 v))
+     (range 2671 2689))
 
 (copy-measurements! 2396 2399)
 
-(delete-measurements! 2565)
+(delete-measurements! 2748)
 
 (jdbc/delete!
   midb
   :measurements
-  ["id >= ?" 21927])
+  ["v_id >= ? and v_id <= ?" 2670 2689])
 
 (pprint @record)
 
@@ -212,28 +211,28 @@
   :verification
   (hash-map
      :engineer 3514
-     :count "9/0029873"
-     :counteragent 174
-     :conditions 1029
+     :count "9/0029949"
+     :counteragent 225
+     :conditions 1028
      :verification_type 1
-     :protocol_number 2557
-     :mi_type "Микросенс М2"
-     :methodology_id 328
-     :serial_number "017834"
-     :manufacture_year 2018
-     :channels 4
+     :protocol_number 2702
+     :mi_type "ДАТ"
+     :methodology_id 116
+     :serial_number "1487"
+     :manufacture_year 2006
+     :channels 1
      :area "05"
      :interval 12
-     :components "O₂ (кислород); CH₄ (метан); H₂S (сероводород); CO (оксид углерода)"
+     ;:components "O₂ (кислород); CH₄ (метан); H₂S (сероводород); CO (оксид углерода)"
      ;:scope
-     :sw_name "Microsense 1.bin"
-     :sw_version "1.1"
-     :sw_checksum "8D36DF56"
-     :sw_algorithm "CRC32"
-     :sw_version_real "2.64"
-     ;:voltage 14
+     ;:sw_name "Microsense 1.bin"
+     ;:sw_version "1.1"
+     ;:sw_checksum "8D36DF56"
+     ;:sw_algorithm "CRC32"
+     ;:sw_version_real "2.64"
+     :voltage 13
      ;:upload
-     ;:comment "Леонтьев"
+     :comment "Леонтьев"
      ))
 
 ;;Добавить ГСО
@@ -346,10 +345,12 @@
 
 ;; Измерения
 (add-measurements
-  2569
-  (list [377 0] [377 2.1] [378 49.98] [378 94.97]
-        [378 49.98] [377 2.1] [377 0] [378 94.97]
+  2748
+  (list [1253 0] [1253 7.47] [1254 44.93] [1254 83.04]
+        [1254 44.93] [1253 7.47] [1253 0] [1254 83.04]
         ))
+
+(/ 4.22 4.4)
 
 (map #(/ %1 4.4)
      (list 0 1.1 2.1 2.3 3.3 4.22))
@@ -373,43 +374,43 @@
 
 ;; Каналы и МХ
 (ins-channel!
-  {:methodology_id 328
+  {:methodology_id 322
    :channel nil
-   :component "CH₄"
+   :component "C2H5SH"
    :range_from 0
-   :range_to 100
-   :units "% НКПР"
+   :range_to 36.2
+   :units "млн⁻¹"
    :low_unit 0.1
    :view_range_from 0
-   :view_range_to 100
-   ;:comment "диапазон показаний условно!"
+   :view_range_to 36.2
+   :comment "диапазон показаний условно!"
    }
   (list {:r_from 0
-         :r_to 60
-         :value 3
-         :fraction nil 
+         :r_to 36.2
+         :value 1.03
+         :fraction nil
          :type_id 0
          :units nil
-         :operation_id 1169
+         :operation_id 1165
          :comment nil}
-        {:r_from 60
-         :r_to 100
-         :value 5
+        #_{:r_from 15
+         :r_to 200
+         :value 20
          :fraction nil
          :type_id 1
          :units nil
-         :operation_id 1169
+         :operation_id 768
          :comment nil}
         {:value 0.5
          :type_id 5
          :units ""
-         :operation_id 1285}
+         :operation_id nil}
         {;:r_from 0
          ;:r_to 10
-         :value 60
+         :value 90
          :type_id 6
          :units "с"
-         :operation_id 1696}
+         :operation_id nil}
         #_{
          :r_from 0
          :r_to 71 
@@ -420,13 +421,13 @@
         #_{:value 1 
          :type_id 12
          :units nil
-         :operation_id 1694
-         ;:comment "порог 0.81 % об."
+         :operation_id 1072
+         :comment "порог 11 % НКПР"
         }
         #_{:value 15
          :type_id 7
          :units "с"
-         :operation_id 1695}
+         :operation_id nil}
         #_{:value 30
          :type_id 16
          :units "с"
@@ -437,10 +438,10 @@
 (jdbc/insert!
   midb
   :counteragents
-  {:name "Общество с ограниченной ответственностью «АВТОКОНТИНЕНТ»"
-   :short_name "ООО «АВТОКОНТИНЕНТ»"
-   :address "460048, Оренбургская обл., г. Оренбург, Автоматики проезд, д. 30, лит Е5, оф 12"
-   :inn "5609193774"})
+  {:name "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ «ЭНКИСТРОЙМОНТАЖ»"
+   :short_name "ООО «ЭСМ»"
+   :address "460021, Оренбургская область, город Оренбург, Красногорская ул., д. 72/1"
+   :inn "5610227756"})
 
 (jdbc/update!
   midb
@@ -458,13 +459,13 @@
   (jdbc/insert!
     auto
     :travel_order
-    {:auto_id 4
-     :count "9/029619"
-     :date_departure "2023-10-11T09:00"
-     :date_arrive "2023-10-04T14:00"
-     :odometr_departure 136358
-     :fuel_departure 34.53
-     :odometr_arrive 136458
+    {:auto_id 1
+     :count "9/029838"
+     :date_departure "2023-10-25T12:30"
+     :date_arrive "2023-10-25T14:30"
+     :odometr_departure 234545
+     :fuel_departure 15.01
+     :odometr_arrive 234549
      :fuel_add 0})
   (pprint
     (jdbc/query
@@ -500,16 +501,23 @@
        data))
 
 (defn control-points
+  "Расчитывает значения опорных точек 5, 50 и 95 %
+   (или заданных вектором `points) диапазона
+   измерений заданного вектором `rng"
   ([rng points]
    (let [s-rng (rng 0)
          e-rng (rng 1)]
     (map (fn [p]
              (+ s-rng (* (- e-rng s-rng) (double (/ p 100)))))
          points)))
-  ([v-range]
-   (control-points v-range [5 50 95])))
+  ([rng]
+   (control-points rng [5 50 95])))
 
 (control-points [10 100])
+
+(metr/air-vnc->v 100 23.1 101.14)
+
+(metr/air-v->vnc 106 23.1 101.14)
 
 (require '[clojure.repl :refer :all])
 

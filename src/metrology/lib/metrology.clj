@@ -193,6 +193,14 @@
                                 (ex-message e)))))})
          coll)))
 
+(defn air-v->vnc
+  [v t p]
+  (/ (* v p 293.2) (* (+ t 273.2) 101.3)))
+
+(defn air-vnc->v
+  [v t p]
+  (/ (* v (+ t 273.2) 101.3) p 293.2))
+
 (comment
 
 (error 43 45 10 50)
