@@ -3,6 +3,7 @@
     [clojure.java.jdbc :as jdbc]
     [clojure.string :as string]
     [clojure.pprint :refer [pprint]]
+    [clojure.java.shell :refer [sh]]
     [metrology.lib.database :as db]
     [metrology.lib.midb-queries :as q]
     [metrology.lib.chemistry :as ch]
@@ -27,12 +28,26 @@
       "select load_extension('/media/sf_YandexDisk/Ermolaev/midb/icu.so');")
     (catch Exception e (print e))))
 
-(defn get-last-id
+(defn last-id
   "Получить id последней записи заданной таблицы."
   [s]
   (:id (first (jdbc/query 
                 midb
                 (q/last-id s)))))
+
+(defn next-id
+  "Получить очередной id."
+  []
+  (:id (first (jdbc/query
+                midb
+                q/next-id))))
+
+(defn next-protocol-number
+  "Получить очередной protocol_number."
+  []
+  (:protocol_number (first (jdbc/query
+                             midb
+                             q/next-protocol-number))))
 
 (defn insert-conditions!
   "Вставка данных условий поверки в БД."
@@ -52,14 +67,6 @@
   (jdbc/query midb
               ["select * from conditions where date = ?" date]))
 
-(defn find-mi
-  "Возвращает список записей поверок соответсвующих запросу.
-   Запрос: заводской номер или номер реестра или наименование типа СИ."
-  [s]
-  (map (fn [m]
-           (:id m))
-       (jdbc/query midb [q/find-mi (str "%" s "%")])))
-
 (defn find-verification
   ""
   ([s]
@@ -76,12 +83,6 @@
   "Возвращает список записей методик поверки соответствующих запросу."
   [s]
   (jdbc/query midb [q/find-methodology (str "%" s "%")]))
-
-(defn find-counteragent
-  "Возвращает список контрагентов соответствующих запросу."
-  [s]
-  (jdbc/query midb [q/counteragents (str "%" s "%")]))
-
 
 (defn copy-verification!
   "Копировать строку таблицы verification."
@@ -438,9 +439,22 @@
    (spit
      (str midb-path
           "report.html")
-         (report/verification-report (get-report-data coll))))
+     (report/verification-report (get-report-data coll))))
   ([from to]
    (gen-report (range from (inc to)))))
+
+(defn find-counteragent
+  "Возвращает список контрагентов соответствующих запросу."
+  [s]
+  (jdbc/query midb [q/counteragents (str "%" s "%")]))
+
+(defn counteragents
+  ""
+  [s]
+  (spit
+    (str midb-path
+         "counteragents.html")
+    (report/counteragents-report (find-counteragent s))))
 
 (defn gso
   ([where]

@@ -31,6 +31,7 @@ table {
   border: 1px solid lightgray;
   border-collapse: collapse;
   margin: 4pt 0;
+  width: 100%;
 }
 th, td {
   max-width: 100px;
@@ -146,7 +147,10 @@ th, td {
         (td (:area m))
         (td (:interval m)))
       (tr
-        (th "состав")
+        (th "каналов")
+        (th {:colspan 4} "состав"))
+      (tr
+        (td (:channels m))
         (td {:colspan 4} (:components m)))
       (tr
         (th "объем")
@@ -365,6 +369,42 @@ th, td {
                          (td (:pass_number m))
                          (td (:date m))
                          (td (:expiration_date m))))
+                   coll)))))))))
+
+(defn counteragents-report
+  ""
+  [coll]
+  (report "counteragents" gso-styles scripts
+    (body
+      (header
+      (main
+        (table
+          (thead
+            (tr
+              (th {:rowspan 3} "id")
+              (th {:colspan 3} "name"))
+            (tr
+              (th "inn")
+              (th "type")
+              (th "short_name"))
+            (tr
+              (th {:colspan 3} "address")))
+          (tbody
+            (string/join
+              "\n"
+              (map (fn [m]
+                       (string/join
+                         "\n"
+                         (list
+                           (tr
+                             (td {:rowspan 3} (:id m))
+                             (td {:colspan 3} (:name m)))
+                           (tr
+                             (td (:inn m))
+                             (td (:type m))
+                             (td (:short_name m)))
+                           (tr
+                             (td {:colspan 3} (:address m))))))
                    coll)))))))))
 
 (defn full-methodology-table

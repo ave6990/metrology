@@ -15,6 +15,18 @@
     "?"
     table))
 
+(def next-id
+  "select id from verification
+   where protocol_number is null
+   limit 1;")
+
+(def next-protocol-number
+  "select protocol_number + 1 as protocol_number
+   from verification
+   where protocol_number is not null
+   order by id desc
+   limit 1;")
+
 (def copy-verification
   "Query to copy the record with id from the verification table"
   "with temp as (

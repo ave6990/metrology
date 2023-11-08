@@ -1,5 +1,6 @@
 ;; ГС-2000
 (require '[metrology.lib.gs2000 :as gs])
+(require '[clojure.java.shell :refer [sh]])
 
 (pprint (gs2000 1
                 "CO"
@@ -11,91 +12,93 @@
 (map #(/ (* %1 32.07) 62.14)
      '(4.9 7.8 40 70))
 
-(for [x (range 3)
-      y (range 3)]
-  (println (str x "x" y)))
-
-(ch/ppm->mg "CH4" 9660)
-
-(ch/mg->ppm "CH4" 6650)
-
 (def record (atom nil))
 (def current (atom nil))
 (def protocol (atom nil))
 
-(gso "lower(components) like '%%'
+(gso "lower(components) like '%ch4%'
       and expiration_date > date('now')")
+(sh "vivaldi" (str midb-path "gso.html"))
 
-(methodology (list 247))
+(methodology (list 13))
+(sh "vivaldi" (str midb-path "methodology.html"))
 
-(pprint (find-methodology "ДАТ"))
+(pprint (find-methodology "sieger"))
 
 ;; Найти запись о поверке
 (gen-report
   (find-verification
-    "v.id >= 2713 and v.id <= 2800"))
+    "v.id >= 2852"))
+(sh "vivaldi" (str midb-path "report.html"))
 
 ;; Найти СИ
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%АМ-5Е%'
+    "lower(v.mi_type) like '%СЕАН-П%'
      --and components like '%H2S%'
-     --and channels = 3
+     --and channels = 4
      --and components like '%ch4%7000%'
      --and met.registry_number like '%24051-02%'
      --v.protocol_number = 2124
      --v.serial_number like '%412-1014930%'
      --count like '%29871%'"))
+(sh "vivaldi" (str midb-path "report.html"))
 
 ;; Генерация отчета о поверке
 (gen-report (list 2515 2516))
+(sh "vivaldi" (str midb-path "report.html"))
 
 ;; Генерация протоколов поверки
-(gen-protocols "id >= 2749")
+(gen-protocols "id >= 2953")
+(sh "vivaldi" (str midb-path "protocol.html"))
 
 ;; Генерация результатов измерений
-(gen-values! "id >= 2749 and id <= 2800")
+(gen-values! "id >= 2953")
 
-(pprint (find-counteragent "ОРМЕТ"))
+(counteragents "ГАЗТЕХНОЛО")
+(sh "vivaldi" (str midb-path "counteragents.html"))
 
 (reset! record (get-verification (get-last-id "verification")))
 
 (get-v-operations 2380)
 
 ;; Создать однотипные записи по массиву зав. №.
-(map (fn [s] (copy-record! 2709))
-     (range 4))
+(map (fn [s] (copy-record! 2531))
+     (range 18))
 
 (let [nums (map (fn [n] (str "" n))
-                (list 783 782 784))
-      start-id 2753
-      start-protocol-number 2745]
+                #_(list )
+                (range 18))
+      start-id (next-id)
+      start-protocol-number (next-protocol-number)]
+      ;start-protocol-number 2836]
   (map (fn [n i]
          (jdbc/update!
            midb
            :verification
            (hash-map
-             :protocol nil
-             :protolang nil
-             :count "9/029719"
-             :counteragent 161
-             :conditions 1046
              ;:methodology_id 305
              ;:mi_type "М 02, исп. М 02-01"
-             :serial_number n
-             :manufacture_year 2020
-             :protocol_number (+ start-protocol-number i)
-             ;:comment "Леонтьев"
+             ;:components "БД зав. №: 1323"
+             ;:channels 6
+             :count "9/029720"
+             :counteragent 212
+             :conditions 1055
+             :manufacture_year 2022
+             :comment "Леонтьев"
              ;:comment 11
-             ;:upload 1
-             ;:channels 1
-             ;:components "H₂S (сероводород)"
+             ;:comment "ГИС блок 2"
+             :upload 1
              ;:scope
              ;:sw_name "Лидер 04-Main"
              ;:sw_version "не ниже V3.00"
              ;:sw_checksum "8BFD"
              ;:sw_algorithm "CRC 16"
-             ;:sw_version_real "V3.04"
+             ;:sw_version_real "1.73"
+             :serial_number n
+             :protocol_number (+ start-protocol-number i)
+             :protocol nil
+             :protolang nil
              )
            ["id = ?" (+ start-id i)]))
        nums
@@ -108,7 +111,7 @@
 
 (delete-v-gso! 2343)
 
-(set-v-gso! 2749 (list 387 285 379 381 322 382))
+(set-v-gso! 2864 (list 229 319))
 
 ;; Удалить записи с id >=
 (map (fn [i]
@@ -118,16 +121,16 @@
 ;; Удалить запись
 (delete-record! 2697)
 
-(pprint (get-conditions "2023-10-25"))
+(pprint (get-conditions "2023-11-07"))
 
-(insert-conditions! {:date "2023-10-25"
-                     :temperature 22.1
-                     :humidity 51.4
-                     :pressure 99.00
-                     :voltage 223.3
+(insert-conditions! {:date "2023-11-08"
+                     :temperature 23.6
+                     :humidity 52.0
+                     :pressure 99.73
+                     :voltage 221.4
                      :frequency 50
                      ;:other "расход ГС (0,1 - 0,3) л/мин."
-                     ;:location "УЭСП"
+                     ;:location "Алексеевское ЛПУ"
                      ;:comment ""
                      })
 
@@ -158,11 +161,11 @@
   :v_opt_refs
   {:v_id 2343 :ref_id 2762})
 
-(set-v-opt-refs! 2710
-                 (list 2643 2831 2762 2670 2756 2717))
+(set-v-opt-refs! 2864
+                 (list 2837 2756 2670))
 
-(set-v-operations! 2710
-                   (list 80 354 628 880 1072))
+(set-v-operations! 2864
+                   (list 6 280 825 1026))
 
 (jdbc/update!
   midb
@@ -211,15 +214,15 @@
   :verification
   (hash-map
      :engineer 3514
-     :count "9/0029949"
-     :counteragent 225
-     :conditions 1028
+     :count "9/0030017"
+     :counteragent 185
+     :conditions 1056
      :verification_type 1
-     :protocol_number 2702
-     :mi_type "ДАТ"
-     :methodology_id 116
-     :serial_number "1487"
-     :manufacture_year 2006
+     :protocol_number (next-protocol-number) 
+     :mi_type "Sieger, мод. 5700/780"
+     :methodology_id 13
+     :serial_number "031"
+     :manufacture_year 1994
      :channels 1
      :area "05"
      :interval 12
@@ -230,9 +233,9 @@
      ;:sw_checksum "8D36DF56"
      ;:sw_algorithm "CRC32"
      ;:sw_version_real "2.64"
-     :voltage 13
+     ;:voltage 13
      ;:upload
-     :comment "Леонтьев"
+     :comment "КЦ"
      ))
 
 ;;Добавить ГСО
@@ -262,7 +265,7 @@
 
 (pprint (all-refs 1861))
 
-(get-last-id "verification")
+(last-id "verification")
 
 (let [data (get-verification (get-last-id "verification"))]
   (map (fn [k]
@@ -447,11 +450,11 @@
   midb
   :counteragents
   {
-   :name "ФИЛИАЛ ООО «ГАЗПРОМ ПХГ» «СОВХОЗНОЕ УПХГ»"
-   :short_name "ФИЛИАЛ ООО «ГАЗПРОМ ПХГ» «СОВХОЗНОЕ УПХГ»"
-   ;:address "460028, Оренбургская область, город Оренбург, улица Заводская, 30"
+   :name "ООО «ГАЗТЕХНОЛОГИЯ»"
+   ;:short_name "ФИЛИАЛ ООО «ГАЗПРОМ ПХГ» «СОВХОЗНОЕ УПХГ»"
+   :address "460000, ГОРОД ОРЕНБУРГ, УЛИЦА ПУШКИНСКАЯ, 35"
    }
-  ["id = ?" 171])
+  ["id = ?" 8665])
 
 ;; Cars
 ;; Insert record
@@ -531,3 +534,6 @@
 
 (dir clojure.core)
 
+(require '[metrology.view.report :as report] :reload)
+
+(require '[metrology.lib.midb-queries :as q] :reload)
