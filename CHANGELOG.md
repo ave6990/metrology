@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This change
 ## [Unreleased] - 2023-11-08
 ### Changed
 - The report pages opening in the browser through `clojure.java.shell` lib.
+- Counteragents html-report.
+- Added some hash-tags to `shell.clj` source. More effectively navigation.
 
 ## [0.1.5]
 ### Changed

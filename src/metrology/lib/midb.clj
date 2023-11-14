@@ -148,7 +148,7 @@
    args:
      id - целочисленный идентификатор записи в БД."
   [id-from]
-  (let [id-to (inc (get-last-id "verification"))]
+  (let [id-to (inc (last-id "verification"))]
     (conj (copy-verification! id-from)
           (map (fn [f] (f id-from id-to))
                (list copy-v-gso!
