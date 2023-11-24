@@ -495,6 +495,19 @@
                 (list (:measurements prot))))
        (get-protocols-data where)))
 
+(defn add-measurements
+  [id coll]
+  (map (fn [ref]
+         (jdbc/insert!
+           midb
+           :measurements
+           (hash-map
+             :v_id id
+             :metrology_id (ref 0)
+             :ref_value (ref 1)
+             )))
+       coll))
+
 (defn gs2000
   ([gen-n gas s-conc t-conc-coll]
     (map (fn [c]
