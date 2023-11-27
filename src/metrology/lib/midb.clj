@@ -220,13 +220,21 @@
                 (str "select * from protocol where " where))
         measurements (jdbc/query
                         midb
-                        (str "select * from view_v_measurements where " where))]
+                        (str "select * from view_v_measurements where " where))
+        html (jdbc/query
+               midb
+               (str "select * from v_html where " where))]
     (map (fn [m]
-             (assoc m
+             (assoc
+               (assoc m
                     :measurements
                     (doall (filter (fn [r]
                                 (= (:id r) (:id m)))
-                            measurements))))
+                            measurements)))
+               :html
+               (doall (filter (fn [r]
+                                (= (:id r) (:id m)))
+                                html))))
          data)))
 
 (defn assoc-multi

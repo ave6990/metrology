@@ -4,17 +4,24 @@
 
 (pprint (gs2000 1
                 "CH4"
-                18170
-                (list 150 285 650 3500 6650)
+                7090
+                (list 150 285 750 1350)
                 #_(map #(ch/ppm->mg "H2S" %1)
                      (list 5 9.5 14 25 47))))
+
+((gs/calculator
+  (gs/passports 1))
+  "CH4"
+  :N2
+  7090
+  150)
 
 ;; #chemistry
 (* (ch/coefficient "C6H14") 900)
 
 (ch/ppm->mg "H2S" 95)
 
-(ch/mg->ppm "CO" 500)
+(ch/mg->ppm "CH4" 1500)
 
 (map #(/ (* %1 32.07) 62.14)
      '(4.9 7.8 40 70))
@@ -458,12 +465,12 @@
     :travel_order
     {:auto_id 2
      :count "9/"
-     :date_departure "2023-11-23T09:00"
-     :date_arrive "2023-11-23T17:00"
-     :odometr_departure 136410
-     :fuel_departure 21.48
-     :odometr_arrive 136709
-     :fuel_add 15})
+     :date_departure "2023-11-24T12:00"
+     :date_arrive "2023-11-24T14:00"
+     :odometr_departure 136709
+     :fuel_departure 5.98
+     :odometr_arrive 136715
+     :fuel_add 0})
   (pprint
     (jdbc/query
       auto
