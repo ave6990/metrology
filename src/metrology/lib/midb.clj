@@ -67,6 +67,14 @@
   (jdbc/query midb
               ["select * from conditions where date = ?" date]))
 
+(defn conditions
+  ""
+  [date]
+  (spit
+    (str midb-path
+         "conditions.html")
+    (report/conditions-report (get-conditions date))))
+
 (defn find-verification
   ""
   ([s]
@@ -229,12 +237,12 @@
                (assoc m
                     :measurements
                     (doall (filter (fn [r]
-                                (= (:id r) (:id m)))
-                            measurements)))
+                                       (= (:id r) (:id m)))
+                                   measurements)))
                :html
                (doall (filter (fn [r]
                                 (= (:id r) (:id m)))
-                                html))))
+                              html))))
          data)))
 
 (defn assoc-multi
@@ -515,6 +523,21 @@
              :ref_value (ref 1)
              )))
        coll))
+
+(defn unusability
+  ""
+  [id op_id s]
+  (jdbc/update!
+    midb
+    :v_operations
+    {:result -1
+     :unusability s}
+    ["v_id = ? and op_id = ?" id op_id])
+  (jdbc/update!
+    midb
+    :v_operations
+    {:result 0}
+    ["v_id = ? and op_id > ?" id op_id]))
 
 (defn gs2000
   ([gen-n gas s-conc t-conc-coll]

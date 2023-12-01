@@ -338,6 +338,62 @@ th, td {
         (records
           coll)))))
 
+(defn conditions-report
+  ""
+  [coll]
+  (report "conditions" gso-styles scripts
+    (body
+      (header)
+      (main
+        (table
+          (thead
+            (tr
+              (th {:rowspan 2}
+                  "id")
+              (th "температура")
+              (th "влажность")
+              (th "давление")
+              (th "напряжение")
+              (th "частота"))
+            (tr
+              (th {:colspan 5}
+                  "прочие"))
+            (tr
+              (th {:rowspan 2}
+                  "дата")
+              (th {:colspan 5}
+                  "место"))
+            (tr
+              (th {:colspan 5}
+                  "комментарий")))
+          (tbody
+            (string/join
+              "\n"
+              (map (fn [m]
+                       (string/join
+                        "\n"
+                        (list
+                          (tr
+                            (td {:rowspan 2}
+                                (:id m))
+                            (td (:temperature m))
+                            (td (:humidity m))
+                            (td (:pressure m))
+                            (td (:voltage m))
+                            (td (:frequency m)))
+                          (tr 
+                            (td {:colspan 5}
+                                (:other m)))
+                          (tr
+                            (td {:rowspan 2}
+                                (:date m))
+                            (td {:colspan 5}
+                                (:location m)))
+                          (tr
+                            (td {:colspan 5}
+                                (:comment m))))))
+                   coll))))))))
+
 (defn gso-report
   ""
   [coll]

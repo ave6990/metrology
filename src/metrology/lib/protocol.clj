@@ -284,12 +284,11 @@
 (defn custom-html
   ""
   [coll]
-  (if (zero? (count coll))
+  (if (not (zero? (count coll)))
       (string/join
         "\n"
         (map (fn [m]
-               (li {:class "appendix-section"}
-                   (:html m)))
+                 (:html m))
              coll))))
 
 (defn page-2
@@ -308,11 +307,13 @@
         (time (date-iso->local (:date m)))
         " г.")))
     (main
-      (ol
-        (when (:sw_version m)
-              (sw-version m))
-        (measurements-table (:measurements m))
-        (custom-html (:html m))))
+      (if (zero? (count (:html m)))
+          (ol
+            (when (:sw_version m)
+                  (sw-version m))
+            (measurements-table (:measurements m)))
+          (ol
+            (custom-html (:html m)))))
     (page-footer 2 2)))
 
 (defn protocol

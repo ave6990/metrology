@@ -3,9 +3,9 @@
 (require '[clojure.java.shell :refer [sh]])
 
 (pprint (gs2000 1
-                "CH4"
-                7090
-                (list 150 285 750 1350)
+                ;"CH4"
+                496
+                (list 9 25 45)
                 #_(map #(ch/ppm->mg "H2S" %1)
                      (list 5 9.5 14 25 47))))
 
@@ -27,33 +27,33 @@
      '(4.9 7.8 40 70))
 
 ;; #report#methodology
-(methodology (list 67))
+(methodology (list 209))
 (sh "vivaldi" (str midb-path "methodology.html"))
 
 ;; #find#methodology
 (methodology
   (map (fn [m]
            (:id m))
-       (find-methodology "23436")))
+       (find-methodology "Сигнал")))
 (sh "vivaldi" (str midb-path "methodology.html"))
 
 ;; #find#record
 (gen-report
   (find-verification
-    "v.id >= 3156"))
+    "v.id >= 3230"))
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#find#mi
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%КОМПАКТ%2%'
+    "lower(v.mi_type) like '%ФП22%'
      --and components like '%ПФД%'
-     --and channels = 3
-     --and components like '%3000%'
+     --and channels = 4
+     --and components like '%NH3%'
      --and met.registry_number like '%-07%'
      --v.protocol_number = 2124
      --v.serial_number like '%412-1014930%'
-     --count like '%29758%'"))
+     --count like '%29768%'"))
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report
@@ -61,22 +61,22 @@
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#protocols
-(gen-protocols "id >= 3117")
+(gen-protocols "id >= 3236")
 (sh "vivaldi" (str midb-path "protocol.html"))
 
 ;; #gen#measurements#values
-(gen-values! "id >= 3102")
+(gen-values! "id >= 3236")
 
 ;; #find#counteragents
-(counteragents "ВЕКТОР")
+(counteragents "Ю%У%Г%ЕРГО")
 (sh "vivaldi" (str midb-path "counteragents.html"))
 
 ;; #copy#record
-(map (fn [s] (copy-record! 2306))
+(map (fn [s] (copy-record! 2980))
      (range 1))
 
 (let [nums (map (fn [n] (str "" n))
-                (list "SK0821027")
+                (list 2010079)
                 #_(range 18))
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
@@ -86,26 +86,26 @@
            midb
            :verification
            (hash-map
-             ;:methodology_id 67 
-             ;:mi_type "ОКА-92"
-             ;:components "O₂ (кислород)"
-             ;:channels 1
-             :count "9/029934"
-             :counteragent 10646
-             :conditions 1072
-             :manufacture_year 2021
-             :comment "Леонтьев"
+             ;:methodology_id 375
+             ;:mi_type "ОКА-92МТ-O₂-CH₄-CO-H₂S-И13"
+             ;:components "CH₄ (0 - 2,2) % об.; O₂ (0 - 30) % об.; CO (0 - 200) мг/м³; NH3 (0 - 70) мг/м³"
+             ;:channels 3
+             :count "9/3007851"
+             :counteragent 8
+             :conditions 1100
+             :manufacture_year 2020
+             ;:comment "Леонтьев"
              ;:comment 11
              ;:comment "ГИС блок 2"
-             :upload 1
+             ;:upload 1
              ;:verification_type 2
              ;:scope
              ;:engineer 3514
-             ;:sw_name "Лидер 041-Main"
-             ;:sw_version "не ниже V1.01"
+             ;:sw_name "MXTF_11_000"
+             ;:sw_version "не ниже 12" 
              ;:sw_checksum "8BFD"
              ;:sw_algorithm "CRC 16"
-             ;:sw_version_real "v2.29"
+             ;:sw_version_real "50D"
              :serial_number n
              :protocol_number (+ start-protocol-number i)
              :protocol nil
@@ -121,8 +121,8 @@
 ;; Удалить записи с id >=
 ;; #delete#record
 (map (fn [i]
-         (delete-record! (+ 2308 i)))
-     (range 19))
+         (delete-record! (+ 3231 i)))
+     (range 4))
 
 (map (fn [id] (copy-v-gso! 2337 id))
      (range 2301 2327))
@@ -133,14 +133,12 @@
 (sh "vivaldi" (str midb-path "gso.html"))
 
 ;; #set#gso
-(set-v-gso! 3156 (list ))
-
-;; #set#gso#passport
 (set-v-gso!
-  3156
-  (map (fn [m]
+  3238
+  (list 377)
+  #_(map (fn [m]
            (:id m))
-       (check-gso (list "08197-23" "14633-23" "02464-22")
+       (check-gso (list "14638-23" "14636-23" "14634-23" "02464-23" "00810-23" "16782-23")
                   "pass_number")))
 
 ;; #copy#gso
@@ -153,26 +151,27 @@
             (remove #{258 334} (get-v-gso 2386)))
 
 ;; #conditions
-(pprint (get-conditions "2023-11-23"))
+(conditions "2023-11-29")
+(sh "vivaldi" (str midb-path "conditions.html"))
 
 ;; #add#conditions
-(insert-conditions! {:date "2023-11-24"
-                     :temperature 22.7
-                     :humidity 52.2
-                     :pressure 99.24
+(insert-conditions! {:date "2023-12-01"
+                     :temperature 22.4
+                     :humidity 51.4
+                     :pressure 100.7
                      :voltage 220.0
                      :frequency 50
                      ;:other "расход ГС (0,1 - 0,3) л/мин."
-                     ;:location "ОГЗ"
+                     ;:location "с. Ивановка"
                      ;:comment ""
                      })
 
 ;; #set#refs
-(set-v-refs! 3149
+(set-v-refs! 3238
              (list 2663 2820))
 
 ;; #copy#refs
-(copy-v-refs! 2396 2399)
+(copy-v-refs! 3187 3197)
 
 ;; #delete#refs
 (delete-v-refs! 2260)
@@ -183,8 +182,8 @@
   {:v_id 2343 :ref_id 2762})
 
 ;; #set#opt-refs
-(set-v-opt-refs! 3149
-                 (list 2643 2831 2670 2756))
+(set-v-opt-refs! 3237
+                 (list 2643 2831 2762 2756))
 
 ;; #copy#opt-refs
 (copy-v-opt-refs! 2337 2339)
@@ -193,28 +192,26 @@
 (jdbc/insert!
   midb
   :verification_operations
-  {:methodology_id 370
-   :section "6.3.3"
-   :name "Определение абсолютной погрешности измерения температуры масла"
-   :verification_type 1 
-   :comment "См. в приложении к протоколу"
+  {:methodology_id 27
+   :section "6.2"
+   :name "Определение метрологических характеристик"
+   :verification_type 1
+   ;:comment "См. в приложении к протоколу"
    ;:info nil
    })
 
 ;; #set#operations
-(set-v-operations! 3149
-                   (list 264 538 822 878))
+(set-v-operations! 3238
+                   (list 1752 1753 1754))
 
 ;; #copy#operations
-(copy-v-operations! 4 8)
+(copy-v-operations! 3187 3210)
 
-;; #update#operations
-(jdbc/update!
-  midb
-  :v_operations
-  {:result -1
-   :unusability "ошибка канала измерения O₂"}
-  ["v_id = ? and op_id = ?" 2574 525])
+;; #unusability#update#operations
+(unusability
+  3230
+  766
+  "ошибка заряда, не включается")
 
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
@@ -232,29 +229,38 @@
   :verification
   (hash-map
      :engineer 3514
-     :count "9/029705"
-     :counteragent 255
-     :conditions 1069
+     :count "9/3007851"
+     :counteragent 8 
+     :conditions 1100
      :verification_type 1
      :protocol_number (next-protocol-number) 
-     :mi_type "ЩИТ-2"
-     :methodology_id 340
-     :serial_number 1753
-     :manufacture_year 1990
+     ;:protocol_number 3182
+     :mi_type "Сигнал-02М"
+     :methodology_id 27
+     :serial_number "6976-01"
+     :manufacture_year 2010
      :channels 1
      :area "05"
      :interval 12
-     :components "блок датчика № 147"
+     :components "CH₄ (метан)"
      ;:scope
-     ;:sw_name "Microsense 1.bin"
-     ;:sw_version "1.1"
-     ;:sw_checksum "8D36DF56"
-     ;:sw_algorithm "CRC32"
-     ;:sw_version_real "2.64"
+     ;:sw_name "ЗАХАР-04"
+     ;:sw_version "V4.0"
+     ;:sw_checksum "2E3A"
+     ;:sw_algorithm "CRC-16"
+     ;:sw_version_real "V4.0"
      ;:voltage 24
-     ;:upload
-     :comment "Леонтьев"
+     ;:upload 
+     ;:comment "Леонтьев"
      ))
+
+(jdbc/update!
+  midb
+  :verification
+  {
+    :components "Σ C₂-C₁₀ (0 - 100) % НКПР"
+  }
+  ["id = ?" 3174])
 
 ;; #add#gso
 (jdbc/insert!
@@ -293,20 +299,20 @@
 (jdbc/insert!
   midb
   :methodology
-  {:registry_number "17438-08"
-   :mi_name "Газоанализаторы ИНФРАКАР"
-   :mi_types "ИНФРАКАР-08, ИНФРАКАР-10, ИНФРАКАР-12, ИНФРАКАР-12Т"
-   :name "МП 242-0770-2008 «Газоанализаторы ИНФРАКАР. Методика поверки"
-   :short_name "МП 242-0770-2008"
+  {:registry_number "23436-08"
+   :mi_name "Комплекс измерительный газоаналитический контроля загазованности атмосферного воздуха - пост ПКЗ-Р"
+   :mi_types "ПКЗ-Р, модель 04"
+   :name "ДИЭМ.416100.031 «Комплекс измерительный газоаналитический контроля загазованности атмосферного воздуха - пост ПКЗ-Р. Методика поверки»"
+   :short_name "ДИЭМ.416100.031"
    :date_from nil
-   :date_to "2013-12-01"
+   :date_to "2018-07-11"
    :temperature "20 ± 5"
-   :humidity "65 ± 15"
-   :pressure "101,3 ± 1,5"
-   :voltage "220 (+ 10 / - 15)"
-   :frequency nil
-   :other "расход анализируемой газовой смеси (50 - 60) л/ч"
-   :limited nil})
+   :humidity "45 ÷ 80"
+   :pressure "87 ÷ 107"
+   :voltage "(220 ± 22)"
+   :frequency "(50 ± 1)"
+   :other nil
+   :limited 1})
 
 ;; #update#methodology
 (jdbc/update!
@@ -343,11 +349,8 @@
 
 ;; #add#measurements
 (add-measurements
-  3153
-  (list [1451 0] [1451 10] [1451 18]
-        [1451 10] [1451 0] [1451 18]
-        [1452 20] [1452 150] [1452 260]
-        [1452 150] [1452 20] [1452 260]
+  3238
+  (list [1508 0] [1508 20] [1508 50] [1509 nil]
         ))
 
 ;; #update#measurements
@@ -367,7 +370,7 @@
      (range 2671 2689))
 
 ;; #delete#measurements
-(delete-measurements! 3153)
+(delete-measurements! 3215)
 
 (jdbc/delete!
   midb
@@ -377,43 +380,44 @@
 
 ;; #add#metrology#channel
 (ins-channel!
-  {:methodology_id 67
+  {:methodology_id 27
    :channel nil
    :component "CH4"
    :range_from 0
-   :range_to 0.5
-   :units "% об."
-   :low_unit 0.01
+   :range_to 50
+   :units "% НКПР"
+   :low_unit 5
    :view_range_from 0
-   :view_range_to 0.5
-   :comment "диапазон показаний условно!"
+   :view_range_to 50
+   ;:comment "Sensepoint; диапазон показаний условно!"
    }
   (list {:r_from 0
-         :r_to 0.2
-         :value 25
+         :r_to 50
+         :value 5
          :fraction nil
-         :type_id 2
+         :type_id 0
          :units nil
-         :operation_id 849
+         :operation_id 1753 
          :comment nil}
-        {:r_from 0.2
-         :r_to 0.5
-         :value 25
+        #_{:r_from 10
+         :r_to 100
+         :value 20
          :fraction nil
          :type_id 1
          :units nil
-         :operation_id 849
-         :comment nil}
-        {:value 0.5
+         :operation_id 1106 
+         ;:comment "(15 - 30) % об."
+         }
+        #_{:value 0.5
          :type_id 5
          :units ""
-         :operation_id 1047}
-        {;:r_from 0
+         :operation_id 1237}
+        #_{;:r_from 0
          ;:r_to 10
-         :value 15
+         :value 40
          :type_id 6
          :units "с"
-         :operation_id 1721}
+         :operation_id 1333}
         #_{
          :r_from 0
          :r_to 71 
@@ -427,10 +431,10 @@
          :operation_id 878
          ;:comment "порог 11 % НКПР"
         }
-        #_{:value 15
+        {:value 10
          :type_id 7
          :units "с"
-         :operation_id 1719}
+         :operation_id 1754}
         #_{:value 30
          :type_id 16
          :units "с"
@@ -451,11 +455,11 @@
   midb
   :counteragents
   {
-   :name "ООО АТЦ «Жигули-Оренбург»"
-   :short_name "ООО АТЦ «Жигули-Оренбург»"
-   :address "460507, Оренбургская обл., Оренбургский р-н, Пригородный п., шоссе 12 км автодороги Оренбург-Орск"
+   ;:name "ООО АТЦ «Жигули-Оренбург»"
+   ;:short_name "ООО АТЦ «Жигули-Оренбург»"
+   :address "460044, Оренбургская обл, Оренбург г, Терешковой ул, дом № 154/2"
    }
-  ["id = ?" 9135])
+  ["id = ?" 41551])
 
 ;; #cars
 ;; #insert#order#auto
@@ -465,12 +469,12 @@
     :travel_order
     {:auto_id 2
      :count "9/"
-     :date_departure "2023-11-24T12:00"
-     :date_arrive "2023-11-24T14:00"
-     :odometr_departure 136709
-     :fuel_departure 5.98
-     :odometr_arrive 136715
-     :fuel_add 0})
+     :date_departure "2023-11-28T09:00"
+     :date_arrive "2023-11-28T14:30"
+     :odometr_departure 136746
+     :fuel_departure 2.21
+     :odometr_arrive 136975
+     :fuel_add 30})
   (pprint
     (jdbc/query
       auto
@@ -521,6 +525,75 @@
 
 (metr/air-v->vnc 106 23.1 101.14)
 
+(jdbc/insert!
+  midb
+  :v_html
+  {:id 3210
+   :html (string/join
+          "\n"
+          (list
+            (li {:class "appendix-section"}
+              "Место расположения комплекса: "
+              (em "с. Ивановка."))
+            (li {:class "appendix-section"}
+              "Состав комплекса:"
+              (br)
+              (table
+                (thead
+                  (tr
+                    (th "Наименование СИ: ")
+                    (th "Тип СИ")
+                    (th "Заводской номер")
+                    (th "Дата поверки")))
+                (tbody
+                  (tr
+                    (td "Газоанализатор")
+                    (td "450i")
+                    (td "1027044181")
+                    (td "19.09.2023"))
+                  #_(tr
+                    (td "Газоанализатор")
+                    (td "42i")
+                    (td 1114748166)
+                    (td "31.03.2023"))
+                  #_(tr
+                    (td "Газоанализатор")
+                    (td "200E")
+                    (td 1829)
+                    (td "17.04.2023"))
+                  #_(tr
+                    (td "Газоанализатор")
+                    (td "101E")
+                    (td 1322)
+                    (td "13.03.2023"))
+                  (tr
+                    (td "Газоанализатор")
+                    (td "ГАММА-ЕТ")
+                    (td 78)
+                    (td "26.09.2023"))
+                  #_(tr
+                    (td "Газоанализатор")
+                    (td "К-100")
+                    (td "220-2-07")
+                    (td "04.04.2023"))
+                  (tr
+                    (td "Станция автоматическая метеорологическая")
+                    (td "Vantage Pro2")
+                    (td "A110913P033")
+                    (td "23.08.2023"))
+                  (tr
+                    (td "Блок детектирования")
+                    (td "БДМГ-200")
+                    (td 114)
+                    (td "28.03.2023")))))
+            (li
+              "Определение метрологических характеристик: "
+              (em "проведено по методикам поверки, в соответствии с описанием типа каждого СИ, в лабораторных условиях поэлементно."))))})
+
+(pprint
+  (get-protocols-data
+    "id = 3187"))
+
 (require '[clojure.repl :refer :all])
 
 (find-doc "assoc")
@@ -538,3 +611,7 @@
 (require '[metrology.lib.gs2000 :as gs] :reload)
 
 (require '[metrology.lib.midb-queries :as q] :reload)
+
+(require '[metrology.lib.gen-html :refer :all] :reload)
+
+(require '[metrology.lib.protocol :as pr] :reload)
