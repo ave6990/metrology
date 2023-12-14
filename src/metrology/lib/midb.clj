@@ -513,16 +513,18 @@
 
 (defn add-measurements
   [id coll]
-  (map (fn [ref]
-         (jdbc/insert!
-           midb
-           :measurements
-           (hash-map
-             :v_id id
-             :metrology_id (ref 0)
-             :ref_value (ref 1)
-             )))
+  (map (fn [[m-id & ref]]
+         (map (fn [r-value]
+                  (jdbc/insert!
+                    midb
+                    :measurements
+                    (hash-map
+                      :v_id id
+                      :metrology_id m-id
+                      :ref_value r-value)))
+         ref))
        coll))
+
 
 (defn unusability
   ""

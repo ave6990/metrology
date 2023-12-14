@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file. This change
 - The report pages opening in the browser through `clojure.java.shell` lib.
 - Counteragents html-report.
 - Added some hash-tags to `shell.clj` source. More effectively navigation.
+- The add-measurements function changed.
 ### Added
 - The custom fragments of html on a second page of protocols.
 
