@@ -10,7 +10,8 @@
     [metrology.lib.protocol :as pr]
     [metrology.lib.gs2000 :as gs]
     [metrology.lib.metrology :as metr]
-    [metrology.view.report :as report]))
+    [metrology.view.report :as report]
+    [metrology.lib.gen-html :refer :all]))
 
 (def midb-path
   ;"/mnt/d/UserData/YandexDisk/Ermolaev/midb/"
@@ -440,6 +441,14 @@
   (jdbc/query
     midb
     ["select * from view_operations where v_id = ?" id]))
+
+(defn custom-protocol
+  [id html]
+  (jdbc/insert!
+    midb
+    :v_html
+    {:id id
+     :html html}))
 
 (defn gen-protocols
   "Генерирует протоколы поверки в файл protocol.html."

@@ -3,11 +3,15 @@
 (require '[clojure.java.shell :refer [sh]])
 
 (pprint (gs2000 1
-                "NH3"
-                3000
-                (list 40 300 550)
-                #_(map #(ch/ppm->mg "H2S" %1)
-                     (list 5.84 29))))
+                "H2S"
+                496
+                #_(list 40 300 550)
+                (map #(ch/ppm->mg "H2S" %1)
+                     (list 7 30))))
+
+(* 6.25 (- 16.92 4))
+
+(- 50.3 38.3)
 
 ((gs/calculator
   (gs/passports 1))
@@ -30,28 +34,29 @@
      '(2.18 4.22))
 
 ;; #report#methodology
-(methodology (list 61))
+(methodology (list 376))
 (sh "vivaldi" (str midb-path "methodology.html"))
 
 ;; #find#methodology
 (methodology
   (map (fn [m]
            (:id m))
-       (find-methodology "021")))
+       (find-methodology "АНКАТ-64")))
 (sh "vivaldi" (str midb-path "methodology.html"))
 
 ;; #find#record
 (gen-report
   (find-verification
-    "v.id >= 3403"))
+    "v.id >= 3403
+     --count like '%3007981%'"))
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#find#mi
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%ХОББИТ-%'
+    "lower(v.mi_type) like '%Solaris%'
      --and channels = 1
-     --and components like '%SO%'
+     --and components like '%CH4%'
      --and components like '%O2%'
      --and v.comment not like 'Леонтьев'
      --and met.registry_number like '%-86%'
@@ -65,22 +70,22 @@
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#protocols
-(gen-protocols "id >= 3403")
+(gen-protocols "id >= 3470")
 (sh "vivaldi" (str midb-path "protocol.html"))
 
 ;; #gen#measurements#values
-(gen-values! "id >= 3403")
+(gen-values! "id >= 3447")
 
 ;; #find#counteragents
-(counteragents "ГАЗПРОМТРАН")
+(counteragents "В/Ч")
 (sh "vivaldi" (str midb-path "counteragents.html"))
 
 ;; #copy#record
-(map (fn [s] (copy-record! 3411))
-     (range 1))
+(map (fn [s] (copy-record! 3349))
+     (range 3))
 
-(let [nums (map (fn [n] (str "" n))
-                (list 1903063)
+(let [nums (map (fn [n] (str "A5-" n))
+                (list 58402 57818 58431)
                 #_(range 18))
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
@@ -91,14 +96,14 @@
            :verification
            (hash-map
              ;:methodology_id 375
-             :mi_type "ОКА-М-CH₄-И13"
-             ;:components "CH₄ (метан); O₂ (кислород); SO₂ (диоксид серы); H₂S (сероводород)"
-             :channels 1
-             :count "9/3007902"
-             :counteragent 14228
-             :conditions 1110
-             :manufacture_year 2019
-             :comment "Леонтьев"
+             ;:mi_type "ПГА, исп. ПГА-48"
+             ;:components "CO₂ (диоксид углерода); H₂ (водород)"
+             ;:channels 2
+             :count "9/3008029"
+             :counteragent 16
+             :conditions 1114
+             :manufacture_year 2007
+             ;:comment "Леонтьев"
              ;:comment 11
              ;:comment "ГИС блок 2"
              ;:upload 1
@@ -120,12 +125,12 @@
        (range (count nums))))
 
 ;; #delete#record
-(delete-record! 3411)
+(delete-record! 3457)
 
 ;; Удалить записи с id >=
 ;; #delete#record
 (map (fn [i]
-         (delete-record! (+ 3231 i)))
+         (delete-record! (+ 3422 i)))
      (range 4))
 
 (map (fn [id] (copy-v-gso! 2337 id))
@@ -138,11 +143,11 @@
 
 ;; #set#gso
 (set-v-gso!
-  3417
-  #_(list 382)
+  3457
+  #_(list 382 387 286)
   (map (fn [m]
            (:id m))
-       (check-gso (list "14632-23")
+       (check-gso (list "14632-23" "14633-23" "02464-23" "00810-23" "08198-23" "00804-23")
                   "pass_number")))
 
 ;; #update#gso
@@ -164,24 +169,26 @@
 (set-v-gso! 2453
             (remove #{258 334} (get-v-gso 2386)))
 
+(/ (- 94.3 95.1) 95.1)
+
 ;; #conditions
-(conditions "2023-12-13")
+(conditions "2023-12-20")
 (sh "vivaldi" (str midb-path "conditions.html"))
 
 ;; #add#conditions
-(insert-conditions! {:date "2023-12-14"
-                     :temperature 22.2
-                     :humidity 52.3
-                     :pressure 103.33
+(insert-conditions! {:date "2023-12-21"
+                     :temperature 21.1
+                     :humidity 53.9
+                     :pressure 100.86
                      :voltage 220.0
                      :frequency 50
-                     :other "расход ГС 0,4 (0,4 ± 0,05) дм³/мин."
+                     :other "0,4 (0,4 ± 0,1) дм³/мин"
                      ;:location "с. Ивановка"
                      ;:comment ""
                      })
 
 ;; #set#refs
-(set-v-refs! 3413
+(set-v-refs! 3457
              (list 2663 2820))
 
 ;; #copy#refs
@@ -196,7 +203,7 @@
   {:v_id 2343 :ref_id 2762})
 
 ;; #set#opt-refs
-(set-v-opt-refs! 3307
+(set-v-opt-refs! 3457
                  (list 2643 2831 2762 2756))
 
 ;; #copy#opt-refs
@@ -206,26 +213,26 @@
 (jdbc/insert!
   midb
   :verification_operations
-  {:methodology_id 27
-   :section "6.2"
-   :name "Определение метрологических характеристик"
+  {:methodology_id 376
+   :section "10.1"
+   :name "Определение основной погрешности газоанализатора"
    :verification_type 1
-   ;:comment "См. в приложении к протоколу"
+   :comment "См. в приложении к протоколу"
    ;:info nil
    })
 
 ;; #set#operations
-(set-v-operations! 3307
-                   (list 258 532 806 1171))
+(set-v-operations! 3457
+                   (list 1759 1760 1761 1763))
 
 ;; #copy#operations
 (copy-v-operations! 3187 3210)
 
 ;; #unusability#update#operations
 (unusability
-  3410
-  499
-  "негерметичен")
+  3472
+  646
+  "не включается")
 
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
@@ -243,26 +250,26 @@
   :verification
   (hash-map
      :engineer 3514
-     :count "9/030057"
-     :counteragent 168
-     :conditions 1105
+     :count "9/3007986"
+     :counteragent 2
+     :conditions 1114
      :verification_type 1
      :protocol_number (next-protocol-number) 
      ;:protocol_number 3182
-     :mi_type "Лидер, мод. Лидер-021"
-     :methodology_id 332
-     :serial_number "D919011009"
-     :manufacture_year 2019
-     :channels 1
+     :mi_type "АНКАТ-64М3.2, мод. АНКАТ-64М3.2-32"
+     :methodology_id 376
+     :serial_number "220732"
+     :manufacture_year 2022
+     :channels 5
      :area "05"
      :interval 12
-     :components "CH₄ (метан)"
+     :components "ТХ(М-100); ЭХ(O2-30); ЭХ(CO-500); ЭХ(H2S-100);ФИ(Нефть)"
      ;:scope
-     ;:sw_name "ЗАХАР-04"
-     ;:sw_version "V4.0"
-     ;:sw_checksum "2E3A"
-     ;:sw_algorithm "CRC-16"
-     ;:sw_version_real "V4.0"
+     :sw_name "ANKAT-64M3.2"
+     :sw_version "3.00"
+     :sw_checksum "AFD3"
+     :sw_algorithm "CRC-16"
+     :sw_version_real "3.00"
      ;:voltage 24
      ;:upload 
      :comment "Леонтьев"
@@ -313,18 +320,18 @@
 (jdbc/insert!
   midb
   :methodology
-  {:registry_number "23436-08"
-   :mi_name "Комплекс измерительный газоаналитический контроля загазованности атмосферного воздуха - пост ПКЗ-Р"
-   :mi_types "ПКЗ-Р, модель 04"
-   :name "ДИЭМ.416100.031 «Комплекс измерительный газоаналитический контроля загазованности атмосферного воздуха - пост ПКЗ-Р. Методика поверки»"
-   :short_name "ДИЭМ.416100.031"
+  {:registry_number "86024-22"
+   :mi_name "Газоанализаторы"
+   :mi_types "АНКАТ-64М3.2"
+   :name "МП-230/11-2020 «ГСИ. Газоанализаторы АНКАТ-64М3.2. Методика поверки»"
+   :short_name "МП-230/11-2020"
    :date_from nil
-   :date_to "2018-07-11"
+   :date_to "2027-07-07"
    :temperature "20 ± 5"
-   :humidity "45 ÷ 80"
-   :pressure "87 ÷ 107"
-   :voltage "(220 ± 22)"
-   :frequency "(50 ± 1)"
+   :humidity "60 ± 15"
+   :pressure "101,3 ± 4,0"
+   ;:voltage "220 ± 22"
+   ;:frequency "(50 ± 1)"
    :other nil
    :limited 1})
 
@@ -363,9 +370,12 @@
 
 ;; #add#measurements
 (add-measurements
-  3417
-  (list [638 0 0.15] [639 0.25 0.45 0.25] [638 0.15 0]
-        [639 0.45] [641 nil]
+  3457
+  (list [1553 0 48] [1554 90] [1553 48]
+        [1557 0 13.38 29.19 13.38 0 29.19]
+        [1560 0] [1561 250 475 250] [1560 0] [1561 475]
+        [1564 0] [1565 50 85 50] [1564 0] [1565 85]
+        [1568 0 285] [1569 1750 3325]
         ))
 
 ;; #update#measurements
@@ -385,7 +395,7 @@
      (range 2671 2689))
 
 ;; #delete#measurements
-(delete-measurements! 3417)
+(delete-measurements! 3457)
 
 (jdbc/delete!
   midb
@@ -395,44 +405,44 @@
 
 ;; #add#metrology#channel
 (ins-channel!
-  {:methodology_id 68
-   :channel nil
-   :component "SO2"
+  {:methodology_id 376
+   :channel "ФИ(Нефть)"
+   :component "C6H14"
    :range_from 0
-   :range_to 100
+   :range_to 3500
    :units "мг/м³"
    :low_unit 1
    :view_range_from 0
-   :view_range_to 100
-   :comment "диапазон показаний условно!"
+   :view_range_to 4000
+   ;:comment "диапазон показаний условно!"
    }
   (list {:r_from 0
-         :r_to 10
-         :value 25
-         :fraction nil
-         :type_id 2
-         :units nil
-         :operation_id 589
-         :comment nil}
-        {:r_from 10
          :r_to 100
-         :value 25
+         :value 45
+         :fraction nil
+         :type_id 0
+         :units nil
+         :operation_id 1763
+         :comment nil}
+        {:r_from 100
+         :r_to 3500
+         :value 15
          :fraction nil
          :type_id 1
          :units nil
-         :operation_id 589
+         :operation_id 1763
          ;:comment "(15 - 30) % об."
          }
         {:value 0.5
          :type_id 5
          :units ""
-         :operation_id 850}
+         :operation_id nil}
         {;:r_from 0
          ;:r_to 10
-         :value 120
+         :value 60
          :type_id 6
          :units "с"
-         :operation_id 1048}
+         :operation_id nil}
         #_{
          :r_from 0
          :r_to 71 
@@ -472,9 +482,9 @@
   {
    ;:name "ООО АТЦ «Жигули-Оренбург»"
    ;:short_name "ООО АТЦ «Жигули-Оренбург»"
-   :address "462781, Оренбургская обл, Комаровский п, Комарова ул, дом 3, корпус А"
+   :address "461048, Оренбургская обл, Бузулук г, Заречная ул, дом № 6"
    }
-  ["id = ?" 14228])
+  ["id = ?" 2305])
 
 ;; #cars
 ;; #insert#order#auto
@@ -604,6 +614,10 @@
             (li
               "Определение метрологических характеристик: "
               (em "проведено по методикам поверки, в соответствии с описанием типа каждого СИ, в лабораторных условиях поэлементно."))))})
+
+(custom-protocol
+  3454
+  (fp12))
 
 (pprint
   (get-protocols-data
