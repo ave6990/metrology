@@ -5,13 +5,9 @@
 (pprint (gs2000 1
                 "H2S"
                 496
-                #_(list 40 300 550)
-                (map #(ch/ppm->mg "H2S" %1)
+                (list 20 34)
+                #_(map #(ch/ppm->mg "H2S" %1)
                      (list 7 30))))
-
-(* 6.25 (- 16.92 4))
-
-(- 50.3 38.3)
 
 ((gs/calculator
   (gs/passports 1))
@@ -21,7 +17,7 @@
   150)
 
 ;; #chemistry
-(* (ch/coefficient "C6H14") 900)
+(* (ch/coefficient "SO2") 900)
 
 (ch/ppm->mg "H2S" 90)
 
@@ -34,32 +30,32 @@
      '(2.18 4.22))
 
 ;; #report#methodology
-(methodology (list 376))
+(methodology (list 68))
 (sh "vivaldi" (str midb-path "methodology.html"))
 
 ;; #find#methodology
 (methodology
   (map (fn [m]
            (:id m))
-       (find-methodology "АНКАТ-64")))
+       (find-methodology "Орт")))
 (sh "vivaldi" (str midb-path "methodology.html"))
 
 ;; #find#record
 (gen-report
   (find-verification
-    "v.id >= 3403
+    "v.id = 3546
      --count like '%3007981%'"))
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#find#mi
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%Solaris%'
-     --and channels = 1
+    "lower(v.mi_type) like '%64М%'
+     --and channels = 3
      --and components like '%CH4%'
      --and components like '%O2%'
      --and v.comment not like 'Леонтьев'
-     --and met.registry_number like '%-86%'
+     --and met.registry_number like '%-13%'
      --v.protocol_number = 2124
      --and v.serial_number like '%219-025786%'
      --and count like '%3007952%'"))
@@ -70,22 +66,22 @@
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#protocols
-(gen-protocols "id >= 3470")
+(gen-protocols "id >= 3553")
 (sh "vivaldi" (str midb-path "protocol.html"))
 
 ;; #gen#measurements#values
-(gen-values! "id >= 3447")
+(gen-values! "id >= 3553")
 
 ;; #find#counteragents
-(counteragents "В/Ч")
+(counteragents "ИНФОРМПЛА")
 (sh "vivaldi" (str midb-path "counteragents.html"))
 
 ;; #copy#record
-(map (fn [s] (copy-record! 3349))
-     (range 3))
+(map (fn [s] (copy-record! 3553))
+     (range 6))
 
-(let [nums (map (fn [n] (str "A5-" n))
-                (list 58402 57818 58431)
+(let [nums (map (fn [n] (str "" n))
+                (list 200015 200135 200132 200019 200139 200048)
                 #_(range 18))
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
@@ -96,13 +92,13 @@
            :verification
            (hash-map
              ;:methodology_id 375
-             ;:mi_type "ПГА, исп. ПГА-48"
-             ;:components "CO₂ (диоксид углерода); H₂ (водород)"
-             ;:channels 2
-             :count "9/3008029"
-             :counteragent 16
-             :conditions 1114
-             :manufacture_year 2007
+             ;:mi_type ""
+             ;:components "CH4 (метан); H2S (сероводород)"
+             ;:channels 3
+             :count "0922/0030"
+             :counteragent 42321
+             :conditions 1119
+             :manufacture_year 2020
              ;:comment "Леонтьев"
              ;:comment 11
              ;:comment "ГИС блок 2"
@@ -114,7 +110,7 @@
              ;:sw_version "не ниже v01.00" 
              ;:sw_checksum "8BFD"
              ;:sw_algorithm "CRC 16"
-             ;:sw_version_real "5.15"
+             ;:sw_version_real "2.27.0"
              :serial_number n
              :protocol_number (+ start-protocol-number i)
              :protocol nil
@@ -125,13 +121,13 @@
        (range (count nums))))
 
 ;; #delete#record
-(delete-record! 3457)
+(delete-record! 3530)
 
 ;; Удалить записи с id >=
 ;; #delete#record
 (map (fn [i]
-         (delete-record! (+ 3422 i)))
-     (range 4))
+         (delete-record! (+ 3530 i)))
+     (range 10))
 
 (map (fn [id] (copy-v-gso! 2337 id))
      (range 2301 2327))
@@ -143,11 +139,11 @@
 
 ;; #set#gso
 (set-v-gso!
-  3457
-  #_(list 382 387 286)
-  (map (fn [m]
+  3553
+  (list 388 286 385 382 379 381)
+  #_(map (fn [m]
            (:id m))
-       (check-gso (list "14632-23" "14633-23" "02464-23" "00810-23" "08198-23" "00804-23")
+       (check-gso (list "14632-23" "14633-23" "02464-23" "00810-23" "08197-23")
                   "pass_number")))
 
 ;; #update#gso
@@ -172,24 +168,24 @@
 (/ (- 94.3 95.1) 95.1)
 
 ;; #conditions
-(conditions "2023-12-20")
+(conditions "2023-12-26")
 (sh "vivaldi" (str midb-path "conditions.html"))
 
 ;; #add#conditions
-(insert-conditions! {:date "2023-12-21"
+(insert-conditions! {:date "2023-12-28"
                      :temperature 21.1
-                     :humidity 53.9
-                     :pressure 100.86
+                     :humidity 52.4
+                     :pressure 98.30
                      :voltage 220.0
                      :frequency 50
-                     :other "0,4 (0,4 ± 0,1) дм³/мин"
+                     ;:other "0,4 (0,4 ± 0,1) дм³/мин"
                      ;:location "с. Ивановка"
                      ;:comment ""
                      })
 
 ;; #set#refs
-(set-v-refs! 3457
-             (list 2663 2820))
+(set-v-refs! 3553
+             (list 2846 2820))
 
 ;; #copy#refs
 (copy-v-refs! 3187 3197)
@@ -203,7 +199,7 @@
   {:v_id 2343 :ref_id 2762})
 
 ;; #set#opt-refs
-(set-v-opt-refs! 3457
+(set-v-opt-refs! 3476
                  (list 2643 2831 2762 2756))
 
 ;; #copy#opt-refs
@@ -213,26 +209,26 @@
 (jdbc/insert!
   midb
   :verification_operations
-  {:methodology_id 376
-   :section "10.1"
-   :name "Определение основной погрешности газоанализатора"
+  {:methodology_id 380
+   :section "7.6"
+   :name "Контроль правильности выполнения измерений"
    :verification_type 1
    :comment "См. в приложении к протоколу"
-   ;:info nil
+   ;:info "только для газовых моделей"
    })
 
 ;; #set#operations
-(set-v-operations! 3457
-                   (list 1759 1760 1761 1763))
+(set-v-operations! 3476
+                   (list 1764 1765 1766))
 
 ;; #copy#operations
 (copy-v-operations! 3187 3210)
 
 ;; #unusability#update#operations
 (unusability
-  3472
-  646
-  "не включается")
+  3549
+  589
+  "превышение предела допускаемой основной погрешности")
 
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
@@ -250,29 +246,29 @@
   :verification
   (hash-map
      :engineer 3514
-     :count "9/3007986"
-     :counteragent 2
-     :conditions 1114
+     :count "0922/0030"
+     :counteragent 42321
+     :conditions 1119
      :verification_type 1
      :protocol_number (next-protocol-number) 
      ;:protocol_number 3182
-     :mi_type "АНКАТ-64М3.2, мод. АНКАТ-64М3.2-32"
-     :methodology_id 376
-     :serial_number "220732"
-     :manufacture_year 2022
+     :mi_type "Орт-02"
+     :methodology_id 377
+     :serial_number "3776"
+     :manufacture_year nil
      :channels 5
      :area "05"
      :interval 12
-     :components "ТХ(М-100); ЭХ(O2-30); ЭХ(CO-500); ЭХ(H2S-100);ФИ(Нефть)"
+     :components "ПИ.005 зав.№ 3856"
      ;:scope
-     :sw_name "ANKAT-64M3.2"
-     :sw_version "3.00"
-     :sw_checksum "AFD3"
-     :sw_algorithm "CRC-16"
-     :sw_version_real "3.00"
+     :sw_name "Pr.Gas3.hex"
+     :sw_version "ПО 1.0"
+     ;:sw_checksum "AFD3"
+     ;:sw_algorithm "CRC-16"
+     :sw_version_real "1.00"
      ;:voltage 24
      ;:upload 
-     :comment "Леонтьев"
+     ;:comment "Леонтьев"
      ))
 
 (jdbc/update!
@@ -320,20 +316,20 @@
 (jdbc/insert!
   midb
   :methodology
-  {:registry_number "86024-22"
-   :mi_name "Газоанализаторы"
-   :mi_types "АНКАТ-64М3.2"
-   :name "МП-230/11-2020 «ГСИ. Газоанализаторы АНКАТ-64М3.2. Методика поверки»"
-   :short_name "МП-230/11-2020"
+  {:registry_number "8436-81"
+   :mi_name "Хроматографы промышленные"
+   :mi_types "«НЕФТЕХИМ-СКЭП»"
+   :name "«Хроматограф промышленный «НЕФТЕХИМ-СКЭП». Методические указания по поверке» ЗП2.840.000 Д"
+   :short_name "ЗП2.840.000 Д"
    :date_from nil
-   :date_to "2027-07-07"
-   :temperature "20 ± 5"
-   :humidity "60 ± 15"
-   :pressure "101,3 ± 4,0"
-   ;:voltage "220 ± 22"
-   ;:frequency "(50 ± 1)"
+   :date_to nil
+   :temperature "10 ÷ 35"
+   ;:humidity "30 ÷ 80"
+   :pressure "95,7 ÷ 106,4"
+   :voltage "220 [+22 / -33]"
+   :frequency "50 ± 1"
    :other nil
-   :limited 1})
+   :limited nil})
 
 ;; #update#methodology
 (jdbc/update!
@@ -344,18 +340,6 @@
    ;:pressure "101.3 ± 4.0"
    }
   ["id = ?" 339])
-
-;; #add#verification-operations
-(jdbc/insert!
-  midb
-  :verification_operations
-  (hash-map
-    :methodology_id 218
-    :section "4.4"
-    :name "Проверка предела допускаемой основной абсолютной погрешности"
-    :verification_type 1
-    :comment "См. в приложении к протоколу."
-    ))
 
 ;; #add#v-operations
 (map (fn [n]
@@ -370,12 +354,17 @@
 
 ;; #add#measurements
 (add-measurements
-  3457
-  (list [1553 0 48] [1554 90] [1553 48]
-        [1557 0 13.38 29.19 13.38 0 29.19]
-        [1560 0] [1561 250 475 250] [1560 0] [1561 475]
-        [1564 0] [1565 50 85 50] [1564 0] [1565 85]
-        [1568 0 285] [1569 1750 3325]
+  3549
+  (list [1136 0 5 13.38 29.19 13.38 5 0 29.19]
+        [1137 nil]
+        [638 0 0.15] [639 0.25 0.45 0.25] [638 0.15 0]
+        [639 0.45] 
+        [641 nil]
+        [1115 0 15]
+        [1116 50 90 50]
+        [1115 15 0]
+        [1116 90]
+        [1118 nil]
         ))
 
 ;; #update#measurements
@@ -395,7 +384,7 @@
      (range 2671 2689))
 
 ;; #delete#measurements
-(delete-measurements! 3457)
+(delete-measurements! 3553)
 
 (jdbc/delete!
   midb
@@ -405,26 +394,26 @@
 
 ;; #add#metrology#channel
 (ins-channel!
-  {:methodology_id 376
-   :channel "ФИ(Нефть)"
-   :component "C6H14"
+  {:methodology_id 377
+   :channel nil 
+   :component "CH4"
    :range_from 0
-   :range_to 3500
-   :units "мг/м³"
-   :low_unit 1
+   :range_to 60
+   :units "% НКПР"
+   :low_unit 0.1
    :view_range_from 0
-   :view_range_to 4000
+   :view_range_to 100
    ;:comment "диапазон показаний условно!"
    }
   (list {:r_from 0
-         :r_to 100
-         :value 45
+         :r_to 60
+         :value 5
          :fraction nil
          :type_id 0
          :units nil
-         :operation_id 1763
+         :operation_id 1766
          :comment nil}
-        {:r_from 100
+        #_{:r_from 100
          :r_to 3500
          :value 15
          :fraction nil
@@ -437,7 +426,7 @@
          :type_id 5
          :units ""
          :operation_id nil}
-        {;:r_from 0
+        #_{;:r_from 0
          ;:r_to 10
          :value 60
          :type_id 6
@@ -456,10 +445,10 @@
          :operation_id 878
          ;:comment "порог 11 % НКПР"
         }
-        #_{:value 10
+        {:value 15
          :type_id 7
          :units "с"
-         :operation_id 1757}
+         :operation_id 1767}
         #_{:value 30
          :type_id 16
          :units "с"
@@ -470,10 +459,10 @@
 (jdbc/insert!
   midb
   :counteragents
-  {:name "ФИЛИАЛ АО «ГАЗПРОМ ГАЗОРАСПРЕДЕЛЕНИЕ ОРЕНБУРГ» В Г. МЕДНОГОРСКЕ (МЕДНОГОРСКМЕЖРАЙГАЗ)"
-   :short_name "МЕДНОГОРСКМЕЖРАЙГАЗ"
-   :address "462250, Оренбургская область, город Медногорск, ул. Кирова, д. 10"
-   :inn "5610010369"})
+  {:name "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ «ИССЛЕДОВАТЕЛЬСКИЙ ЦЕНТР ГАЗИНФОРМПЛАСТ»"
+   :short_name "ООО «ИЦ ГАЗИНФОРМПЛАСТ»"
+   :address "634003, Томская область, г Томск, пер Телевизионный, дом 3, строение 1"
+   :inn "7017253595"})
 
 ;; #update#counteragents
 (jdbc/update!
@@ -492,13 +481,13 @@
   (jdbc/insert!
     auto
     :travel_order
-    {:auto_id 2
-     :count "9/3007981"
-     :date_departure "2023-12-08T10:00"
-     :date_arrive "2023-12-08T13:30"
-     :odometr_departure 137964
-     :fuel_departure 12.97
-     :odometr_arrive 137984
+    {:auto_id 1
+     :count "9/3008021"
+     :date_departure "2023-12-25T09:00"
+     :date_arrive "2023-12-25T14:30"
+     :odometr_departure 238148
+     :fuel_departure 14.05
+     :odometr_arrive 238250
      :fuel_add 30})
   (pprint
     (jdbc/query
