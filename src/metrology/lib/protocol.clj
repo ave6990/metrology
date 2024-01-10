@@ -62,6 +62,7 @@
           (p "ФБУ «ОРЕНБУРГСКИЙ ЦСМ»")
           (p "460021, Оренбург, ул.60 лет Октября, 2 «Б»")
           (p "тел/факс (3532) 33-37-05, факс (3532) 33-00-76")
+          (p "Уникальный номер записи об аккредитации в реестре аккредитованных лиц  № RA.RU.311228")
           (p (br))
           (p {:class "capitalize"} "протокол "
                                    (:verification_type m)
@@ -73,13 +74,21 @@
 
 (defn page-footer
   ""
-  [n-page count-page]
+  [m n-page count-page]
     (footer 
-      (p "Страница"
+      (p 
+         "Протокол"
+         (:verification_type m)
+         "поверки № " 
+         (protocol-number m)
+         "от"
+         (time (date-iso->local (:date m))))
+      (p
+         "Страница"
          n-page
          "из"
-        (span {:contenteditable "true"}
-              count-page))))
+         (span {:contenteditable "true"}
+            count-page))))
 
 (defn page-1
   [m]
@@ -101,7 +110,7 @@
              (:registry_number m))
       (field "В составе"
              (:components m))
-      (field "Поверено в объеме"
+      (field "Объем поверки"
              (:scope m))
       (field "Наименование, адрес владельца"
              (str (:counteragent m) "; "
@@ -143,7 +152,7 @@
                         ".png")})
         (:engineer_name m))
       (p "Сведения о результатах поверки переданы в ФИФ ОЕИ."))
-    (page-footer 1 2)))
+    (page-footer m 1 2)))
 
 (defn sw-version
   ""
@@ -314,7 +323,7 @@
             (measurements-table (:measurements m)))
           (ol
             (custom-html (:html m)))))
-    (page-footer 2 2)))
+    (page-footer m 2 2)))
 
 (defn protocol
   ""
@@ -382,10 +391,14 @@ ol {
 .comment {
   font-size: 9pt;
 }
-footer > p {
+footer {
   position: absolute;
   top: 26.5cm;
   right: 0;
+}
+footer > p {
+  width: 100%;
+  text-align: right;
 }
 @media print {
   @page {

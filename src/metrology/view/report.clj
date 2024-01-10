@@ -229,7 +229,7 @@ th, td {
                   (td (:date m))
                   (td (:expiration_date m))
                   (td (:available m))))
-             (:refs m))))))
+             m)))))
 
 (defn operations
   [m]
@@ -315,7 +315,7 @@ th, td {
     (mi-data m)
     (methodology m)
     (conditions m)
-    (refs m)
+    (refs (:refs m))
     (operations m)
     (measurements m)))
 
@@ -394,12 +394,36 @@ th, td {
                                 (:comment m))))))
                    coll))))))))
 
+(defn refs-report
+  ""
+  [coll]
+  (report "refs" gso-styles scripts
+    (body
+      (header)
+      (main
+        (table
+          (thead
+            (tr
+              (gen-th (list "id" "№ 1С" "тип"
+                            "зав. №" "действительно до"))))
+          (tbody
+            (string/join
+              "\n"
+              (map (fn [m]
+                       (tr
+                         (td (:id m))
+                         (td (:number_1c m))
+                         (td (:mi_type m))
+                         (td (:serial_number m))
+                         (td (:expiration_date m))))
+                   coll))))))))
+
 (defn gso-report
   ""
   [coll]
   (report "gso" gso-styles scripts
     (body
-      (header
+      (header)
       (main
         (table
           (thead
@@ -425,7 +449,7 @@ th, td {
                          (td (:pass_number m))
                          (td (:date m))
                          (td (:expiration_date m))))
-                   coll)))))))))
+                   coll))))))))
 
 (defn counteragents-report
   ""

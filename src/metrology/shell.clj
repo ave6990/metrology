@@ -43,14 +43,14 @@
 ;; #find#record
 (gen-report
   (find-verification
-    "v.id = 3546
+    "v.id = 3559
      --count like '%3007981%'"))
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#find#mi
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%64М%'
+    "lower(v.mi_type) like '%7631Ми%'
      --and channels = 3
      --and components like '%CH4%'
      --and components like '%O2%'
@@ -66,22 +66,25 @@
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#protocols
-(gen-protocols "id >= 3553")
+(gen-protocols "id >= 3560")
 (sh "vivaldi" (str midb-path "protocol.html"))
 
 ;; #gen#measurements#values
-(gen-values! "id >= 3553")
+(gen-values! "id >= 3560")
 
 ;; #find#counteragents
-(counteragents "ИНФОРМПЛА")
+(counteragents "АТОБЬ")
 (sh "vivaldi" (str midb-path "counteragents.html"))
 
 ;; #copy#record
-(map (fn [s] (copy-record! 3553))
-     (range 6))
+(map (fn [s] (copy-record! 3560))
+     (range 19))
 
-(let [nums (map (fn [n] (str "" n))
-                (list 200015 200135 200132 200019 200139 200048)
+(let [nums (map (fn [n] (str "22" n))
+                (list 1759 1745 "0312" 1754 1714 1746
+                      1732 1317 1735 "0309" "0310"
+                      "0315" "0300" 1727 1724 1699
+                      1734 1757 1710 "0318")
                 #_(range 18))
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
@@ -95,10 +98,10 @@
              ;:mi_type ""
              ;:components "CH4 (метан); H2S (сероводород)"
              ;:channels 3
-             :count "0922/0030"
-             :counteragent 42321
-             :conditions 1119
-             :manufacture_year 2020
+             :count "9/3008050"
+             :counteragent 302 
+             :conditions 1120
+             :manufacture_year 2022
              ;:comment "Леонтьев"
              ;:comment 11
              ;:comment "ГИС блок 2"
@@ -110,7 +113,7 @@
              ;:sw_version "не ниже v01.00" 
              ;:sw_checksum "8BFD"
              ;:sw_algorithm "CRC 16"
-             ;:sw_version_real "2.27.0"
+             ;:sw_version_real "2.0"
              :serial_number n
              :protocol_number (+ start-protocol-number i)
              :protocol nil
@@ -126,8 +129,8 @@
 ;; Удалить записи с id >=
 ;; #delete#record
 (map (fn [i]
-         (delete-record! (+ 3530 i)))
-     (range 10))
+         (delete-record! (+ 3560 i)))
+     (range 20))
 
 (map (fn [id] (copy-v-gso! 2337 id))
      (range 2301 2327))
@@ -136,6 +139,10 @@
 (gso "lower(components) like '%%'
       and expiration_date > date('now')")
 (sh "vivaldi" (str midb-path "gso.html"))
+
+;; #report#refs
+(references "mi_type like '%ИВТ%'")
+(sh "vivaldi" (str midb-path "references.html"))
 
 ;; #set#gso
 (set-v-gso!
@@ -168,14 +175,14 @@
 (/ (- 94.3 95.1) 95.1)
 
 ;; #conditions
-(conditions "2023-12-26")
+(conditions "2023-12-29")
 (sh "vivaldi" (str midb-path "conditions.html"))
 
 ;; #add#conditions
-(insert-conditions! {:date "2023-12-28"
-                     :temperature 21.1
-                     :humidity 52.4
-                     :pressure 98.30
+(insert-conditions! {:date "2023-12-29"
+                     :temperature 22.4
+                     :humidity 50.3
+                     :pressure 99.26
                      :voltage 220.0
                      :frequency 50
                      ;:other "0,4 (0,4 ± 0,1) дм³/мин"
@@ -199,8 +206,8 @@
   {:v_id 2343 :ref_id 2762})
 
 ;; #set#opt-refs
-(set-v-opt-refs! 3476
-                 (list 2643 2831 2762 2756))
+(set-v-opt-refs! 3560
+                 (list 2827 2762 2756))
 
 ;; #copy#opt-refs
 (copy-v-opt-refs! 2337 2339)
@@ -226,14 +233,22 @@
 
 ;; #unusability#update#operations
 (unusability
-  3549
-  589
-  "превышение предела допускаемой основной погрешности")
+  3577
+  466
+  "не включается (неисправен аккумулятор)")
 
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
                         (:v_gso (get-record 2215)))
                    "id"))
+
+;; #find#references
+(jdbc/query
+  midb
+  "select *
+   from refs
+   where
+    mi_type like '%esto%'")
 
 ;; Копировать ГСО, эталоны, операции и результаты измерений в несколько записей.
 (for [f (list copy-v-refs! copy-v-operations! copy-measurements! copy-v-opt-refs!)

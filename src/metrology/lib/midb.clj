@@ -254,6 +254,21 @@
           m
           nm))
 
+(defn get-references-data
+  [where]
+  (jdbc/query
+    midb
+    (str "select * from refs
+          where " where)))
+
+(defn references
+  ""
+  [where]
+  (spit
+    (str midb-path "references.html")
+    (report/refs-report
+      (get-references-data where))))
+
 (defn get-report-data
   ""
   [coll]
