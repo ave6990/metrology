@@ -509,7 +509,7 @@ th, td {
       (td {:colspan 4} (:mi_name m)))
     (tr
       (th "тип СИ")
-      (td {:colspan 4} (:mi_type m)))))
+      (td {:colspan 4} (:mi_types m)))))
 
 (defn conditions-table
   [m]
