@@ -286,7 +286,7 @@ th, td {
     "\n"
     (list
       (tr
-        (td {:rowspan 10} (:id m))
+        (td {:rowspan 11} (:id m))
         (td (:count m))
         (td (:protocol_number m))
         (td (if (= 1 (:verification_type m))
