@@ -4,10 +4,10 @@
 
 (pprint (gs2000 1
                 "H2S"
-                496
-                (list 20 34)
+                496 
+                (list 9.5 28)
                 #_(map #(ch/ppm->mg "H2S" %1)
-                     (list 7 30))))
+                     (list 35 60))))
 
 ((gs/calculator
   (gs/passports 1))
@@ -17,9 +17,9 @@
   150)
 
 ;; #chemistry
-(* (ch/coefficient "SO2") 900)
+(ch/coefficient "C6H14")
 
-(ch/ppm->mg "H2S" 90)
+(ch/ppm->mg "C6H14" 500)
 
 (ch/mg->ppm "C6H14" 3500)
 
@@ -27,78 +27,75 @@
      '(4.9 7.8 40 70))
 
 (map #(/ %1 4.4 0.01)
-     '(2.18 4.22))
+     '(1.075 2.12))
 
 ;; #report#methodology
-(methodology (list 247))
+(methodology (list 346))
 (sh "vivaldi" (str midb-path "methodology.html"))
 
 ;; #find#methodology
 (methodology
   (map (fn [m]
            (:id m))
-       (find-methodology "Pac")))
+       (find-methodology "ФП")))
 (sh "vivaldi" (str midb-path "methodology.html"))
-
-;; #find#record
-(gen-report
-  (find-verification
-    "v.id = 1827
-     --count like '%3007981%'"))
-(sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#find#mi
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%ПГА%'
-     --and channels = 4
+    "lower(v.mi_type) like '%СТМ%'
+     --and lower(v.mi_type) not like '%elgas%'
+     --and channels = 2
      --and components like '%H2S%'
      --and components like '%7000%'
      --and v.comment not like 'Леонтьев'
-     --met.registry_number like '%32633%'
-     --v.protocol_number = 2124
-     and v.serial_number like '%1835%'
-     --and count like '%3007952%'"))
+     and met.registry_number like '%-88%'
+     --v.protocol_number = 1293 and v.protocol_number = 1295
+     --and v.serial_number like '%418-1231797%'
+     --v.serial_number like '%042800%'
+     --count like '%000119%'
+     --v.id = 1322 or v.id = 1320"))
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report
-(gen-report (list 2515 2516))
+(gen-report (list 3815))
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#protocols
-(gen-protocols "id >= 3580")
+(gen-protocols "id >= 3820")
 (sh "vivaldi" (str midb-path "protocol.html"))
 
 ;; #gen#measurements#values
-(gen-values! "id >= 3580")
+(gen-values! "id >= 3820")
 
 ;; #find#counteragents
-(counteragents "лицо")
+(counteragents "ЭВКА")
 (sh "vivaldi" (str midb-path "counteragents.html"))
 
 ;; #copy#record
-(map (fn [s] (copy-record! 1827))
+(map (fn [s] (copy-record! 3704))
      (range 1))
 
 (let [nums (map (fn [n] (str "" n))
-                (list "SH0424023")
-                #_(range 18))
+                (list 1951))
+      years (repeat (count nums) nil)
+            #_(list 2019 2018 2018)
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
-      ;start-protocol-number 1]
-  (map (fn [n i]
+      ;start-protocol-number 176]
+  (map (fn [n i y]
          (jdbc/update!
            midb
            :verification
            (hash-map
              ;:methodology_id 375
-             ;:mi_type ""
-             ;:components "CH4 (метан); H2S (сероводород)"
-             ;:channels 3
-             :count "9/0000017"
-             :counteragent 42303
-             :conditions 1123
-             :manufacture_year nil
+             ;:mi_type "Колион-1В-03"
+             :components "БД №№: 1795, 1954, 9306, 1764, 9351, 1830"
+             :channels 6
+             :count "9/0000268"
+             :counteragent 12996
+             :conditions 1151
+             :manufacture_year y
              ;:comment "Леонтьев"
              ;:comment 11
              ;:comment "ГИС блок 2"
@@ -106,11 +103,11 @@
              ;:verification_type 2
              ;:scope
              ;:engineer 3514
-             ;:sw_name "MXTF_11_000"
-             ;:sw_version "не ниже v01.00" 
+             ;:sw_name "СЕАН-П"
+             ;:sw_version "не ниже v.6015" 
              ;:sw_checksum "8BFD"
              ;:sw_algorithm "CRC 16"
-             ;:sw_version_real "2.29"
+             ;:sw_version_real "3.10"
              :serial_number n
              :protocol_number (+ start-protocol-number i)
              :protocol nil
@@ -118,7 +115,17 @@
              )
            ["id = ?" (+ start-id i)]))
        nums
-       (range (count nums))))
+       (range (count nums))
+       years))
+
+;; #edit#verification
+(jdbc/update!
+  midb
+  :verification
+  (hash-map
+    :components "CH₄ (метан); O₂ (кислород); CO (оксид углерода); H₂S (сероводород)")
+  ["id = ?" 3649]
+  "returning mi_types, components")
 
 ;; #delete#record
 (delete-record! 3580)
@@ -134,6 +141,7 @@
 
 ;; #report#gso
 (gso "lower(components) like '%%'
+      --pass_number like '%18817%'
       and expiration_date > date('now')")
 (sh "vivaldi" (str midb-path "gso.html"))
 
@@ -143,11 +151,12 @@
 
 ;; #set#gso
 (set-v-gso!
-  3588
-  (list 379 381 388 249 322 352)
-  #_(map (fn [m]
+  #_3668
+  (last-id "verification")
+  #_(list 410 369)
+  (map (fn [m]
            (:id m))
-       (check-gso (list "14632-23" "14633-23" "02464-23" "00810-23" "08197-23")
+       (check-gso (list "16871-23" "08197-23" "14638-23" "14636-23" "14630-23" "14628-23")
                   "pass_number")))
 
 ;; #update#gso
@@ -161,7 +170,7 @@
     and gso_id = ?" 3349 332])
 
 ;; #copy#gso
-(copy-v-gso! 3495 3587)
+(copy-v-gso! 3753 3754)
 
 ;; #delete#gso
 (delete-v-gso! 2343)
@@ -172,27 +181,36 @@
 (/ (- 94.3 95.1) 95.1)
 
 ;; #conditions
-(conditions "2023-12-29")
+(conditions "2024-02-15")
 (sh "vivaldi" (str midb-path "conditions.html"))
 
 ;; #add#conditions
-(insert-conditions! {:date "2024-01-11"
-                     :temperature 21.8
-                     :humidity 52.0
-                     :pressure 100.35
-                     :voltage 220.0
+(insert-conditions! {:date "2024-02-19"
+                     :temperature 22.4
+                     :humidity 50.7
+                     :pressure 102.39
+                     :voltage 220
                      :frequency 50
                      ;:other "0,4 (0,4 ± 0,1) дм³/мин"
                      ;:location "с. Ивановка"
                      ;:comment ""
                      })
 
+;; #edit#conditions
+(jdbc/update!
+  midb
+  :conditions
+  {:voltage 223.5
+  }
+  ["id = ?" 1147])
+
 ;; #set#refs
-(set-v-refs! 3553
-             (list 2846 2820))
+(set-v-refs! ;3668
+             (last-id "verification")
+             (list 2663 2820))
 
 ;; #copy#refs
-(copy-v-refs! 3495 3587)
+(copy-v-refs! 3753 3754)
 
 ;; #delete#refs
 (delete-v-refs! 2260)
@@ -203,36 +221,38 @@
   {:v_id 2343 :ref_id 2762})
 
 ;; #set#opt-refs
-(set-v-opt-refs! 3560
-                 (list 2827 2762 2756))
+(set-v-opt-refs! ;3668
+                 (last-id "verification")
+                 (list 2643 2827 2756 2670))
 
 ;; #copy#opt-refs
-(copy-v-opt-refs! 3495 3587)
+(copy-v-opt-refs! 3355 3646)
 
 ;; #add#operations
 (jdbc/insert!
   midb
   :verification_operations
-  {:methodology_id 382
-   :section "6.1"
-   :name ""
-   :verification_type 1
+  {:methodology_id 386
+   :section "6.3.1"
+   :name "Определение "
+   :verification_type nil
    ;:comment "См. в приложении к протоколу"
-   :info "для Микрохром 1121-3"
+   ;:info "для Микрохром-1121-3"
    })
 
 ;; #set#operations
-(set-v-operations! 3587
-                   (list 1804 1806 1807 1809 1810))
+(set-v-operations! ;3668
+                   (last-id "verification")
+                   (list 1855 1856 1857))
 
 ;; #copy#operations
 (copy-v-operations! 3187 3210)
 
 ;; #unusability#update#operations
 (unusability
-  3577
-  466
-  "не включается (неисправен аккумулятор)")
+  3762
+  505
+  "не заряжается")
 
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
@@ -258,29 +278,30 @@
   :verification
   (hash-map
      :engineer 3514
-     :count "9/0000017"
-     :counteragent 42303
-     :conditions 1123
+     :count "9/0000131"
+     :counteragent 42324
+     :conditions 1152
      :verification_type 1
      :protocol_number (next-protocol-number) 
-     ;:protocol_number 3182
-     :mi_type "Drager Pac, мод. Pac 5500"
-     :methodology_id 381
-     :serial_number "ERAK-1757"
-     :manufacture_year 2009
+     ;:protocol_number 54
+     :mi_type "ФП11, мод. ФП11.2к"
+     :methodology_id 386
+     :serial_number 2206046
+     :manufacture_year 2022
      :channels 1
      :area "05"
      :interval 12
-     :components "H₂S (сероводород)"
+     :components "CH₄ (метан)"
      ;:scope
-     ;:sw_name "Pr.Gas3.hex"
-     ;:sw_version "ПО 1.0"
-     ;:sw_checksum "AFD3"
+     ;:sw_name "FP112K.hex"
+     ;:sw_version ""
+     ;:sw_checksum "0x98B1"
      ;:sw_algorithm "CRC-16"
-     ;:sw_version_real "1.00"
+     ;:sw_version_real ""
      ;:voltage 24
      ;:upload 
      ;:comment "Леонтьев"
+     ;:comment 11
      ))
 
 (jdbc/update!
@@ -298,19 +319,19 @@
   {:type "ГСО"
     :available 1
     :document "паспорт"
-    :number "10506-2014"
-    :components "O2+N2"
-    :concentration "13.38"
+    :number "10563-2015"
+    :components "CO+N2"
+    :concentration 9.81
     :units "%"
-    :uncertainity "0.11" 
-    :pass_number "14633-23"
-    :number_1c 1919 
-    :manufacture_date "2023-09-13"
+    :uncertainity 0.07
+    :pass_number "01275-24"
+    :number_1c 2062 
+    :manufacture_date "2024-02-08"
     :expiration_period 12
-    :expiration_date "2025-09-12"
-    :level 1
-    :date "2023-10-10"
-    :cylinder_number "01259"
+    :expiration_date "2025-02-07"
+    :level 0
+    :date "2024-02-14"
+    :cylinder_number "21387"
     :volume 4
     :pressure 7.5
     ;:comment
@@ -328,19 +349,19 @@
 (jdbc/insert!
   midb
   :methodology
-  {:registry_number "32633-09"
-   :mi_name "Газоанализаторы портативные"
-   :mi_types "Drager Pac, мод. Pac 3500, Pac 5500, Pac 7000"
-   :name "МП-242-0356-2009 «Газоанализаторы Drager Pac. Модификации Pac 3500, Pac 5500, Pac 7000. Методика поверки»"
-   :short_name "МП-242-0356-2009"
-   :date_from nil
-   :date_to "2014-07-01"
+  {:registry_number "22577-21"
+   :mi_name "Газоанализаторы"
+   :mi_types "ФП11, мод. ФП11.2к"
+   :name "МП. МН 903-2000 «Газоанализаторы ФП11. Методика поверки»"
+   :short_name "МП. МН 903-2000"
+   :date_from "2021-03-24"
+   :date_to "2026-03-25"
    :temperature "20 ± 5"
-   :humidity "30 ÷ 80"
-   :pressure "90,6 ÷ 104,8"
-   ;:voltage "220 ± 4,4"
+   :humidity "30 ÷ 90"
+   :pressure "84.0 ÷ 106,7"
+   ;:voltage "22 ÷ 26"
    ;:frequency "50 ± 1"
-   :other nil
+   ;:other "расход ГСО-ПГС: 0,5 ÷ 1,0 дм³/мин"
    :limited nil})
 
 ;; #update#methodology
@@ -366,15 +387,12 @@
 
 ;; #add#measurements
 (add-measurements
-  3588
-  (list [503 0 13.38 29.19 13.38 0 29.19]
-        [508 nil]
-        [1578 0 24.43 48.18 24.43 0 48.18]
-        [1579 nil]
-        [504 0 47.5] [505 250 475 250] [504 47.5] [505 475]
-        [509 nil]
-        [53 0 19] [54 50 95 50] [53 0] [54 95]
-        [536 nil] 
+  ;3775
+  (last-id "verification")
+  (list [486 0 0.04107] [487 0.201 4.9975 8.9935 4.9975 0.201]
+        [486 0.04107 0] [487 8.9935]
+        [488 0 0.04006] [489 0.1961 4.9994 9.0078 4.9994 0.1961]
+        [488 0.04006 0] [489 9.0078]
   ))
 
 ;; #update#measurements
@@ -394,7 +412,9 @@
      (list 3587))
 
 ;; #delete#measurements
-(delete-measurements! 3553)
+(delete-measurements!
+  ;3775
+  (last-id "verification"))
 
 (jdbc/delete!
   midb
@@ -404,44 +424,44 @@
 
 ;; #add#metrology#channel
 (ins-channel!
-  {:methodology_id 247
-   :channel nil 
+  {:methodology_id 386
+   :channel nil
    :component "CH4"
    :range_from 0
-   :range_to 50
-   :units "% НКПР"
-   :low_unit 1
+   :range_to 100
+   :units "% об."
+   :low_unit 0.1
    :view_range_from 0
    :view_range_to 100
-   :comment "диапазон показаний условно!"
+   ;:comment "диапазон показаний условно!"
    }
   (list {:r_from 0
-         :r_to 50
+         :r_to 5
          :value 5
          :fraction nil
-         :type_id 0
+         :type_id 2
          :units nil
-         :operation_id 1128
+         :operation_id 1857
          :comment nil}
-        #_{:r_from 10
+        {:r_from 5
          :r_to 100
-         :value 20
+         :value 5
          :fraction nil
          :type_id 1
          :units nil
-         :operation_id 1826
+         :operation_id 1857
          ;:comment "(15 - 30) % об."
          }
-        #_{:value 0.5
+        {:value 0.5
          :type_id 5
          :units ""
-         :operation_id 1827}
+         :operation_id nil}
         {;:r_from 0
          ;:r_to 10
-         :value 25
+         :value 70
          :type_id 6
          :units "с"
-         :operation_id 1344}
+         :operation_id nil}
         #_{
          :r_from 0
          :r_to 71 
@@ -449,16 +469,16 @@
          :type_id 6
          :units "с"
          :operation_id nil}
-        #_{:value 1 
+        #_{:value 10
          :type_id 12
          :units nil
          :operation_id 878
          ;:comment "порог 11 % НКПР"
         }
-        #_{:value 15
+        #_{:value 10
          :type_id 7
          :units "с"
-         :operation_id 1767}
+         :operation_id 923}
         #_{:value 30
          :type_id 16
          :units "с"
@@ -469,21 +489,21 @@
 (jdbc/insert!
   midb
   :counteragents
-  {:name "Зленко А. П."
-   :short_name "Физ. лицо"
-   :address nil
-   :inn nil})
+  {:name "Общество с ограниченной ответственностью «АККЕРМАНН ЦЕМЕНТ»"
+   :short_name "ООО «АККЕРМАНН ЦЕМЕНТ»"
+   :address "462360, Оренбургская обл, Новотроицк г, Запад (5.4 Км Тер.) ул, дом Здание 5"
+   :inn 5607015014})
 
-;; #update#counteragents
+;; #edit#counteragents#update
 (jdbc/update!
   midb
   :counteragents
   {
    ;:name "ООО АТЦ «Жигули-Оренбург»"
    ;:short_name "ООО АТЦ «Жигули-Оренбург»"
-   :address "461048, Оренбургская обл, Бузулук г, Заречная ул, дом № 6"
+   :address "123298, Москва г, Берзарина ул, дом 3, корпус 1, квартира 17"
    }
-  ["id = ?" 2305])
+  ["id = ?" 12996])
 
 ;; #cars
 ;; #insert#order#auto
@@ -491,13 +511,13 @@
   (jdbc/insert!
     auto
     :travel_order
-    {:auto_id 2
-     :count "9/0000017"
-     :date_departure "2024-01-11T11:00"
-     :date_arrive "2024-01-11T13:30"
-     :odometr_departure 138251
-     :fuel_departure 13.68
-     :odometr_arrive 138255
+    {:auto_id 1
+     :count "9/0000"
+     :date_departure "2024-02-20T13:30"
+     :date_arrive "2024-02-20T15:00"
+     :odometr_departure 238630
+     :fuel_departure 13.7
+     :odometr_arrive 238664
      :fuel_add 0})
   (pprint
     (jdbc/query

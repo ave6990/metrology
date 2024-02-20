@@ -2,13 +2,16 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased] - 2023-11-08
+
+## [0.1.6] - 2023-02-20
 ### Changed
-- Added custom html content in the data base and protocol funcitons of shell.
 - The report pages opening in the browser through `clojure.java.shell` lib.
 - Counteragents html-report.
 - Added some hash-tags to `shell.clj` source. More effectively navigation.
 - The add-measurements function changed.
+- Changed the format of report.
 ### Added
+- Added custom html content in the data base and protocol funcitons of shell.
 - The custom fragments of html on a second page of protocols.
 
 ## [0.1.5]

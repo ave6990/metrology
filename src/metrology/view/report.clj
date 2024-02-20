@@ -179,35 +179,10 @@ th, td {
         (th {:colspan 2} "полное наименование")
         (td {:colspan 2} (:methodology_name m))))))
 
-(defn conditions
-  [m]
-  (div
-    (p "Условия поверки")
-    (table
-      (tr
-        (gen-th (list "" "температура" "влажность" "давление"
-                      "напряжение" "частота" "прочие")))
-      (tr
-        (th "по НД")
-        (td (:temperature m))
-        (td (:humidity m))
-        (td (:pressure m))
-        (td (:voltage m))
-        (td (:frequency m))
-        (td (:other m)))
-      (tr
-        (th (:condition_id m))
-        (td (:real_temperature m))
-        (td (:real_humidity m))
-        (td (:real_pressure m))
-        (td (:real_voltage m))
-        (td (:real_frequency m))
-        (td (:real_other m))))))
-
 (defn refs
   [m]
-  (div
-    (p "Эталоны")
+  (details
+    (summary "Средства поверки")
     (table
       (tr
         (gen-th (list "" "тип" "id" "тип СИ" "компонент"
@@ -233,8 +208,8 @@ th, td {
 
 (defn operations
   [m]
-  (div
-    (p "Операции поверки")
+  (details
+    (summary "Операции поверки")
     (table
       (tr
         (gen-th (list "id" "пункт НД" "наименование" "результат"
@@ -305,26 +280,96 @@ th, td {
                              (:chr_string m))))))
              (:measurements m))))))
 
-(defn record
+(defn report-row
   [m]
-  (section
-    {:class record}
-    (hr)
-    (common-data m)
-    (counteragent m)
-    (mi-data m)
-    (methodology m)
-    (conditions m)
-    (refs (:refs m))
-    (operations m)
-    (measurements m)))
+  (string/join
+    "\n"
+    (list
+      (tr
+        (td {:rowspan 10} (:id m))
+        (td (:count m))
+        (td (:protocol_number m))
+        (td (if (= 1 (:verification_type m))
+              "периодическая"
+              "первичная"))
+        (td {:colspan 3}
+            (string/join
+              " " 
+              (list (:last_name m)
+                    (:first_name m)
+                    (:second_name m))))
+        (td (:copy_from m)))
+      (tr
+        (td (:counteragent_id m))
+        (td {:colspan 6} (:counteragent_name m)))
+      (tr
+        (td (:registry_number m))
+        (td (:manufacture_year m))
+        (td (:serial_number m))
+        (td {:colspan 2}
+            (:mi_type m))
+        (td (:channels m))
+        (td 
+          (str
+            (:area m) "; МПИ " (:interval m)
+            " мес")))
+      (tr
+        (td {:colspan 7} 
+          (if (> 1 (count (:components m)))
+            (str
+              "состав: "
+              (:components m))
+            (str
+              "объем: "
+              (:scope m)))))
+      (tr
+        (td {:colspan 2}
+            (if (> 0 (count (:sw_name m)))
+                (:sw_name m)
+                "-"))
+        (td (:sw_version m))
+        (td (:sw_version_real m))
+        (td {:colspan 2}
+            (:sw_checksum m))
+        (td (:sw_algorithm m)))
+      (tr
+        (td (:methodology_id m))
+        (td {:colspan 6}
+            (:methodology_name m)))
+      (tr
+        (td (:date m))
+        (td (:temperature m))
+        (td (:humidity m))
+        (td (:pressure m))
+        (td (:voltage m))
+        (td (:frequency m))
+        (td (:other m)))
+      (tr
+        (td (:condition_id m))
+        (td (:real_temperature m))
+        (td (:real_humidity m))
+        (td (:real_pressure m))
+        (td (:real_voltage m))
+        (td (:real_frequency m))
+        (td (:real_other m)))
+      (tr
+        (td {:colspan 7}
+            (refs (:refs m))))
+      (tr
+        (td {:colspan 7}
+            (operations m)))
+      (tr
+        (td {:colspan 7}
+            (measurements m))))))
 
 (defn records
   [coll]
-  (string/join
-    "\n"
-    (map (fn [m] (record m))
-       coll)))
+  (table
+    (string/join
+      "\n"
+      (map (fn [m] 
+               (report-row m))
+           coll))))
 
 (defn verification-report
   "Создает содержимое файла report.html."
