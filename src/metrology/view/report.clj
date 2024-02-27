@@ -315,7 +315,7 @@ th, td {
             " мес")))
       (tr
         (td {:colspan 7} 
-          (if (> 1 (count (:components m)))
+          (if (> (count (:components m)) 1)
             (str
               "состав: "
               (:components m))

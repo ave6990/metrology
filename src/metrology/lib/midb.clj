@@ -156,15 +156,19 @@
    поверки и результатах измерений.
    args:
      id - целочисленный идентификатор записи в БД."
-  [id-from]
-  (let [id-to (inc (last-id "verification"))]
-    (conj (copy-verification! id-from)
-          (map (fn [f] (f id-from id-to))
-               (list copy-v-gso!
-                     copy-v-refs!
-                     copy-v-opt-refs!
-                     copy-v-operations!
-                     copy-measurements!)))))
+  ([id-from n]
+    (map (fn [i]
+          (let [id-to (inc (last-id "verification"))]
+            (conj (copy-verification! id-from)
+                  (map (fn [f] (f id-from id-to))
+                       (list copy-v-gso!
+                             copy-v-refs!
+                             copy-v-opt-refs!
+                             copy-v-operations!
+                             copy-measurements!)))))
+         (range n)))
+  ([id-from]
+    (copy-record! id-from 1)))
 
 (defn get-verification
   "Возвращает hash-map записи verification."

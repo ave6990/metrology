@@ -3,9 +3,9 @@
 (require '[clojure.java.shell :refer [sh]])
 
 (pprint (gs2000 1
-                "H2S"
-                496 
-                (list 9.5 28)
+                "NH3"
+                3017
+                (list 7 35 67)
                 #_(map #(ch/ppm->mg "H2S" %1)
                      (list 35 60))))
 
@@ -19,37 +19,39 @@
 ;; #chemistry
 (ch/coefficient "C6H14")
 
-(ch/ppm->mg "C6H14" 500)
+(ch/ppm->mg "NH3" 10)
+
+(* 7 0.05)
 
 (ch/mg->ppm "C6H14" 3500)
 
 (map #(/ (* %1 32.07) 62.14)
      '(4.9 7.8 40 70))
 
-(map #(/ %1 4.4 0.01)
-     '(1.075 2.12))
+(map #(/ %1 1.7 0.01)
+     '(0.857 1.556))
 
 ;; #report#methodology
-(methodology (list 346))
+(methodology (list 313))
 (sh "vivaldi" (str midb-path "methodology.html"))
 
 ;; #find#methodology
 (methodology
   (map (fn [m]
            (:id m))
-       (find-methodology "ФП")))
+       (find-methodology "millen")))
 (sh "vivaldi" (str midb-path "methodology.html"))
 
 ;; #report#find#mi
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%СТМ%'
+    "lower(v.mi_type) like '%millen%'
      --and lower(v.mi_type) not like '%elgas%'
      --and channels = 2
-     --and components like '%H2S%'
+     --and components like '%nh3%'
      --and components like '%7000%'
      --and v.comment not like 'Леонтьев'
-     and met.registry_number like '%-88%'
+     --and met.registry_number like '%-88%'
      --v.protocol_number = 1293 and v.protocol_number = 1295
      --and v.serial_number like '%418-1231797%'
      --v.serial_number like '%042800%'
@@ -58,28 +60,27 @@
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report
-(gen-report (list 3815))
+(gen-report (list 3822))
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#protocols
-(gen-protocols "id >= 3820")
+(gen-protocols "id >= 3847")
 (sh "vivaldi" (str midb-path "protocol.html"))
 
 ;; #gen#measurements#values
-(gen-values! "id >= 3820")
+(gen-values! "id >= 3847")
 
 ;; #find#counteragents
-(counteragents "ЭВКА")
+(counteragents "УЭСП")
 (sh "vivaldi" (str midb-path "counteragents.html"))
 
 ;; #copy#record
-(map (fn [s] (copy-record! 3704))
-     (range 1))
+(copy-record! 3865 1)
 
 (let [nums (map (fn [n] (str "" n))
-                (list 1951))
-      years (repeat (count nums) nil)
-            #_(list 2019 2018 2018)
+                (list "0090698"))
+      years (repeat (count nums) 2019)
+            #_(list 2019 2016 2019 2016 2020)
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
       ;start-protocol-number 176]
@@ -90,13 +91,13 @@
            (hash-map
              ;:methodology_id 375
              ;:mi_type "Колион-1В-03"
-             :components "БД №№: 1795, 1954, 9306, 1764, 9351, 1830"
-             :channels 6
-             :count "9/0000268"
-             :counteragent 12996
-             :conditions 1151
+             ;:components "БД №№: 6025, 1369"
+             ;:channels 2
+             :count "9/0000140"
+             :counteragent 2
+             :conditions 1154
              :manufacture_year y
-             ;:comment "Леонтьев"
+             :comment "Леонтьев"
              ;:comment 11
              ;:comment "ГИС блок 2"
              ;:upload 1
@@ -128,13 +129,13 @@
   "returning mi_types, components")
 
 ;; #delete#record
-(delete-record! 3580)
+(delete-record! 3853)
 
 ;; Удалить записи с id >=
 ;; #delete#record
 (map (fn [i]
-         (delete-record! (+ 3560 i)))
-     (range 20))
+         (delete-record! (+ 3861 i)))
+     (range 4))
 
 (map (fn [id] (copy-v-gso! 2337 id))
      (range 2301 2327))
@@ -153,8 +154,8 @@
 (set-v-gso!
   #_3668
   (last-id "verification")
-  #_(list 410 369)
-  (map (fn [m]
+  (list 383)
+  #_(map (fn [m]
            (:id m))
        (check-gso (list "16871-23" "08197-23" "14638-23" "14636-23" "14630-23" "14628-23")
                   "pass_number")))
@@ -181,18 +182,18 @@
 (/ (- 94.3 95.1) 95.1)
 
 ;; #conditions
-(conditions "2024-02-15")
+(conditions "2024-02-20")
 (sh "vivaldi" (str midb-path "conditions.html"))
 
 ;; #add#conditions
-(insert-conditions! {:date "2024-02-19"
-                     :temperature 22.4
-                     :humidity 50.7
-                     :pressure 102.39
-                     :voltage 220
+(insert-conditions! {:date "2024-02-27"
+                     :temperature 23.7
+                     :humidity 51.3
+                     :pressure 103.15
+                     :voltage 220.5
                      :frequency 50
                      ;:other "0,4 (0,4 ± 0,1) дм³/мин"
-                     ;:location "с. Ивановка"
+                     ;:location "УЭСП"
                      ;:comment ""
                      })
 
@@ -223,7 +224,7 @@
 ;; #set#opt-refs
 (set-v-opt-refs! ;3668
                  (last-id "verification")
-                 (list 2643 2827 2756 2670))
+                 (list 2643 2827 2762 2756))
 
 ;; #copy#opt-refs
 (copy-v-opt-refs! 3355 3646)
@@ -232,10 +233,10 @@
 (jdbc/insert!
   midb
   :verification_operations
-  {:methodology_id 386
-   :section "6.3.1"
-   :name "Определение "
-   :verification_type nil
+  {:methodology_id 389
+   :section "6.5"
+   :name "Определение абсолютной погрешности измерений коэффициента поглощения светового потока"
+   :verification_type 1
    ;:comment "См. в приложении к протоколу"
    ;:info "для Микрохром-1121-3"
    })
@@ -243,7 +244,7 @@
 ;; #set#operations
 (set-v-operations! ;3668
                    (last-id "verification")
-                   (list 1855 1856 1857))
+                   (list 239 513 787 1161 1881))
 
 ;; #copy#operations
 (copy-v-operations! 3187 3210)
@@ -278,29 +279,30 @@
   :verification
   (hash-map
      :engineer 3514
-     :count "9/0000131"
-     :counteragent 42324
-     :conditions 1152
+     :count "9/0000140"
+     :counteragent 2
+     :conditions 1154
      :verification_type 1
      :protocol_number (next-protocol-number) 
      ;:protocol_number 54
-     :mi_type "ФП11, мод. ФП11.2к"
-     :methodology_id 386
-     :serial_number 2206046
-     :manufacture_year 2022
+     :mi_type "Millennium II, мод. M22-ARD-S-EM"
+     :methodology_id 313
+     :serial_number "0061289"
+     :manufacture_year 2019
      :channels 1
      :area "05"
      :interval 12
-     :components "CH₄ (метан)"
+     :components "ST320A-100-ASSY-EM зав. № 0061548"
+     ;:components "CO (0 - 0,5) % об.; CH (0 - 0,2) % об.; NO (0 - 0,5) % об.; CO₂ (0 - 15) % об.; O₂ (0 - 21) % об."
      ;:scope
-     ;:sw_name "FP112K.hex"
-     ;:sw_version ""
-     ;:sw_checksum "0x98B1"
-     ;:sw_algorithm "CRC-16"
-     ;:sw_version_real ""
+     :sw_name "FRM-0117"
+     :sw_version "2.2"
+     :sw_checksum "07442363d196c21fb357aa7fa278495d"
+     :sw_algorithm "MD5"
+     :sw_version_real "2.2"
      ;:voltage 24
      ;:upload 
-     ;:comment "Леонтьев"
+     :comment "Леонтьев"
      ;:comment 11
      ))
 
@@ -349,19 +351,19 @@
 (jdbc/insert!
   midb
   :methodology
-  {:registry_number "22577-21"
-   :mi_name "Газоанализаторы"
-   :mi_types "ФП11, мод. ФП11.2к"
-   :name "МП. МН 903-2000 «Газоанализаторы ФП11. Методика поверки»"
-   :short_name "МП. МН 903-2000"
-   :date_from "2021-03-24"
-   :date_to "2026-03-25"
-   :temperature "20 ± 5"
-   :humidity "30 ÷ 90"
-   :pressure "84.0 ÷ 106,7"
-   ;:voltage "22 ÷ 26"
-   ;:frequency "50 ± 1"
-   ;:other "расход ГСО-ПГС: 0,5 ÷ 1,0 дм³/мин"
+  {:registry_number "56918-14"
+   :mi_name "Дымомеры"
+   :mi_types "СМОГ-2"
+   :name "МП-640-0020-2-14 «Инструкция. Дымомеры СМОГ-2. Методика поверки»"
+   :short_name "МП-640-0020-2-14"
+   :date_from nil
+   :date_to "2029-03-06"
+   :temperature "22 ± 5"
+   :humidity "30 ÷ 80"
+   :pressure "84,0 ÷ 106,7"
+   :voltage "220 ± 22"
+   :frequency "50 ± 1"
+   ;:other "расход ГСО-ПГС: не менее 1,0 л/ч"
    :limited nil})
 
 ;; #update#methodology
@@ -389,10 +391,9 @@
 (add-measurements
   ;3775
   (last-id "verification")
-  (list [486 0 0.04107] [487 0.201 4.9975 8.9935 4.9975 0.201]
-        [486 0.04107 0] [487 8.9935]
-        [488 0 0.04006] [489 0.1961 4.9994 9.0078 4.9994 0.1961]
-        [488 0.04006 0] [489 9.0078]
+  (list [1695 0 7] [1696 17]
+        [1695 7 0] [1696 17]
+        [1698 nil]
   ))
 
 ;; #update#measurements
@@ -424,44 +425,44 @@
 
 ;; #add#metrology#channel
 (ins-channel!
-  {:methodology_id 386
-   :channel nil
-   :component "CH4"
+  {:methodology_id 313
+   :channel "ST320x-100-ASSY-EM"
+   :component "H2S"
    :range_from 0
-   :range_to 100
-   :units "% об."
-   :low_unit 0.1
+   :range_to 20
+   :units "млн⁻¹"
+   :low_unit 1
    :view_range_from 0
-   :view_range_to 100
-   ;:comment "диапазон показаний условно!"
+   :view_range_to 20
+   ;:comment "диапазон показаний условно! ГИАМ-29М-4."
    }
   (list {:r_from 0
-         :r_to 5
-         :value 5
+         :r_to 10
+         :value 2
          :fraction nil
-         :type_id 2
+         :type_id 0
          :units nil
-         :operation_id 1857
+         :operation_id 1161
          :comment nil}
-        {:r_from 5
-         :r_to 100
-         :value 5
+        {:r_from 10
+         :r_to 20
+         :value 20
          :fraction nil
          :type_id 1
          :units nil
-         :operation_id 1857
+         :operation_id 1161
          ;:comment "(15 - 30) % об."
          }
         {:value 0.5
          :type_id 5
          :units ""
-         :operation_id nil}
+         :operation_id 1880}
         {;:r_from 0
          ;:r_to 10
-         :value 70
+         :value 36
          :type_id 6
          :units "с"
-         :operation_id nil}
+         :operation_id 1881}
         #_{
          :r_from 0
          :r_to 71 
@@ -489,10 +490,10 @@
 (jdbc/insert!
   midb
   :counteragents
-  {:name "Общество с ограниченной ответственностью «АККЕРМАНН ЦЕМЕНТ»"
-   :short_name "ООО «АККЕРМАНН ЦЕМЕНТ»"
-   :address "462360, Оренбургская обл, Новотроицк г, Запад (5.4 Км Тер.) ул, дом Здание 5"
-   :inn 5607015014})
+  {:name "Общество с ограниченной ответственностью «ПЛАСТИНВЕСТ»"
+   :short_name "ООО «ПЛАСТИНВЕСТ»"
+   :address "460014, Оренбургская область, г. Оренбург, ул. Чичерина, д. 14, помещ. 1, офис 2"
+   :inn 5610149071})
 
 ;; #edit#counteragents#update
 (jdbc/update!
@@ -511,13 +512,13 @@
   (jdbc/insert!
     auto
     :travel_order
-    {:auto_id 1
-     :count "9/0000"
-     :date_departure "2024-02-20T13:30"
-     :date_arrive "2024-02-20T15:00"
-     :odometr_departure 238630
-     :fuel_departure 13.7
-     :odometr_arrive 238664
+    {:auto_id 4
+     :count "9/0000279"
+     :date_departure "2024-02-27T09:00"
+     :date_arrive "2024-02-27T13:30"
+     :odometr_departure 145039
+     :fuel_departure 23.65
+     :odometr_arrive 145078
      :fuel_add 0})
   (pprint
     (jdbc/query
