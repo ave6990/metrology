@@ -39,19 +39,19 @@
 (methodology
   (map (fn [m]
            (:id m))
-       (find-methodology "millen")))
+       (find-methodology "68261-17")))
 (sh "vivaldi" (str midb-path "methodology.html"))
 
 ;; #report#find#mi
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%millen%'
+    "lower(v.mi_type) like '%ГХ%'
      --and lower(v.mi_type) not like '%elgas%'
      --and channels = 2
      --and components like '%nh3%'
      --and components like '%7000%'
      --and v.comment not like 'Леонтьев'
-     --and met.registry_number like '%-88%'
+     and met.registry_number like '%-17%'
      --v.protocol_number = 1293 and v.protocol_number = 1295
      --and v.serial_number like '%418-1231797%'
      --v.serial_number like '%042800%'
@@ -64,22 +64,32 @@
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#protocols
-(gen-protocols "id >= 3847")
+(let [where "id >= 3893"]
+  (gen-protocols where))
 (sh "vivaldi" (str midb-path "protocol.html"))
 
+(pprint (get-protocols-data "id = 3893"))
+
 ;; #gen#measurements#values
-(gen-values! "id >= 3847")
+(let [where "id >= 3867"]
+  (gen-values! where))
+
+;;#gen#custom#protocols
+(let [where "id >= 3867"]
+  (gen-custom-protocols (get-protocols-data where)))
 
 ;; #find#counteragents
-(counteragents "УЭСП")
+(counteragents "ГОК")
 (sh "vivaldi" (str midb-path "counteragents.html"))
 
 ;; #copy#record
-(copy-record! 3865 1)
+(copy-record! 3132 27)
 
-(let [nums (map (fn [n] (str "" n))
-                (list "0090698"))
-      years (repeat (count nums) 2019)
+(let [nums (map (fn [n] (str "02" n))
+                (list 617 780 545 521 783 470 580 589 525 811
+                      523 502 766 691 562 701 510 555 581 697
+                      643 796 744 776 582 793 677))
+      years (repeat (count nums) 2021)
             #_(list 2019 2016 2019 2016 2020)
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
@@ -93,11 +103,11 @@
              ;:mi_type "Колион-1В-03"
              ;:components "БД №№: 6025, 1369"
              ;:channels 2
-             :count "9/0000140"
-             :counteragent 2
-             :conditions 1154
+             :count "9/0000247"
+             :counteragent 79
+             :conditions 1160
              :manufacture_year y
-             :comment "Леонтьев"
+             ;:comment "Леонтьев"
              ;:comment 11
              ;:comment "ГИС блок 2"
              ;:upload 1
@@ -186,11 +196,11 @@
 (sh "vivaldi" (str midb-path "conditions.html"))
 
 ;; #add#conditions
-(insert-conditions! {:date "2024-02-27"
-                     :temperature 23.7
-                     :humidity 51.3
-                     :pressure 103.15
-                     :voltage 220.5
+(insert-conditions! {:date "2024-02-28"
+                     :temperature 22.4
+                     :humidity 51.1
+                     :pressure 103.03
+                     :voltage 221.5
                      :frequency 50
                      ;:other "0,4 (0,4 ± 0,1) дм³/мин"
                      ;:location "УЭСП"
@@ -389,11 +399,10 @@
 
 ;; #add#measurements
 (add-measurements
-  ;3775
+  ;3867
   (last-id "verification")
-  (list [1695 0 7] [1696 17]
-        [1695 7 0] [1696 17]
-        [1698 nil]
+  (list [870 nil]
+        [869 100 100 100]
   ))
 
 ;; #update#measurements
@@ -409,8 +418,8 @@
            {:ref_value 1.9}))
 
 ;; #copy#measurements
-(map (fn [v] (copy-measurements! 3495 v))
-     (list 3587))
+(map (fn [v] (copy-measurements! 3893 v))
+     (range 3867 3893))
 
 ;; #delete#measurements
 (delete-measurements!
@@ -637,14 +646,6 @@
             (li
               "Определение метрологических характеристик: "
               (em "проведено по методикам поверки, в соответствии с описанием типа каждого СИ, в лабораторных условиях поэлементно."))))})
-
-(custom-protocol
-  3454
-  (fp12))
-
-(pprint
-  (get-protocols-data
-    "id = 3187"))
 
 (require '[clojure.repl :refer :all])
 

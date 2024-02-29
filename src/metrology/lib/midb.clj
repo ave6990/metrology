@@ -11,7 +11,8 @@
     [metrology.lib.gs2000 :as gs]
     [metrology.lib.metrology :as metr]
     [metrology.view.report :as report]
-    [metrology.lib.gen-html :refer :all]))
+    [metrology.lib.gen-html :refer :all]
+    [metrology.protocols.custom :as protocol]))
 
 (def midb-path
   ;"/mnt/d/UserData/YandexDisk/Ermolaev/midb/"
@@ -461,21 +462,29 @@
     midb
     ["select * from view_operations where v_id = ?" id]))
 
-(defn custom-protocol
-  [id html]
-  (jdbc/insert!
-    midb
-    :v_html
-    {:id id
-     :html html}))
+(defn gen-custom-protocols
+  [data]
+  (doall
+    (map (fn [m]
+             (when (:protocol m)
+                     (jdbc/insert!
+                       midb
+                       :v_html
+                       {:id (:id m)
+                        :html ((eval (read-string (str
+                                                   "protocol/"
+                                                   (:protocol m))))
+                                m)})))
+        data)))
 
 (defn gen-protocols
   "Генерирует протоколы поверки в файл protocol.html."
   [where]
-  (spit
-    (str midb-path
-         "protocol.html")
-         (pr/protocols (get-protocols-data where))))
+  (let [data (get-protocols-data where)]
+    (spit
+      (str midb-path
+           "protocol.html")
+           (pr/protocols data))))
 
 (defn gen-report
   "генерирует отчет о записях в файл report.html."
@@ -589,6 +598,12 @@
 (comment
 
 (require '[clojure.repl :refer :all])
+
+(require '[metrology.lib.midb-queries :as q] :reload)
+
+(require '[metrology.protocols.custom :as protocol] :reload)
+
+(require '[metrology.lib.metrology :as metr] :reload)
 
 (doc flatten)
 

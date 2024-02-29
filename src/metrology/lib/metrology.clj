@@ -121,7 +121,9 @@
            (double (/ (* (:error m) (- (:r_to m) (:r_from m))) 100))
          (or (= (:error_type m) 6)
              (= (:error_type m) 7))
-           (* (:error m) 0.15)))
+           (* (:error m) 0.15)
+         (= (:error_type m) 16)
+           1))  ;NB random value
 
 (defn ^:private get-channels
   [m]
@@ -139,7 +141,7 @@
            {}
            (get-channels coll))))
 
-(defn gen-value
+#_(defn gen-value
   "Возвращает случайное число в пределах основной погрешности."
   [m]
   (let [k1 (if (:channel_error m)
@@ -173,6 +175,53 @@
               :else
                 res)
         res)))
+
+(defn gen-value
+  "Возвращает случайное число в пределах основной погрешности."
+  [m]
+  (let [k1 (if (:channel_error m)
+               (:channel_error m)
+               0.6) 
+        k2 0.15
+        ref (if (or (= (:error_type m) 6)
+                    (= (:error_type m) 7))
+                (* (:error m) 0.8)
+                (if (:ref_value m)
+                    (:ref_value m)
+                    0))
+        channel-error (if (zero? ref)
+                          0
+                          (- (rand (* 2 k1)) k1))
+        meas-error (- (rand (* 2 k2)) k2)
+        low-unit (cond
+                  (= (:error_type m) 6)
+                    1
+                  (= (:error_type m) 16)
+                    (if (:fraction m)
+                        (:fraction m)
+                        1)
+                  (:low_unit m)
+                    (:low_unit m)
+                  :else 0.1)
+        res (discrete (+ ref
+                         (* (tolerance m)
+                            (+ channel-error meas-error)))
+                      low-unit)]
+    (cond
+      (< (:error_type m) 3)
+        (cond (and (:view_range_from m)
+                   (< res (:view_range_from m)))
+                (:view_range_from m)
+              (and (:view_range_to m)
+                   (> res (:view_range_to m)))
+                (:view_range_to m)
+              :else
+                res)
+      (= (:error_type m) 16)
+        (round (+ (rand (- (:r_to m) (:r_from m)))
+                  (:r_form m))
+               low-unit)
+      :else res)))
 
 (defn gen-values
   [coll]
