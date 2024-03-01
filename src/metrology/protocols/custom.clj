@@ -52,6 +52,7 @@
             (p (em "При подаче ПГС № 7 срабатывает постоянная звуковая и световая сигнализация отображается символ «П»."))))))
 
 (defn pr-68261-17
+  "ГХ-М (АМ-5), АМ-0059"
   [m]
   (let [meas (vec (:measurements m))
         t (str->float (:temperature m))
@@ -71,7 +72,7 @@
         "Герметичность:"
         (em
           (str
-            (:value (get meas 0))
+            (:value germ)
             " см³ (не более 3 см³).")))
       (point
         "Определение метрологических характеристик: "
@@ -92,6 +93,60 @@
               (td n-val)
               (td err)
               (td 5)) "." ","))))))
+
+(defn pr-35823-07
+  "Altairt H2S"
+  [m]
+  (let [meas (vec (:measurements m))
+        vals (vec (map (fn [i]
+                           (:measurement_text i))
+                       meas))
+        refs (vec (map (fn [i]
+                           (:ref_value i))
+                       meas))
+        desc (vec (map (fn [i]
+                           (:metrology_text i))
+                       meas))]
+    (appendix
+      (point
+        "Определение основной абсолютной погрешности сигнализатора:"
+        (table
+          (tr
+            (th "Пороги срабатывания сигнализации, млн⁻¹")
+            (th "Номер ПГС")
+            (th "Номинальное значение концентрации определяемого компонента ПГС, млн⁻¹")
+            (th "Состояние сигнализации при подаче ПГС по НД")
+            (th "Состояние сигнализации соответствует требованиям НД (да/нет)"))
+          (string/replace
+            (string/join "\n"
+              (list
+                (tr
+                  (td {:rowspan 2}
+                      7)
+                  (td 1)
+                  (td (get refs 0))
+                  (td (get desc 0))
+                  (td (get vals 0)))
+                (tr
+                  (td 2)
+                  (td (get refs 1))
+                  (td (get desc 1))
+                  (td (get vals 1)))
+                (tr
+                  (td {:rowspan 2}
+                      14)
+                  (td 3)
+                  (td (get refs 2))
+                  (td (get desc 2))
+                  (td (get vals 2)))
+                (tr
+                  (td 4)
+                  (td (get refs 3))
+                  (td (get desc 3))
+                  (td (get vals 3)))
+                ))
+            "."
+            ","))))))
 
 (comment
 

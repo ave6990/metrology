@@ -3,9 +3,9 @@
 (require '[clojure.java.shell :refer [sh]])
 
 (pprint (gs2000 1
-                "NH3"
-                3017
-                (list 7 35 67)
+                ;"NH3"
+                496
+                (list 50 90)
                 #_(map #(ch/ppm->mg "H2S" %1)
                      (list 35 60))))
 
@@ -32,26 +32,27 @@
      '(0.857 1.556))
 
 ;; #report#methodology
-(methodology (list 313))
+(methodology (list 289))
 (sh "vivaldi" (str midb-path "methodology.html"))
 
 ;; #find#methodology
 (methodology
   (map (fn [m]
            (:id m))
-       (find-methodology "68261-17")))
+       (find-methodology "43528")))
 (sh "vivaldi" (str midb-path "methodology.html"))
 
 ;; #report#find#mi
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%ГХ%'
+    "lower(v.mi_type) like '%АМ-5М%'
      --and lower(v.mi_type) not like '%elgas%'
      --and channels = 2
-     --and components like '%nh3%'
+     --and methodology_id = 305
+     --and components like '%ch4%'
      --and components like '%7000%'
      --and v.comment not like 'Леонтьев'
-     and met.registry_number like '%-17%'
+     --and met.registry_number like '%-07%'
      --v.protocol_number = 1293 and v.protocol_number = 1295
      --and v.serial_number like '%418-1231797%'
      --v.serial_number like '%042800%'
@@ -60,40 +61,38 @@
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report
-(gen-report (list 3822))
+(gen-report (list 3896))
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#protocols
-(let [where "id >= 3893"]
+(let [where "id >= 3900"]
   (gen-protocols where))
 (sh "vivaldi" (str midb-path "protocol.html"))
 
 (pprint (get-protocols-data "id = 3893"))
 
 ;; #gen#measurements#values
-(let [where "id >= 3867"]
+(let [where "id >= 3894"]
   (gen-values! where))
 
 ;;#gen#custom#protocols
-(let [where "id >= 3867"]
+(let [where "id >= 3896"]
   (gen-custom-protocols (get-protocols-data where)))
 
 ;; #find#counteragents
-(counteragents "ГОК")
+(counteragents "ГАЙСКИЙ")
 (sh "vivaldi" (str midb-path "counteragents.html"))
 
 ;; #copy#record
-(copy-record! 3132 27)
+(copy-record! 3944 31)
 
-(let [nums (map (fn [n] (str "02" n))
-                (list 617 780 545 521 783 470 580 589 525 811
-                      523 502 766 691 562 701 510 555 581 697
-                      643 796 744 776 582 793 677))
-      years (repeat (count nums) 2021)
-            #_(list 2019 2016 2019 2016 2020)
+(let [nums (map (fn [n] (str "" n))
+                (list "02968"))
+      years (repeat (count nums) 2023)
+            #_(list 2017 2017 2016 2016)
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
-      ;start-protocol-number 176]
+      ;start-protocol-number 291]
   (map (fn [n i y]
          (jdbc/update!
            midb
@@ -101,13 +100,13 @@
            (hash-map
              ;:methodology_id 375
              ;:mi_type "Колион-1В-03"
-             ;:components "БД №№: 6025, 1369"
+             ;:components "C₆H₁₄ (0 - 50) % НКПР"
              ;:channels 2
              :count "9/0000247"
              :counteragent 79
-             :conditions 1160
+             :conditions 1161
              :manufacture_year y
-             ;:comment "Леонтьев"
+             :comment "Леонтьев"
              ;:comment 11
              ;:comment "ГИС блок 2"
              ;:upload 1
@@ -139,7 +138,7 @@
   "returning mi_types, components")
 
 ;; #delete#record
-(delete-record! 3853)
+(delete-record! 3905)
 
 ;; Удалить записи с id >=
 ;; #delete#record
@@ -164,10 +163,10 @@
 (set-v-gso!
   #_3668
   (last-id "verification")
-  (list 383)
+  (list 406 407)
   #_(map (fn [m]
            (:id m))
-       (check-gso (list "16871-23" "08197-23" "14638-23" "14636-23" "14630-23" "14628-23")
+       (check-gso (list "14632-23" "12210-22" "12197-22" "02462-22" "02464-22" "08197-23")
                   "pass_number")))
 
 ;; #update#gso
@@ -192,15 +191,15 @@
 (/ (- 94.3 95.1) 95.1)
 
 ;; #conditions
-(conditions "2024-02-20")
+(conditions "2024-02-29")
 (sh "vivaldi" (str midb-path "conditions.html"))
 
 ;; #add#conditions
-(insert-conditions! {:date "2024-02-28"
-                     :temperature 22.4
-                     :humidity 51.1
-                     :pressure 103.03
-                     :voltage 221.5
+(insert-conditions! {:date "2024-02-29"
+                     :temperature 22.9
+                     :humidity 52.6
+                     :pressure 102.71
+                     :voltage 220.9
                      :frequency 50
                      ;:other "0,4 (0,4 ± 0,1) дм³/мин"
                      ;:location "УЭСП"
@@ -243,27 +242,27 @@
 (jdbc/insert!
   midb
   :verification_operations
-  {:methodology_id 389
-   :section "6.5"
-   :name "Определение абсолютной погрешности измерений коэффициента поглощения светового потока"
+  {:methodology_id 390
+   :section "6.4.1"
+   :name "Определение основной приведенной, основной относительной погрешности"
    :verification_type 1
-   ;:comment "См. в приложении к протоколу"
+   :comment "См. в приложении к протоколу"
    ;:info "для Микрохром-1121-3"
    })
 
 ;; #set#operations
 (set-v-operations! ;3668
                    (last-id "verification")
-                   (list 239 513 787 1161 1881))
+                   (list 1882 1883 1884 1886))
 
 ;; #copy#operations
 (copy-v-operations! 3187 3210)
 
 ;; #unusability#update#operations
 (unusability
-  3762
-  505
-  "не заряжается")
+  3922
+  998
+  "негерметичен")
 
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
@@ -293,23 +292,23 @@
      :counteragent 2
      :conditions 1154
      :verification_type 1
-     :protocol_number (next-protocol-number) 
-     ;:protocol_number 54
-     :mi_type "Millennium II, мод. M22-ARD-S-EM"
-     :methodology_id 313
-     :serial_number "0061289"
-     :manufacture_year 2019
+     ;:protocol_number (next-protocol-number) 
+     :protocol_number 237
+     :mi_type "Series 3000"
+     :methodology_id 390
+     :serial_number "K0339517231053"
+     :manufacture_year 2014
      :channels 1
      :area "05"
      :interval 12
-     :components "ST320A-100-ASSY-EM зав. № 0061548"
+     :components "H₂S (0 - 50) млн⁻¹"
      ;:components "CO (0 - 0,5) % об.; CH (0 - 0,2) % об.; NO (0 - 0,5) % об.; CO₂ (0 - 15) % об.; O₂ (0 - 21) % об."
      ;:scope
-     :sw_name "FRM-0117"
-     :sw_version "2.2"
-     :sw_checksum "07442363d196c21fb357aa7fa278495d"
-     :sw_algorithm "MD5"
-     :sw_version_real "2.2"
+     :sw_name "S3K_1V_Main_Software"
+     :sw_version "1V13"
+     :sw_checksum "099010"
+     :sw_algorithm "1V"
+     :sw_version_real "1V13"
      ;:voltage 24
      ;:upload 
      :comment "Леонтьев"
@@ -361,18 +360,18 @@
 (jdbc/insert!
   midb
   :methodology
-  {:registry_number "56918-14"
-   :mi_name "Дымомеры"
-   :mi_types "СМОГ-2"
-   :name "МП-640-0020-2-14 «Инструкция. Дымомеры СМОГ-2. Методика поверки»"
-   :short_name "МП-640-0020-2-14"
+  {:registry_number "43528-09"
+   :mi_name "Детекторы токсичных газов стационарные"
+   :mi_types "Series 3000"
+   :name "МП 43528-09 «Детекторы токсичных газов стационарные Series 3000. Методика поверки»"
+   :short_name "МП 43528-09"
    :date_from nil
-   :date_to "2029-03-06"
-   :temperature "22 ± 5"
+   :date_to "2019-12-12"
+   :temperature "20 ± 5"
    :humidity "30 ÷ 80"
-   :pressure "84,0 ÷ 106,7"
-   :voltage "220 ± 22"
-   :frequency "50 ± 1"
+   :pressure "97,3 ÷ 105,3"
+   ;:voltage "220 ± 22"
+   ;:frequency "50 ± 1"
    ;:other "расход ГСО-ПГС: не менее 1,0 л/ч"
    :limited nil})
 
@@ -401,8 +400,7 @@
 (add-measurements
   ;3867
   (last-id "verification")
-  (list [870 nil]
-        [869 100 100 100]
+  (list [1707 0 25.9 47 25.9 0 47]
   ))
 
 ;; #update#measurements
@@ -434,44 +432,45 @@
 
 ;; #add#metrology#channel
 (ins-channel!
-  {:methodology_id 313
-   :channel "ST320x-100-ASSY-EM"
-   :component "H2S"
+  {:methodology_id 289
+   :channel nil
+   :component "C6H14"
    :range_from 0
-   :range_to 20
-   :units "млн⁻¹"
-   :low_unit 1
+   :range_to 50
+   :units "% НКПР"
+   :low_unit 0.1
    :view_range_from 0
-   :view_range_to 20
+   :view_range_to 60
    ;:comment "диапазон показаний условно! ГИАМ-29М-4."
    }
   (list {:r_from 0
-         :r_to 10
-         :value 2
+         :r_to 50
+         :value 5
          :fraction nil
          :type_id 0
          :units nil
-         :operation_id 1161
+         :operation_id 1271
+         ;:text "отсутствует"
          :comment nil}
-        {:r_from 10
-         :r_to 20
+        #_{:r_from 10
+         :r_to 50
          :value 20
          :fraction nil
          :type_id 1
          :units nil
-         :operation_id 1161
+         :operation_id 1886
          ;:comment "(15 - 30) % об."
          }
         {:value 0.5
          :type_id 5
          :units ""
-         :operation_id 1880}
-        {;:r_from 0
+         :operation_id 1355}
+        #_{;:r_from 0
          ;:r_to 10
-         :value 36
+         :value 30
          :type_id 6
          :units "с"
-         :operation_id 1881}
+         :operation_id nil}
         #_{
          :r_from 0
          :r_to 71 
@@ -499,10 +498,10 @@
 (jdbc/insert!
   midb
   :counteragents
-  {:name "Общество с ограниченной ответственностью «ПЛАСТИНВЕСТ»"
-   :short_name "ООО «ПЛАСТИНВЕСТ»"
-   :address "460014, Оренбургская область, г. Оренбург, ул. Чичерина, д. 14, помещ. 1, офис 2"
-   :inn 5610149071})
+  {:name "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ «ПРАВИЛЬНЫЕ ПРОМЫШЛЕННЫЕ РЕШЕНИЯ»"
+   :short_name "ООО «ППР»"
+   :address "420032, Республика Татарстан (Татарстан), г.о. Город Казань, г Казань, ул Краснококшайская, дом 84, квартира 76"
+   :inn 1683003077})
 
 ;; #edit#counteragents#update
 (jdbc/update!
@@ -511,9 +510,10 @@
   {
    ;:name "ООО АТЦ «Жигули-Оренбург»"
    ;:short_name "ООО АТЦ «Жигули-Оренбург»"
-   :address "123298, Москва г, Берзарина ул, дом 3, корпус 1, квартира 17"
+   :inn 2130160440
+   :address "429060, Чувашская Республика - Чувашия, м.о. Ядринский, г Ядрин, ул Некрасова, домовладение 17Б, помещение 2"
    }
-  ["id = ?" 12996])
+  ["id = ?" 12171])
 
 ;; #cars
 ;; #insert#order#auto
