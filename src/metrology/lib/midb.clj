@@ -548,8 +548,8 @@
                 (list (:measurements prot))))
        (get-protocols-data where)))
 
-(defn add-measurements
-  [id coll]
+(defn insert-measurements
+  [id ch-name coll cmnt]
   (map (fn [[m-id & ref]]
          (map (fn [r-value]
                   (jdbc/insert!
@@ -557,11 +557,22 @@
                     :measurements
                     (hash-map
                       :v_id id
+                      :channel_name ch-name
                       :metrology_id m-id
-                      :ref_value r-value)))
+                      :ref_value r-value
+                      :comment cmnt)))
          ref))
        coll))
 
+(defn add-measurements
+  [id coll]
+  (map (fn [item]
+           (insert-measurements
+             id
+             (get item 0)
+             (get item 1)
+             (get item 2)))
+       coll))
 
 (defn unusability
   ""
@@ -577,6 +588,37 @@
     :v_operations
     {:result 0}
     ["v_id = ? and op_id > ?" id op_id]))
+
+(defn parse-int [s]
+  (Integer/parseInt s))
+
+(defn calc-references-hash
+  "code-example:
+    (calc-references-hash
+      \"v_id >= 3000\")"
+  [where]
+  (->> (jdbc/query
+         midb
+         (str "select v_id, group_concat(ref_id, ', ') as refs
+               from verification_refs
+               where "
+               where
+               " group by v_id")) 
+       (map (fn [r]
+                (->> (string/split
+                       (:refs r)
+                       #", ")
+                     (map string/trim)
+                     (map parse-int)
+                     sort
+                     hash
+                     (assoc r :refs))))
+       (map (fn [r]
+                (jdbc/update!
+                  midb
+                  :verification
+                  {:hash_refs (:refs r)}
+                  ["id = ?" (:v_id r)])))))
 
 (defn gs2000
   ([gen-n gas s-conc t-conc-coll]
@@ -604,6 +646,10 @@
 (require '[metrology.protocols.custom :as protocol] :reload)
 
 (require '[metrology.lib.metrology :as metr] :reload)
+
+(require '[metrology.lib.gen-html :refer :all] :reload)
+
+(require '[metrology.lib.midb-queries :as q] :reload)
 
 (doc flatten)
 

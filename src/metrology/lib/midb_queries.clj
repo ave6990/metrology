@@ -130,6 +130,11 @@ inner join
   on ca.id = v.counteragent
 where
   {where}
+group by
+  v.mi_type,
+  v.methodology_id,
+  v.channels,
+  v.hash_refs
 order by
     c.date desc,
     v.id desc")

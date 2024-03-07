@@ -32,29 +32,30 @@
      '(0.857 1.556))
 
 ;; #report#methodology
-(methodology (list 289))
+(methodology (list 222))
 (sh "vivaldi" (str midb-path "methodology.html"))
 
 ;; #find#methodology
 (methodology
   (map (fn [m]
            (:id m))
-       (find-methodology "43528")))
+       (find-methodology "ФП")))
 (sh "vivaldi" (str midb-path "methodology.html"))
 
 ;; #report#find#mi
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%АМ-5М%'
+    "lower(v.mi_type) like '%solaris%'
      --and lower(v.mi_type) not like '%elgas%'
-     --and channels = 2
+     --and channels = 3
      --and methodology_id = 305
-     --and components like '%ch4%'
+     --and components like '%co2%'
      --and components like '%7000%'
+     --and c.date > '2024-02-01'
      --and v.comment not like 'Леонтьев'
-     --and met.registry_number like '%-07%'
+     --and met.registry_number like '%-17%'
      --v.protocol_number = 1293 and v.protocol_number = 1295
-     --and v.serial_number like '%418-1231797%'
+     --and v.serial_number like '%1752554%'
      --v.serial_number like '%042800%'
      --count like '%000119%'
      --v.id = 1322 or v.id = 1320"))
@@ -65,14 +66,14 @@
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#protocols
-(let [where "id >= 3900"]
+(let [where "id >= 4045"]
   (gen-protocols where))
 (sh "vivaldi" (str midb-path "protocol.html"))
 
 (pprint (get-protocols-data "id = 3893"))
 
 ;; #gen#measurements#values
-(let [where "id >= 3894"]
+(let [where "id >= 4045"]
   (gen-values! where))
 
 ;;#gen#custom#protocols
@@ -80,16 +81,16 @@
   (gen-custom-protocols (get-protocols-data where)))
 
 ;; #find#counteragents
-(counteragents "ГАЙСКИЙ")
+(counteragents "В/Ч")
 (sh "vivaldi" (str midb-path "counteragents.html"))
 
 ;; #copy#record
-(copy-record! 3944 31)
+(copy-record! 3349 1)
 
 (let [nums (map (fn [n] (str "" n))
-                (list "02968"))
-      years (repeat (count nums) 2023)
-            #_(list 2017 2017 2016 2016)
+                (list "A5-58371"))
+      years (repeat (count nums) 2007)
+            #_(list 2021 2010 2011)
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
       ;start-protocol-number 291]
@@ -99,11 +100,11 @@
            :verification
            (hash-map
              ;:methodology_id 375
-             ;:mi_type "Колион-1В-03"
-             ;:components "C₆H₁₄ (0 - 50) % НКПР"
+             ;:mi_type "Сигнал-4М"
+             ;:components "IR-CO₂-5"
              ;:channels 2
-             :count "9/0000247"
-             :counteragent 79
+             :count "9/0000289"
+             :counteragent 16
              :conditions 1161
              :manufacture_year y
              :comment "Леонтьев"
@@ -138,13 +139,13 @@
   "returning mi_types, components")
 
 ;; #delete#record
-(delete-record! 3905)
+(delete-record! 3988)
 
 ;; Удалить записи с id >=
 ;; #delete#record
 (map (fn [i]
-         (delete-record! (+ 3861 i)))
-     (range 4))
+         (delete-record! (+ 4045 i)))
+     (range 25))
 
 (map (fn [id] (copy-v-gso! 2337 id))
      (range 2301 2327))
@@ -163,10 +164,10 @@
 (set-v-gso!
   #_3668
   (last-id "verification")
-  (list 406 407)
-  #_(map (fn [m]
+  #_(list 380 381)
+  (map (fn [m]
            (:id m))
-       (check-gso (list "14632-23" "12210-22" "12197-22" "02462-22" "02464-22" "08197-23")
+       (check-gso (list "14632-23" "14628-23" "14630-23" "12197-22" "14635-23")
                   "pass_number")))
 
 ;; #update#gso
@@ -195,14 +196,14 @@
 (sh "vivaldi" (str midb-path "conditions.html"))
 
 ;; #add#conditions
-(insert-conditions! {:date "2024-02-29"
-                     :temperature 22.9
-                     :humidity 52.6
-                     :pressure 102.71
-                     :voltage 220.9
+(insert-conditions! {:date "2024-03-06"
+                     :temperature 23.5
+                     :humidity 50.3
+                     :pressure 99.86
+                     :voltage 222.2
                      :frequency 50
                      ;:other "0,4 (0,4 ± 0,1) дм³/мин"
-                     ;:location "УЭСП"
+                     :location "ОГЗ"
                      ;:comment ""
                      })
 
@@ -217,7 +218,8 @@
 ;; #set#refs
 (set-v-refs! ;3668
              (last-id "verification")
-             (list 2663 2820))
+             (list 2663 2820 2664 2662)
+             #_(list 3151 2768))
 
 ;; #copy#refs
 (copy-v-refs! 3753 3754)
@@ -233,7 +235,7 @@
 ;; #set#opt-refs
 (set-v-opt-refs! ;3668
                  (last-id "verification")
-                 (list 2643 2827 2762 2756))
+                 (list 2643 2762 2827 2756 2670 2715))
 
 ;; #copy#opt-refs
 (copy-v-opt-refs! 3355 3646)
@@ -242,9 +244,9 @@
 (jdbc/insert!
   midb
   :verification_operations
-  {:methodology_id 390
-   :section "6.4.1"
-   :name "Определение основной приведенной, основной относительной погрешности"
+  {:methodology_id 391
+   :section "7.3.2"
+   :name "Определение основной абсолютной погрешности при измерении концентрации газов в воздухе"
    :verification_type 1
    :comment "См. в приложении к протоколу"
    ;:info "для Микрохром-1121-3"
@@ -253,16 +255,16 @@
 ;; #set#operations
 (set-v-operations! ;3668
                    (last-id "verification")
-                   (list 1882 1883 1884 1886))
+                   (list 45 593 854 1715 1716))
 
 ;; #copy#operations
 (copy-v-operations! 3187 3210)
 
 ;; #unusability#update#operations
 (unusability
-  3922
-  998
-  "негерметичен")
+  4044
+  1715
+  "превышение предела допускаемой основной погрешности по каналу измерения O₂")
 
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
@@ -275,7 +277,7 @@
   "select *
    from refs
    where
-    mi_type like '%esto%'")
+    mi_type like '%ГС-2000%'")
 
 ;; Копировать ГСО, эталоны, операции и результаты измерений в несколько записей.
 (for [f (list copy-v-refs! copy-v-operations! copy-measurements! copy-v-opt-refs!)
@@ -288,30 +290,30 @@
   :verification
   (hash-map
      :engineer 3514
-     :count "9/0000140"
-     :counteragent 2
-     :conditions 1154
+     :count "9/0000324"
+     :counteragent 210
+     :conditions 1164
      :verification_type 1
-     ;:protocol_number (next-protocol-number) 
-     :protocol_number 237
-     :mi_type "Series 3000"
-     :methodology_id 390
-     :serial_number "K0339517231053"
-     :manufacture_year 2014
-     :channels 1
-     :area "05"
+     :protocol_number (next-protocol-number) 
+     ;:protocol_number 237
+     :mi_type "ИНФРАКАР М1-01"
+     :methodology_id 72
+     :serial_number 21
+     :manufacture_year 2011
+     :channels 5
+     :area "14"
      :interval 12
-     :components "H₂S (0 - 50) млн⁻¹"
+     :components "CO (0 - 7) % об.; CH (0 - 3000) млн⁻¹; CO₂ (0 - 16) % об.; O₂ (0 - 21) % об.; частота вращения (0 - 6000) мин⁻¹"
      ;:components "CO (0 - 0,5) % об.; CH (0 - 0,2) % об.; NO (0 - 0,5) % об.; CO₂ (0 - 15) % об.; O₂ (0 - 21) % об."
      ;:scope
-     :sw_name "S3K_1V_Main_Software"
-     :sw_version "1V13"
-     :sw_checksum "099010"
-     :sw_algorithm "1V"
-     :sw_version_real "1V13"
+     ;:sw_name "S3K_1V_Main_Software"
+     ;:sw_version "1V13"
+     ;:sw_checksum "099010"
+     ;:sw_algorithm "1V"
+     ;:sw_version_real "1V13"
      ;:voltage 24
      ;:upload 
-     :comment "Леонтьев"
+     ;:comment "Леонтьев"
      ;:comment 11
      ))
 
@@ -360,20 +362,24 @@
 (jdbc/insert!
   midb
   :methodology
-  {:registry_number "43528-09"
-   :mi_name "Детекторы токсичных газов стационарные"
-   :mi_types "Series 3000"
-   :name "МП 43528-09 «Детекторы токсичных газов стационарные Series 3000. Методика поверки»"
-   :short_name "МП 43528-09"
-   :date_from nil
-   :date_to "2019-12-12"
+  {:registry_number "32805-22"
+   :mi_name "Газоанализаторы"
+   :mi_types "ФП21"
+   :name "МРБ МП.1536-2006 с изменением № 2 «Газоанализатор ФП21. Методика поверки»"
+   :short_name "МРБ МП.1536-2006 с изменением № 2"
+   :date_from "2022-09-12"
+   :order "2247"
+   :date_to ""
    :temperature "20 ± 5"
    :humidity "30 ÷ 80"
-   :pressure "97,3 ÷ 105,3"
+   :pressure "80 ÷ 106"
    ;:voltage "220 ± 22"
    ;:frequency "50 ± 1"
-   ;:other "расход ГСО-ПГС: не менее 1,0 л/ч"
-   :limited nil})
+   :other "колебания температуры окружающего воздуха при провдении поверки и регламентных работах"
+   :other_limit "± 5 °C"
+   :limited 0
+   :comment nil
+  })
 
 ;; #update#methodology
 (jdbc/update!
@@ -398,10 +404,21 @@
 
 ;; #add#measurements
 (add-measurements
+  (last-id "verification")
+  (list [nil [[1731 0 0.5] [1732 5] [1731 0.5 0] [1732 5]] nil]
+        [nil [[1729 0 200] [1730 2500] [1729 200 0] [1730 2500]] nil]
+        [nil [[1420 0 4] [1421 15.14] [1420 4 0] [1421 15.14]] nil]
+        [nil [[1423 0] [1424 3.5 20.44 3.5] [1423 0] [1424 20.44]] nil]
+        [nil [[1426 0 600 1200] [1427 3000 6000]] nil]
+        ))
+
+(insert-measurements
   ;3867
   (last-id "verification")
-  (list [1707 0 25.9 47 25.9 0 47]
-  ))
+  nil
+  (list [871 nil] [1713 nil] [872 nil]
+  )
+  nil)
 
 ;; #update#measurements
 (map (fn [id m]
@@ -432,42 +449,42 @@
 
 ;; #add#metrology#channel
 (ins-channel!
-  {:methodology_id 289
+  {:methodology_id 72
    :channel nil
-   :component "C6H14"
+   :component "CO"
    :range_from 0
-   :range_to 50
-   :units "% НКПР"
-   :low_unit 0.1
+   :range_to 7
+   :units "% об."
+   :low_unit 0.01
    :view_range_from 0
-   :view_range_to 60
-   ;:comment "диапазон показаний условно! ГИАМ-29М-4."
+   :view_range_to 7
+   :comment "ИНФРАКАР-М1; диапазон показаний условно!"
    }
   (list {:r_from 0
-         :r_to 50
-         :value 5
+         :r_to 3.3
+         :value 0.2
          :fraction nil
          :type_id 0
          :units nil
-         :operation_id 1271
+         :operation_id 1715
          ;:text "отсутствует"
          :comment nil}
-        #_{:r_from 10
-         :r_to 50
-         :value 20
+        {:r_from 3.3
+         :r_to 7
+         :value 6
          :fraction nil
          :type_id 1
          :units nil
-         :operation_id 1886
+         :operation_id 768
          ;:comment "(15 - 30) % об."
          }
-        {:value 0.5
+        #_{:value 0.5
          :type_id 5
          :units ""
-         :operation_id 1355}
+         :operation_id nil}
         #_{;:r_from 0
          ;:r_to 10
-         :value 30
+         :value 20
          :type_id 6
          :units "с"
          :operation_id nil}
@@ -498,7 +515,7 @@
 (jdbc/insert!
   midb
   :counteragents
-  {:name "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ «ПРАВИЛЬНЫЕ ПРОМЫШЛЕННЫЕ РЕШЕНИЯ»"
+  {:name ""
    :short_name "ООО «ППР»"
    :address "420032, Республика Татарстан (Татарстан), г.о. Город Казань, г Казань, ул Краснококшайская, дом 84, квартира 76"
    :inn 1683003077})
@@ -508,12 +525,12 @@
   midb
   :counteragents
   {
-   ;:name "ООО АТЦ «Жигули-Оренбург»"
+   :name "Общество с ограниченной ответственностью «НАУЧНО-ИННОВАЦИОННОЕ ПРЕДПРИЯТИЕ «ТЕХНОЛОГИЯ»"
    ;:short_name "ООО АТЦ «Жигули-Оренбург»"
-   :inn 2130160440
-   :address "429060, Чувашская Республика - Чувашия, м.о. Ядринский, г Ядрин, ул Некрасова, домовладение 17Б, помещение 2"
+   ;:inn 2130160440
+   :address "460511, Оренбургская обл, Оренбургский р-н, Подгородняя Покровка с, 26 -Й Км (Автодорога Оренбург-Сама ул, дом Здание 10"
    }
-  ["id = ?" 12171])
+  ["id = ?" 4279])
 
 ;; #cars
 ;; #insert#order#auto
@@ -536,6 +553,9 @@
 
 ;; #backup
 (sh "backup_midb")
+
+;; #hash#references
+(calc-references-hash "v_id >= 4045")
 
 ;; #documentations
 (require '[clojure.repl :refer :all])
@@ -649,9 +669,9 @@
 
 (require '[clojure.repl :refer :all])
 
-(find-doc "air")
+(find-doc "in")
 
-(doc get-in)
+(doc some?)
 
 (dir metrology.lib.metrology)
 

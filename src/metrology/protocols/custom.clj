@@ -3,7 +3,8 @@
     [clojure.string :as string]
     [clojure.math :as math]
     [metrology.lib.metrology :as m]
-    [metrology.lib.gen-html :refer :all]))
+    [metrology.lib.gen-html :refer :all]
+    [metrology.utils.sequence :refer :all]))
 
 (defn point
   [name content]
@@ -21,6 +22,12 @@
 (defn str->float
   [s]
   (Float/parseFloat (string/replace s "," ".")))
+
+(defn get-vals-by-key
+  [k m]
+  (map (fn [item]
+           (k item))
+       m))
 
 ;; #fp12#фп12#protocol
 (defn fp12
@@ -148,7 +155,44 @@
             "."
             ","))))))
 
+(defn get-channels-list
+  [meas]
+  (unique (get-vals-by-key
+            :channel_name
+            meas)))
+
+(defn pr-18482-08
+  "Кристалл-5000 NB_edit"
+  [m]
+  (let [meas (vec (:measurements m))
+        ch-count (:channels m)
+        noise-rows
+          (string/join "\n"
+            (map (fn [item]
+                     ())
+                 meas))]
+    (appendix
+      (point
+        "Определение уровня флуктуационных шумов и дрейфа нулевого сигнала:"
+        (table
+          (tr
+            (th {:rowspan 2}
+                "Детектор")
+            (th {:colspan 3}
+                "Значение уровня шумов")
+            (th {:colspan 3}
+                "Значение дрейфа"))
+          (string/join "\n"
+            (repeat 2
+                    (tr
+                      (th "допускаемое")
+                      (th "действительное")
+                      (th "ед. изм."))))
+          noise-rows)))))
+
 (comment
+
+  (require '[metrology.utils.sequence :refer :all] :reload)
 
   (clojure.math/round 0.2342)
 
@@ -156,5 +200,8 @@
 
   (get (vec '(1 2 3)) 2)
 
-  (find-doc "rand")
+  (find-doc "slice")
+
+  (doc peek)
+
 )
