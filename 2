@@ -131,13 +131,12 @@ td, th {
                         (td))))
             (string/join "\n")))))
     (section {:class "verification"}
-      (h1 " ")
-      (table {:class "task_table"}
-             (string/join "\n"
-                          (map (fn [i] (tr (td {:class "info"} " ")
-                                           (td {:class "result"} )))
-                               (range 32)))))))
-
+      (main
+        (table {:class "task_table"}
+               (string/join "\n"
+                            (map (fn [i] (tr (td {:class "info"} " ")
+                                             (td {:class "result"} )))
+                                 (range 32))))))))
 
 (defn gen-daily
   "генерирует страницы ежедневника в файл daily.html."
