@@ -66,7 +66,7 @@
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#protocols
-(let [where "id >= 4045"]
+(let [where "id = 4014"]
   (gen-protocols where))
 (sh "vivaldi" (str midb-path "protocol.html"))
 
@@ -77,7 +77,7 @@
   (gen-values! where))
 
 ;;#gen#custom#protocols
-(let [where "id >= 3896"]
+(let [where "id = 4014"]
   (gen-custom-protocols (get-protocols-data where)))
 
 ;; #find#counteragents
@@ -192,7 +192,7 @@
 (/ (- 94.3 95.1) 95.1)
 
 ;; #conditions
-(conditions "2024-02-29")
+(conditions "2024-03-04")
 (sh "vivaldi" (str midb-path "conditions.html"))
 
 ;; #add#conditions

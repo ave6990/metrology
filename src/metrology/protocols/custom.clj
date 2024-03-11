@@ -2,9 +2,10 @@
   (:require
     [clojure.string :as string]
     [clojure.math :as math]
+    [clojure.pprint :refer [pprint]]  ; нужно на этапе отладки
     [metrology.lib.metrology :as m]
     [metrology.lib.gen-html :refer :all]
-    [metrology.utils.sequence :refer :all]))
+    [metrology.utils.sequence :as sq]))
 
 (defn point
   [name content]
@@ -157,20 +158,124 @@
 
 (defn get-channels-list
   [meas]
-  (unique (get-vals-by-key
+  (sq/unique (get-vals-by-key
             :channel_name
             meas)))
+
+(defn get-meas-by-channels
+  [meas ch-count meas-count-by-channel]
+  (map (fn [i]
+           (sq/slice (* i meas-count-by-channel)
+                  meas-count-by-channel
+                  meas))
+       (range ch-count)))
+
+(defn pr-18482-noise
+  [meas-by-channels]
+  (->>
+    meas-by-channels
+    (map (fn [item]
+             (let [v-item (vec item)
+                   noise (get v-item 0)
+                   ch-name (:channel_name noise)
+                   drift (get v-item 1)]
+               (tr
+                 (str (td ch-name)
+                      "\n"
+                      (->>
+                        (list noise
+                              drift)
+                        (map (fn [p]
+                                 (string/join "\n"
+                                   (list
+                                     (td (:value p))
+                                     (td (:addition p))
+                                     (td (:metrology_units p))))))
+                        doall
+                        (string/join "\n")))))))
+    doall
+    (string/join "\n")))
+
+(defn pr-18482-limit
+  [meas-by-channels]
+  (->>
+    meas-by-channels
+    (map (fn [item]
+             (let [v-item (vec item)
+                   limit (get v-item 2)
+                   ch-name (:channel_name limit)]
+               (tr
+                 (->>
+                  (list
+                    (td (:value limit))
+                    (td (:addition limit))
+                    (td (:metrology_units limit)))
+                  (string/join "\n")
+                  (str (td ch-name) "\n"))))))
+    doall
+    (string/join "\n")))
+
+(defn pr-18482-peaks
+  [meas-by-channels]
+  (->>
+    meas-by-channels
+    (map (fn [item]
+             (let [v-item (vec item)
+                   ch-name (:channel_name (get v-item 0))
+                   t (vec (slice 3 5 v-item))
+                   s (vec (slice 8 5 v-item))
+                   h (vec (slice 13 5 v-item))
+                   t48 (get v-item 19)
+                   s48 (get v-item 20)
+                   h48 (get v-item 21)]
+              (string/join "\n"
+                (list
+                  (->>
+                    (map (fn [ti si hi n]
+                             (tr
+                               (if (zero? n)
+                                   (str (td {:rowspan 7} ch-name)
+                                        "\n"
+                                        (td (inc n)))
+                                   (td (inc n)))
+                               (td (:value ti))
+                               (td (:metrology_units ti))
+                               (td (:value si))
+                               (td (:metrology_units si))
+                               (td (:value hi))
+                               (td (:metrology_units hi))))
+                         t s h (range 5))
+                    doall
+                    (string/join "\n")
+                    tr)
+                  (tr
+                    (->>
+                      (list t s h)
+                      (map (fn [vs]
+                               (str
+                                 (td
+                                   (m/round
+                                     (apply m/average
+                                            (get-vals-by-key :value vs))
+                                     3)
+                                 "\n"
+                                 (td (:metrology_units (get vs 0))))))
+                      (string/join "\n")
+                      (str (td "Среднее арифметическое") "\n")))
+                  (tr
+                    (td "Относительное СКО")))))))
+    doall
+    (string/join "\n")))
 
 (defn pr-18482-08
   "Кристалл-5000 NB_edit"
   [m]
   (let [meas (vec (:measurements m))
         ch-count (:channels m)
-        noise-rows
-          (string/join "\n"
-            (map (fn [item]
-                     ())
-                 meas))]
+        meas-by-channels (get-meas-by-channels
+                           meas
+                           ch-count
+                           21)]
     (appendix
       (point
         "Определение уровня флуктуационных шумов и дрейфа нулевого сигнала:"
@@ -182,13 +287,46 @@
                 "Значение уровня шумов")
             (th {:colspan 3}
                 "Значение дрейфа"))
-          (string/join "\n"
-            (repeat 2
-                    (tr
-                      (th "допускаемое")
-                      (th "действительное")
-                      (th "ед. изм."))))
-          noise-rows)))))
+          (->>
+            (list (th "действительное")
+                  (th "допускаемое")
+                  (th "ед. изм."))
+            (string/join "\n")
+            (repeat 2)
+            (string/join "\n")
+            tr)
+          (pr-18482-noise meas-by-channels)))
+      (point
+        "Определение предела детектирования:"
+        (table
+          (tr
+            (th "Детектор")
+            (th "Действительное значение")
+            (th "Допускаемое значение")
+            (th "Ед. изм."))
+          (pr-18482-limit meas-by-channels)))
+      (point
+        "Определение относительного СКО выходного сигнала:"
+        (table
+          (tr
+            (td {:rowspan 2
+                 :colspan 2}
+                "Детектор")
+            (td {:colspan 2}
+                "Время")
+            (td {:colspan 2}
+                "Площадь пика")
+            (td {:colspan 2}
+                "Высота пика"))
+          (->>
+            (list "Значение" "Ед. изм." "Значение" "Ед. изм."
+                  "Значение" "Ед. изм.")
+            (map (fn [v]
+                    (td v)))
+            doall
+            (string/join "\n")
+            tr)
+          (pr-18482-peaks meas-by-channels))))))
 
 (comment
 
