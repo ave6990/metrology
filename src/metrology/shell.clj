@@ -2,12 +2,12 @@
 (require '[metrology.lib.gs2000 :as gs])
 (require '[clojure.java.shell :refer [sh]])
 
-(pprint (gs2000 1
-                ;"NH3"
+(pprint (gs2000 2
+                "H2S"
                 496
-                (list 50 90)
+                (list 2.8 25) 
                 #_(map #(ch/ppm->mg "H2S" %1)
-                     (list 35 60))))
+                     (list 2.5 25 45))))
 
 ((gs/calculator
   (gs/passports 1))
@@ -32,7 +32,7 @@
      '(0.857 1.556))
 
 ;; #report#methodology
-(methodology (list 222))
+(methodology (list 193))
 (sh "vivaldi" (str midb-path "methodology.html"))
 
 ;; #find#methodology
@@ -45,9 +45,9 @@
 ;; #report#find#mi
 (gen-report
   (find-verification
-    "lower(v.mi_type) like '%solaris%'
+    "lower(v.mi_type) like '%АМ-5Е%'
      --and lower(v.mi_type) not like '%elgas%'
-     --and channels = 3
+     --and channels = 1
      --and methodology_id = 305
      --and components like '%co2%'
      --and components like '%7000%'
@@ -81,31 +81,31 @@
   (gen-custom-protocols (get-protocols-data where)))
 
 ;; #find#counteragents
-(counteragents "В/Ч")
+(counteragents "СГС")
 (sh "vivaldi" (str midb-path "counteragents.html"))
 
 ;; #copy#record
-(copy-record! 3349 1)
+(copy-record! 4038 4)
 
 (let [nums (map (fn [n] (str "" n))
-                (list "A5-58371"))
-      years (repeat (count nums) 2007)
-            #_(list 2021 2010 2011)
+                (list 370 368 369 376))
+      years (repeat (count nums) 2018)
+            #_(list 2018 2018 2016)
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
-      ;start-protocol-number 291]
+      ;start-protocol-number 466]
   (map (fn [n i y]
          (jdbc/update!
            midb
            :verification
            (hash-map
-             ;:methodology_id 375
+             ;:methodology_id 193
              ;:mi_type "Сигнал-4М"
-             ;:components "IR-CO₂-5"
-             ;:channels 2
-             :count "9/0000289"
-             :counteragent 16
-             :conditions 1161
+             ;:components "CH₄ (0 - 50) % НКПР"
+             ;:channels 1
+             :count "9/0000264"
+             :counteragent 212
+             :conditions 1168
              :manufacture_year y
              :comment "Леонтьев"
              ;:comment 11
@@ -139,7 +139,7 @@
   "returning mi_types, components")
 
 ;; #delete#record
-(delete-record! 3988)
+(delete-record! 4054)
 
 ;; Удалить записи с id >=
 ;; #delete#record
@@ -164,10 +164,10 @@
 (set-v-gso!
   #_3668
   (last-id "verification")
-  #_(list 380 381)
-  (map (fn [m]
+  (list 382 401)
+  #_(map (fn [m]
            (:id m))
-       (check-gso (list "14632-23" "14628-23" "14630-23" "12197-22" "14635-23")
+       (check-gso (list "12210-22" "14635-23" "14638-23" "14636-23" " 14631-23" "14628-23")
                   "pass_number")))
 
 ;; #update#gso
@@ -196,14 +196,14 @@
 (sh "vivaldi" (str midb-path "conditions.html"))
 
 ;; #add#conditions
-(insert-conditions! {:date "2024-03-06"
-                     :temperature 23.5
-                     :humidity 50.3
-                     :pressure 99.86
-                     :voltage 222.2
+(insert-conditions! {:date "2024-03-12"
+                     :temperature 22.3
+                     :humidity 52.0
+                     :pressure 100.68
+                     :voltage 221.6
                      :frequency 50
                      ;:other "0,4 (0,4 ± 0,1) дм³/мин"
-                     :location "ОГЗ"
+                     ;:location "ОГЗ"
                      ;:comment ""
                      })
 
@@ -218,7 +218,7 @@
 ;; #set#refs
 (set-v-refs! ;3668
              (last-id "verification")
-             (list 2663 2820 2664 2662)
+             (list 2768 3151)
              #_(list 3151 2768))
 
 ;; #copy#refs
@@ -449,27 +449,27 @@
 
 ;; #add#metrology#channel
 (ins-channel!
-  {:methodology_id 72
-   :channel nil
-   :component "CO"
+  {:methodology_id 193
+   :channel "H₂S/C-50"
+   :component "H2S"
    :range_from 0
-   :range_to 7
-   :units "% об."
-   :low_unit 0.01
+   :range_to 50
+   :units "мг/м³"
+   :low_unit 0.1
    :view_range_from 0
-   :view_range_to 7
-   :comment "ИНФРАКАР-М1; диапазон показаний условно!"
+   :view_range_to 50
+   :comment "диапазон показаний условно!"
    }
   (list {:r_from 0
-         :r_to 3.3
-         :value 0.2
+         :r_to 50
+         :value 20
          :fraction nil
-         :type_id 0
+         :type_id 1
          :units nil
-         :operation_id 1715
+         :operation_id 686
          ;:text "отсутствует"
          :comment nil}
-        {:r_from 3.3
+        #_{:r_from 3.3
          :r_to 7
          :value 6
          :fraction nil
@@ -498,7 +498,7 @@
         #_{:value 10
          :type_id 12
          :units nil
-         :operation_id 878
+         :operation_id 686
          ;:comment "порог 11 % НКПР"
         }
         #_{:value 10

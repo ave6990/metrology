@@ -263,9 +263,48 @@
                       (string/join "\n")
                       (str (td "Среднее арифметическое") "\n")))
                   (tr
-                    (td "Относительное СКО")))))))
+                    (td "Относительное СКО"))))))))
     doall
     (string/join "\n")))
+
+(defn table-cells
+  ([column-fn vs mask ]
+    (->>
+      (map (fn [row sp]
+               (->>
+                 (map (fn [v [rspan cspan]]
+                          (column-fn {:rowspan rspan
+                                      :colspan cspan}
+                                     v))
+                      row
+                      sp)
+                 (string/join "\n")
+                 tr))
+           vs
+           mask)
+      (string/join "\n")))
+  ([column-fn vs]
+    (table-cells
+      column-fn
+      vs
+      (doall
+        (map (fn [r]
+                 (map (fn [_]
+                          [1 1])
+                      r))
+             vs)))))
+
+(defn table-header
+  ([vs mask]
+    (table-cells th vs mask))
+  ([vs]
+    (table-cells th vs)))
+
+(defn table-rows
+  ([vs mask]
+    (table-cells td vs mask))
+  ([vs]
+    (table-cells td vs)))
 
 (defn pr-18482-08
   "Кристалл-5000 NB_edit"
@@ -280,53 +319,35 @@
       (point
         "Определение уровня флуктуационных шумов и дрейфа нулевого сигнала:"
         (table
-          (tr
-            (th {:rowspan 2}
-                "Детектор")
-            (th {:colspan 3}
-                "Значение уровня шумов")
-            (th {:colspan 3}
-                "Значение дрейфа"))
-          (->>
-            (list (th "действительное")
-                  (th "допускаемое")
-                  (th "ед. изм."))
-            (string/join "\n")
-            (repeat 2)
-            (string/join "\n")
-            tr)
+          (table-header
+            (list
+              (list "Детектор" "Значение уровня шумов" "Значение дрейфа")
+              (list "действительное" "допускаемое" "ед. изм."
+                    "действительное" "допускаемое" "ед. изм."))
+            (list
+              (list [2 1] [1 3] [1 3])
+              (list [1 1] [1 1] [1 1] [1 1] [1 1] [1 1])))
           (pr-18482-noise meas-by-channels)))
       (point
         "Определение предела детектирования:"
         (table
-          (tr
-            (th "Детектор")
-            (th "Действительное значение")
-            (th "Допускаемое значение")
-            (th "Ед. изм."))
+          (table-header
+            (list
+              (list "Детектор" "Действительное значение" "Допускаемое значение"
+                    "Ед. изм.")))
           (pr-18482-limit meas-by-channels)))
       (point
         "Определение относительного СКО выходного сигнала:"
         (table
-          (tr
-            (td {:rowspan 2
-                 :colspan 2}
-                "Детектор")
-            (td {:colspan 2}
-                "Время")
-            (td {:colspan 2}
-                "Площадь пика")
-            (td {:colspan 2}
-                "Высота пика"))
-          (->>
-            (list "Значение" "Ед. изм." "Значение" "Ед. изм."
-                  "Значение" "Ед. изм.")
-            (map (fn [v]
-                    (td v)))
-            doall
-            (string/join "\n")
-            tr)
-          (pr-18482-peaks meas-by-channels))))))
+          (table-header
+            (list
+              (list "Детектор" "Время" "Площадь пика" "Высота пика")
+              (list "Значение" "Ед. изм." "Значение" "Ед. изм."
+                    "Значение" "Ед. изм."))
+            (list
+              (list [2 2] [1 2] [1 2] [1 2])
+              (list [1 1] [1 1] [1 1] [1 1] [1 1] [1 1])))
+          #_(pr-18482-peaks meas-by-channels))))))
 
 (comment
 

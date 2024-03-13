@@ -467,6 +467,10 @@
   (doall
     (map (fn [m]
              (when (:protocol m)
+                     (jdbc/delete!
+                       midb
+                       :v_html
+                       ["id = ?" (:id m)])
                      (jdbc/insert!
                        midb
                        :v_html
@@ -644,6 +648,19 @@
 (require '[metrology.lib.midb-queries :as q] :reload)
 
 (require '[metrology.protocols.custom :as protocol] :reload)
+
+;; example table-rows пример функции создания строк таблицы
+(spit
+  (str midb-path "temp.html")
+    (html (table (metrology.protocols.custom/table-rows
+            (list
+              (list "Детектор" "Значение уровня шумов" "Значение дрейфа")
+              (list "действительное" "допускаемое" "ед. изм."
+                    "действительное" "допускаемое" "ед. изм."))
+            #_(list
+              (list [2 1] [1 3] [1 3])
+              (list [1 1] [1 1] [1 1] [1 1] [1 1] [1 1]))
+            #_th))))
 
 (require '[metrology.lib.metrology :as metr] :reload)
 
