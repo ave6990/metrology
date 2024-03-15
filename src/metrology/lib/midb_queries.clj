@@ -17,8 +17,7 @@
 
 (def next-id
   "select id from verification
-   where protocol_number is null
-   limit 1;")
+   where protocol_number is null limit 1;")
 
 (def next-protocol-number
   "select protocol_number + 1 as protocol_number
@@ -113,7 +112,35 @@
   where
       v_id = ?;")
 
-(def find-verification
+(def find-records
+""
+"select
+    id
+from
+(select *
+from
+    verification as v
+inner join
+    methodology as met
+    on met.id = v.methodology_id
+left join
+    conditions as c
+    on c.id = v.conditions
+inner join
+  counteragents as ca
+  on ca.id = v.counteragent
+order by
+    c.date desc,
+    v.id desc)
+where
+   {where} 
+group by
+  mi_type,
+  methodology_id,
+  channels,
+  hash_refs")
+
+(def find-verifications
 ""
 "select
     v.id
@@ -129,15 +156,11 @@ inner join
   counteragents as ca
   on ca.id = v.counteragent
 where
-  {where}
-group by
-  v.mi_type,
-  v.methodology_id,
-  v.channels,
-  v.hash_refs
+   {where} 
 order by
     c.date desc,
-    v.id desc")
+    v.id desc
+")
 
 (def counteragents
   "Counteragents query."

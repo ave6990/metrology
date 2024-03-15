@@ -3,9 +3,9 @@
 (require '[clojure.java.shell :refer [sh]])
 
 (pprint (gs2000 2
-                "H2S"
+                ;"H2S"
                 496
-                (list 2.8 25) 
+                (list 8 50 80) 
                 #_(map #(ch/ppm->mg "H2S" %1)
                      (list 2.5 25 45))))
 
@@ -17,22 +17,25 @@
   150)
 
 ;; #chemistry
-(ch/coefficient "C6H14")
+(ch/coefficient "C2H5SH")
 
 (ch/ppm->mg "NH3" 10)
 
-(* 7 0.05)
+(* 28.5 0.05)
 
-(ch/mg->ppm "C6H14" 3500)
+(ch/mg->ppm "C2H5SH" 76)
 
 (map #(/ (* %1 32.07) 62.14)
      '(4.9 7.8 40 70))
 
-(map #(/ %1 1.7 0.01)
-     '(0.857 1.556))
+(map #(/ %1 4.4 0.01)
+     '(1.075 2.12))
+
+(map #(* % 30)
+     '(0.05 0.5 0.95))
 
 ;; #report#methodology
-(methodology (list 193))
+(methodology (list 2))
 (sh "vivaldi" (str midb-path "methodology.html"))
 
 ;; #find#methodology
@@ -44,36 +47,57 @@
 
 ;; #report#find#mi
 (gen-report
-  (find-verification
-    "lower(v.mi_type) like '%АМ-5Е%'
-     --and lower(v.mi_type) not like '%elgas%'
+  (find-records
+    "lower(mi_type) like '%СТМ10%'
+     --and lower(mi_type) not like '%elgas%'
      --and channels = 1
      --and methodology_id = 305
-     --and components like '%co2%'
+     --and components like '%H2S%'
      --and components like '%7000%'
-     --and c.date > '2024-02-01'
+     --and date > '2024-02-01'
+     --and comment not like 'Леонтьев'
+     --and registry_number like '%-17%'
+     --protocol_number = 1293 and protocol_number = 1295
+     --and serial_number like '%1752554%'
+     --serial_number like '%65911%'
+     --count like '%000119%'
+     --id = 1322 or id = 1320"))
+(sh "vivaldi" (str midb-path "report.html"))
+
+;; #report#find#verifications
+(gen-report
+  #_(list 3896)
+  (range 4140 4150))
+(sh "vivaldi" (str midb-path "report.html"))
+
+;; #report#find#verification
+(gen-report
+  (find-verifications
+    "--lower(v.mi_type) like '%x-am%2500%'
+     --and lower(v.mi_type) not like '%elgas%'
+     --and v.channels = 1
+     --and v.methodology_id = 305
+     --and v.components like '%H2S%'
+     --and v.components like '%7000%'
+     --and c.date > '2024-01-01'
      --and v.comment not like 'Леонтьев'
      --and met.registry_number like '%-17%'
      --v.protocol_number = 1293 and v.protocol_number = 1295
      --and v.serial_number like '%1752554%'
-     --v.serial_number like '%042800%'
-     --count like '%000119%'
+     --v.serial_number like '%65911%'
+     v.count like '%000375%'
      --v.id = 1322 or v.id = 1320"))
 (sh "vivaldi" (str midb-path "report.html"))
 
-;; #report
-(gen-report (list 3896))
-(sh "vivaldi" (str midb-path "report.html"))
-
 ;; #report#protocols
-(let [where "id = 4014"]
+(let [where "id >= 4150"]
   (gen-protocols where))
 (sh "vivaldi" (str midb-path "protocol.html"))
 
 (pprint (get-protocols-data "id = 3893"))
 
 ;; #gen#measurements#values
-(let [where "id >= 4045"]
+(let [where "id >= 4150"]
   (gen-values! where))
 
 ;;#gen#custom#protocols
@@ -81,19 +105,19 @@
   (gen-custom-protocols (get-protocols-data where)))
 
 ;; #find#counteragents
-(counteragents "СГС")
+(counteragents "Оренбу%ЛПУ")
 (sh "vivaldi" (str midb-path "counteragents.html"))
 
 ;; #copy#record
-(copy-record! 4038 4)
+(copy-record! 4155 2)
 
 (let [nums (map (fn [n] (str "" n))
-                (list 370 368 369 376))
-      years (repeat (count nums) 2018)
-            #_(list 2018 2018 2016)
+                (list 261 1750 1282))
+      years #_(repeat (count nums) 2019)
+            (list 2011 2010 2010)
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
-      ;start-protocol-number 466]
+      ;start-protocol-number 495]
   (map (fn [n i y]
          (jdbc/update!
            midb
@@ -101,13 +125,13 @@
            (hash-map
              ;:methodology_id 193
              ;:mi_type "Сигнал-4М"
-             ;:components "CH₄ (0 - 50) % НКПР"
+             :components "БД №№: 8018, 9288, 9345, 9511, 9271"
              ;:channels 1
-             :count "9/0000264"
-             :counteragent 212
-             :conditions 1168
+             :count "9/0000481"
+             :counteragent 50
+             :conditions 1170
              :manufacture_year y
-             :comment "Леонтьев"
+             ;:comment "Леонтьев"
              ;:comment 11
              ;:comment "ГИС блок 2"
              ;:upload 1
@@ -118,7 +142,7 @@
              ;:sw_version "не ниже v.6015" 
              ;:sw_checksum "8BFD"
              ;:sw_algorithm "CRC 16"
-             ;:sw_version_real "3.10"
+             ;:sw_version_real "v.3.0.419"
              :serial_number n
              :protocol_number (+ start-protocol-number i)
              :protocol nil
@@ -164,7 +188,7 @@
 (set-v-gso!
   #_3668
   (last-id "verification")
-  (list 382 401)
+  (list 380 381)
   #_(map (fn [m]
            (:id m))
        (check-gso (list "12210-22" "14635-23" "14638-23" "14636-23" " 14631-23" "14628-23")
@@ -181,7 +205,7 @@
     and gso_id = ?" 3349 332])
 
 ;; #copy#gso
-(copy-v-gso! 3753 3754)
+(copy-v-gso! 4075 4076)
 
 ;; #delete#gso
 (delete-v-gso! 2343)
@@ -192,15 +216,15 @@
 (/ (- 94.3 95.1) 95.1)
 
 ;; #conditions
-(conditions "2024-03-04")
+(conditions "2024-03-14")
 (sh "vivaldi" (str midb-path "conditions.html"))
 
 ;; #add#conditions
-(insert-conditions! {:date "2024-03-12"
-                     :temperature 22.3
-                     :humidity 52.0
-                     :pressure 100.68
-                     :voltage 221.6
+(insert-conditions! {:date "2024-03-14"
+                     :temperature 21.6
+                     :humidity 50.9
+                     :pressure 102.14
+                     :voltage 223.2
                      :frequency 50
                      ;:other "0,4 (0,4 ± 0,1) дм³/мин"
                      ;:location "ОГЗ"
@@ -222,10 +246,12 @@
              #_(list 3151 2768))
 
 ;; #copy#refs
-(copy-v-refs! 3753 3754)
+(copy-v-refs! 4075 4076)
 
 ;; #delete#refs
-(delete-v-refs! 2260)
+(delete-v-refs! 
+  4153
+  #_(last-id "verification"))
 
 (jdbc/insert!
   midb
@@ -235,10 +261,10 @@
 ;; #set#opt-refs
 (set-v-opt-refs! ;3668
                  (last-id "verification")
-                 (list 2643 2762 2827 2756 2670 2715))
+                 (list 2643 2762 2827 2756))
 
 ;; #copy#opt-refs
-(copy-v-opt-refs! 3355 3646)
+(copy-v-opt-refs! 4075 4076)
 
 ;; #add#operations
 (jdbc/insert!
@@ -262,9 +288,9 @@
 
 ;; #unusability#update#operations
 (unusability
-  4044
-  1715
-  "превышение предела допускаемой основной погрешности по каналу измерения O₂")
+  4076
+  1760
+  "ошибка № 1, № 4 (неисправны каналы измерения CH₄ и O₂)")
 
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
@@ -405,11 +431,7 @@
 ;; #add#measurements
 (add-measurements
   (last-id "verification")
-  (list [nil [[1731 0 0.5] [1732 5] [1731 0.5 0] [1732 5]] nil]
-        [nil [[1729 0 200] [1730 2500] [1729 200 0] [1730 2500]] nil]
-        [nil [[1420 0 4] [1421 15.14] [1420 4 0] [1421 15.14]] nil]
-        [nil [[1423 0] [1424 3.5 20.44 3.5] [1423 0] [1424 20.44]] nil]
-        [nil [[1426 0 600 1200] [1427 3000 6000]] nil]
+  (list [nil [[630 100 100 100]] nil]
         ))
 
 (insert-measurements
@@ -449,24 +471,24 @@
 
 ;; #add#metrology#channel
 (ins-channel!
-  {:methodology_id 193
-   :channel "H₂S/C-50"
+  {:methodology_id 291
+   :channel "EC-H₂S-7,1"
    :component "H2S"
    :range_from 0
-   :range_to 50
-   :units "мг/м³"
+   :range_to 7.1
+   :units "млн⁻¹"
    :low_unit 0.1
    :view_range_from 0
-   :view_range_to 50
+   :view_range_to 10
    :comment "диапазон показаний условно!"
    }
   (list {:r_from 0
-         :r_to 50
-         :value 20
+         :r_to 7.1
+         :value 15
          :fraction nil
-         :type_id 1
+         :type_id 2
          :units nil
-         :operation_id 686
+         :operation_id 768
          ;:text "отсутствует"
          :comment nil}
         #_{:r_from 3.3
@@ -478,10 +500,10 @@
          :operation_id 768
          ;:comment "(15 - 30) % об."
          }
-        #_{:value 0.5
+        {:value 0.5
          :type_id 5
          :units ""
-         :operation_id nil}
+         :operation_id 985}
         #_{;:r_from 0
          ;:r_to 10
          :value 20

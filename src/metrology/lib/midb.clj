@@ -77,7 +77,7 @@
          "conditions.html")
     (report/conditions-report (get-conditions date))))
 
-(defn find-verification
+(defn find-records
   ""
   ([s]
     (map (fn [m]
@@ -85,7 +85,19 @@
          (jdbc/query
           midb
           (string/replace
-            q/find-verification
+            q/find-records
+            "{where}"
+            s)))))
+
+(defn find-verifications
+   ""
+  ([s]
+    (map (fn [m]
+             (:id m))
+         (jdbc/query
+          midb
+          (string/replace
+            q/find-verifications
             "{where}"
             s)))))
 
