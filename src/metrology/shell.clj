@@ -3,9 +3,9 @@
 (require '[clojure.java.shell :refer [sh]])
 
 (pprint (gs2000 2
-                ;"H2S"
-                496
-                (list 8 50 80) 
+                "CO"
+                9030
+                (list 500 850) 
                 #_(map #(ch/ppm->mg "H2S" %1)
                      (list 2.5 25 45))))
 
@@ -35,20 +35,20 @@
      '(0.05 0.5 0.95))
 
 ;; #report#methodology
-(methodology (list 2))
+(methodology (list 323))
 (sh "vivaldi" (str midb-path "methodology.html"))
 
 ;; #find#methodology
 (methodology
   (map (fn [m]
            (:id m))
-       (find-methodology "ФП")))
+       (find-methodology "АНКАТ-7664")))
 (sh "vivaldi" (str midb-path "methodology.html"))
 
 ;; #report#find#mi
 (gen-report
   (find-records
-    "lower(mi_type) like '%СТМ10%'
+    "lower(mi_type) like '%Лидер 04%'
      --and lower(mi_type) not like '%elgas%'
      --and channels = 1
      --and methodology_id = 305
@@ -90,14 +90,14 @@
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#protocols
-(let [where "id >= 4150"]
+(let [where "id >= 4164"]
   (gen-protocols where))
 (sh "vivaldi" (str midb-path "protocol.html"))
 
 (pprint (get-protocols-data "id = 3893"))
 
 ;; #gen#measurements#values
-(let [where "id >= 4150"]
+(let [where "id >= 4164"]
   (gen-values! where))
 
 ;;#gen#custom#protocols
@@ -105,16 +105,16 @@
   (gen-custom-protocols (get-protocols-data where)))
 
 ;; #find#counteragents
-(counteragents "Оренбу%ЛПУ")
+(counteragents "ТАМПОНАЖНА")
 (sh "vivaldi" (str midb-path "counteragents.html"))
 
 ;; #copy#record
-(copy-record! 4155 2)
+(copy-record! 4167 1)
 
 (let [nums (map (fn [n] (str "" n))
-                (list 261 1750 1282))
-      years #_(repeat (count nums) 2019)
-            (list 2011 2010 2010)
+                (list "1C2309200671" "FB3008000039"))
+      years #_(repeat (count nums) 2020)
+            (list 2023 2021)
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
       ;start-protocol-number 495]
@@ -125,11 +125,11 @@
            (hash-map
              ;:methodology_id 193
              ;:mi_type "Сигнал-4М"
-             :components "БД №№: 8018, 9288, 9345, 9511, 9271"
-             ;:channels 1
-             :count "9/0000481"
-             :counteragent 50
-             :conditions 1170
+             ;:components "Ex (0 - 50) % НКПР; O₂ (0 - 30) % об.; CO (0 - 200) мг/м³; H₂S (0 - 40) мг/м³"
+             ;:channels 4
+             :count "9/0000374"
+             :counteragent 371
+             :conditions 1172
              :manufacture_year y
              ;:comment "Леонтьев"
              ;:comment 11
@@ -142,7 +142,7 @@
              ;:sw_version "не ниже v.6015" 
              ;:sw_checksum "8BFD"
              ;:sw_algorithm "CRC 16"
-             ;:sw_version_real "v.3.0.419"
+             :sw_version_real "v3.07"
              :serial_number n
              :protocol_number (+ start-protocol-number i)
              :protocol nil
@@ -163,7 +163,7 @@
   "returning mi_types, components")
 
 ;; #delete#record
-(delete-record! 4054)
+(delete-record! 4167)
 
 ;; Удалить записи с id >=
 ;; #delete#record
@@ -188,10 +188,10 @@
 (set-v-gso!
   #_3668
   (last-id "verification")
-  (list 380 381)
+  (list 385 382)
   #_(map (fn [m]
            (:id m))
-       (check-gso (list "12210-22" "14635-23" "14638-23" "14636-23" " 14631-23" "14628-23")
+       (check-gso (list "14631-23" "14638-23" "14636-23" "14633-23" "16871-23" "08197-23" "12210-22")
                   "pass_number")))
 
 ;; #update#gso
@@ -216,14 +216,14 @@
 (/ (- 94.3 95.1) 95.1)
 
 ;; #conditions
-(conditions "2024-03-14")
+(conditions "2024-03-18")
 (sh "vivaldi" (str midb-path "conditions.html"))
 
 ;; #add#conditions
-(insert-conditions! {:date "2024-03-14"
-                     :temperature 21.6
-                     :humidity 50.9
-                     :pressure 102.14
+(insert-conditions! {:date "2024-03-18"
+                     :temperature 22.0
+                     :humidity 51.4
+                     :pressure 100.48
                      :voltage 223.2
                      :frequency 50
                      ;:other "0,4 (0,4 ± 0,1) дм³/мин"
@@ -261,7 +261,7 @@
 ;; #set#opt-refs
 (set-v-opt-refs! ;3668
                  (last-id "verification")
-                 (list 2643 2762 2827 2756))
+                 (list 2837 2756 2670))
 
 ;; #copy#opt-refs
 (copy-v-opt-refs! 4075 4076)
@@ -281,16 +281,16 @@
 ;; #set#operations
 (set-v-operations! ;3668
                    (last-id "verification")
-                   (list 45 593 854 1715 1716))
+                   (list 249 523 797 1003 1282))
 
 ;; #copy#operations
 (copy-v-operations! 3187 3210)
 
 ;; #unusability#update#operations
 (unusability
-  4076
-  1760
-  "ошибка № 1, № 4 (неисправны каналы измерения CH₄ и O₂)")
+  4160
+  720
+  "превышение предела допускаемой погрешности по каналу измерения O₂")
 
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
@@ -316,20 +316,20 @@
   :verification
   (hash-map
      :engineer 3514
-     :count "9/0000324"
-     :counteragent 210
-     :conditions 1164
+     :count "9/0000130"
+     :counteragent 4274
+     :conditions 1171
      :verification_type 1
      :protocol_number (next-protocol-number) 
      ;:protocol_number 237
-     :mi_type "ИНФРАКАР М1-01"
-     :methodology_id 72
-     :serial_number 21
-     :manufacture_year 2011
-     :channels 5
-     :area "14"
+     :mi_type "Сенсон-В"
+     :methodology_id 323
+     :serial_number 19100191
+     :manufacture_year 2019
+     :channels 2
+     :area "05"
      :interval 12
-     :components "CO (0 - 7) % об.; CH (0 - 3000) млн⁻¹; CO₂ (0 - 16) % об.; O₂ (0 - 21) % об.; частота вращения (0 - 6000) мин⁻¹"
+     :components "H₂S (0 - 30) мг/м³"
      ;:components "CO (0 - 0,5) % об.; CH (0 - 0,2) % об.; NO (0 - 0,5) % об.; CO₂ (0 - 15) % об.; O₂ (0 - 21) % об."
      ;:scope
      ;:sw_name "S3K_1V_Main_Software"
@@ -431,7 +431,7 @@
 ;; #add#measurements
 (add-measurements
   (last-id "verification")
-  (list [nil [[630 100 100 100]] nil]
+  (list [nil [[1755 0 1.416 15.033 28.541 15.033 0 28.541]] nil]
         ))
 
 (insert-measurements
@@ -471,39 +471,39 @@
 
 ;; #add#metrology#channel
 (ins-channel!
-  {:methodology_id 291
-   :channel "EC-H₂S-7,1"
+  {:methodology_id 323
+   :channel nil
    :component "H2S"
-   :range_from 0
-   :range_to 7.1
-   :units "млн⁻¹"
+   :range_from 0.1
+   :range_to 30
+   :units "мг/м³"
    :low_unit 0.1
    :view_range_from 0
-   :view_range_to 10
+   :view_range_to 30
    :comment "диапазон показаний условно!"
    }
-  (list {:r_from 0
-         :r_to 7.1
-         :value 15
-         :fraction nil
-         :type_id 2
-         :units nil
-         :operation_id 768
-         ;:text "отсутствует"
-         :comment nil}
-        #_{:r_from 3.3
-         :r_to 7
-         :value 6
+  (list {:r_from 0.1
+         :r_to 30
+         :value 10
          :fraction nil
          :type_id 1
          :units nil
-         :operation_id 768
+         :operation_id 1166 
+         ;:text "отсутствует"
+         :comment nil}
+        #_{:r_from 10
+         :r_to 40
+         :value nil
+         :fraction 0.25
+         :type_id 0
+         :units nil
+         :operation_id 1337
          ;:comment "(15 - 30) % об."
          }
-        {:value 0.5
+        #_{:value 0.5
          :type_id 5
          :units ""
-         :operation_id 985}
+         :operation_id 1467}
         #_{;:r_from 0
          ;:r_to 10
          :value 20
