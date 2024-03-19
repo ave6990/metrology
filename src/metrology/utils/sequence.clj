@@ -3,7 +3,7 @@
 (defn in?
   "true if coll contains elm"
   [coll elm]
-  (some #(= elm %) coll))
+  (some (partial = elm) coll))
 
 (defn unique
   "return unique values vector of collection"

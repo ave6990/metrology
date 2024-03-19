@@ -7,7 +7,8 @@
     [org.clojure/clojure "1.11.1"]
     [org.clojure/java.jdbc "0.7.12"]
     [org.xerial/sqlite-jdbc "3.42.0.0"]
-    [org.clojure/core.specs.alpha "0.2.62"]]
+    [org.clojure/core.specs.alpha "0.2.62"]
+    [seesaw "1.5.0"]]
   :main ^:skip-aot metrology.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all

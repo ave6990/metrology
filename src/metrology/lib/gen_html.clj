@@ -4,17 +4,15 @@
 (defn indent
   "Добавить отступ к строкам."
   [s]
-  #_(reduce (fn [a p] (str a "\n  " p))
-          ""
-          (string/split s #"\n"))
   (str "  " (string/join "\n  " (string/split s #"\n"))))
 
 (defn set-attributes
- "Преобразуеть hash-map в строку с аттрибутами html-тэгов."
+ "Преобразует hash-map в строку с аттрибутами html-тэгов."
   [m]
-  (reduce (fn [s [k v]] (str s " "
-                             (string/replace (str k) ":" "")
-                             "=\"" v "\""))
+  (reduce (fn [s [k v]]
+              (str s " "
+                   (string/replace (str k) ":" "")
+                   "=\"" v "\""))
           ""
           m))
 

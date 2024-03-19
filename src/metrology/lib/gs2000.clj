@@ -12,6 +12,7 @@
    {:serial_number "88-2-23"
     :air [1240 496 283 147 74.4 48.5 34.7 27.7 16.4 11]
     :N2 [1261 504 288 149 75.7 49.3 35.3 28.2 16.7 11.2]}])
+
 (def components 
   "Перечень газов подлежащих разбавлению с помощью генератора,
    согласно РЭ."
@@ -22,11 +23,13 @@
 (defn nearest-num
   "Возвращает число из коллекции наиболее близкое к заданному."
   [x coll]
-  (first (sort (fn [y z] (cond
-                           (< (abs (- y x)) (abs (- z x))) -1
-                           (> (abs (- y x)) (abs (- z x))) 1
-                           :else 0))
-               coll)))
+  (first
+   (sort (fn [y z]
+             (cond
+              (< (abs (- y x)) (abs (- z x))) -1
+              (> (abs (- y x)) (abs (- z x))) 1
+              :else 0))
+         coll)))
 
 (defn binary->digit-list
   "Возвращает последовательность 10 бит целого числа от 0 до 1023."
@@ -56,8 +59,9 @@
 (defn calc-factors
   ""
   [coll]
-  (vec (map (fn [n] (dilution-factor n coll))
-       (range 1 1024))))
+  (vec (map (fn [n]
+                (dilution-factor n coll))
+            (range 1 1024))))
 
 (defn calculator
   "Возвращает функцию расчета режима работы ГС-2000.
@@ -67,13 +71,14 @@
    исходная и целевая концентрации заданы в млн^-1
    (f исходный-газ газ-разбавитель исходная-концентрация целевая-концентрация)
    исходная концентрация задана в млн^-1, целевая концентрация и результат -
-   мг/м^3." [m]
+   мг/м^3."
+  [m]
   (let [pass
           {:air (calc-factors (:air m))
           :N2 (calc-factors (:N2 m))}]
      (letfn [(f 
                ([sym x y]
-                 (let [factor (nearest-num (double (/ x y)) (sym pass))]
+                (let [factor (nearest-num (double (/ x y)) (sym pass))]
                  (hash-map :conc (/ x factor)
                            :valves (->
                                      (sym pass) 
@@ -81,12 +86,10 @@
                                      inc
                                      binary->digit-list))))
                ([s sym x y]
-                 (let [res (f sym x (ch/mg->ppm s y))]
-                   {:conc (ch/ppm->mg s (:conc res))
-                    :valves (:valves res)})))]
+                (let [res (f sym x (ch/mg->ppm s y))]
+                 {:conc (ch/ppm->mg s (:conc res))
+                  :valves (:valves res)})))]
        f)))
-
-(ch/mg->ppm "CH4" 8000)
 
 (defn re-calculate
   "Расчитать концентрацию газа по заданному состоянию клапанов."

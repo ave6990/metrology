@@ -680,6 +680,8 @@
 
 (require '[metrology.lib.midb-queries :as q] :reload)
 
+(require '[metrology.lib.chemistry :as ch] :reload)
+
 (doc flatten)
 
 (doc assoc)

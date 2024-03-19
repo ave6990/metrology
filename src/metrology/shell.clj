@@ -119,10 +119,10 @@
       start-protocol-number (next-protocol-number)]
       ;start-protocol-number 495]
   (map (fn [n i y]
-         (jdbc/update!
-           midb
-           :verification
-           (hash-map
+           (jdbc/update!
+            midb
+            :verification
+            (hash-map
              ;:methodology_id 193
              ;:mi_type "Сигнал-4М"
              ;:components "Ex (0 - 50) % НКПР; O₂ (0 - 30) % об.; CO (0 - 200) мг/м³; H₂S (0 - 40) мг/м³"
@@ -148,7 +148,7 @@
              :protocol nil
              :protolang nil
              )
-           ["id = ?" (+ start-id i)]))
+            ["id = ?" (+ start-id i)]))
        nums
        (range (count nums))
        years))
@@ -712,3 +712,5 @@
 (require '[metrology.lib.gen-html :refer :all] :reload)
 
 (require '[metrology.lib.protocol :as pr] :reload)
+
+(list* 1 2 3 [4 5])
