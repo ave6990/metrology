@@ -1,31 +1,34 @@
-(ns metrology.lib.midb
+(ns metrology.lib.shell-midb
   (:require 
     [clojure.java.jdbc :as jdbc]
     [clojure.string :as string]
     [clojure.pprint :refer [pprint]]
+    [clojure.java.shell :refer [sh]]
     [metrology.lib.database :as db]
-    [metrology.lib.queries :as q]
+    [metrology.lib.midb-queries :as q]
     [metrology.lib.chemistry :as ch]
     [metrology.lib.protocol :as pr]
     [metrology.lib.gs2000 :as gs]
     [metrology.lib.metrology :as metr]
+    [metrology.view.report :as report]
     [metrology.lib.gen-html :refer :all]
-    #_[metrology.protocols.custom :as protocol]))
+    [metrology.protocols.custom :as protocol]))
 
 (def midb-path
   ;"/mnt/d/UserData/YandexDisk/Ermolaev/midb/"
   "/media/sf_YandexDisk/Ermolaev/midb/")
 
 (db/defdb midb)
+(db/defdb auto)
 
-(defn get-records
+(defn load-icu
+  ;; {TOFIX} не работает.
   []
-  (jdbc/query
-    midb
-    q/get-verifications))
-
-;;#legacy
-(comment
+  (try
+    (jdbc/query
+      midb
+      "select load_extension('/media/sf_YandexDisk/Ermolaev/midb/icu.so');")
+    (catch Exception e (print e))))
 
 (defn last-id
   "Получить id последней записи заданной таблицы."
@@ -691,16 +694,12 @@
 
 (require '[metrology.lib.gen-html :refer :all] :reload)
 
-(require '[metrology.lib.queries :as q] :reload)
+(require '[metrology.lib.midb-queries :as q] :reload)
 
 (require '[metrology.lib.chemistry :as ch] :reload)
 
 (doc flatten)
 
-(apropos "flatten")
-
-(apropos "nil?")
-
 (doc assoc)
 
-))
+)

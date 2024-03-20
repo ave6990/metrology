@@ -3,9 +3,9 @@
 (require '[clojure.java.shell :refer [sh]])
 
 (pprint (gs2000 2
-                "CO"
-                9030
-                (list 500 850) 
+                ;"CH4"
+                15560
+                (list 820 1500) 
                 #_(map #(ch/ppm->mg "H2S" %1)
                      (list 2.5 25 45))))
 
@@ -19,7 +19,9 @@
 ;; #chemistry
 (ch/coefficient "C2H5SH")
 
-(ch/ppm->mg "NH3" 10)
+(map (partial ch/ppm->mg
+              "CH4")
+     '(4630 10750))
 
 (* 28.5 0.05)
 
@@ -35,7 +37,7 @@
      '(0.05 0.5 0.95))
 
 ;; #report#methodology
-(methodology (list 323))
+(methodology (list 245))
 (sh "vivaldi" (str midb-path "methodology.html"))
 
 ;; #find#methodology
@@ -48,7 +50,7 @@
 ;; #report#find#mi
 (gen-report
   (find-records
-    "lower(mi_type) like '%Лидер 04%'
+    "lower(mi_type) like '%clip%xt%'
      --and lower(mi_type) not like '%elgas%'
      --and channels = 1
      --and methodology_id = 305
@@ -59,21 +61,21 @@
      --and registry_number like '%-17%'
      --protocol_number = 1293 and protocol_number = 1295
      --and serial_number like '%1752554%'
-     --serial_number like '%65911%'
-     --count like '%000119%'
+     --serial_number like '%20191%'
+     --count like '%000374%'
      --id = 1322 or id = 1320"))
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#find#verifications
 (gen-report
   #_(list 3896)
-  (range 4140 4150))
+  (range 4167 4171))
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#find#verification
 (gen-report
   (find-verifications
-    "--lower(v.mi_type) like '%x-am%2500%'
+    "--lower(v.mi_type) like '%Сигма%'
      --and lower(v.mi_type) not like '%elgas%'
      --and v.channels = 1
      --and v.methodology_id = 305
@@ -84,20 +86,20 @@
      --and met.registry_number like '%-17%'
      --v.protocol_number = 1293 and v.protocol_number = 1295
      --and v.serial_number like '%1752554%'
-     --v.serial_number like '%65911%'
-     v.count like '%000375%'
+     --and v.serial_number like '%014%'
+     v.count like '%000388%'
      --v.id = 1322 or v.id = 1320"))
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#protocols
-(let [where "id >= 4164"]
+(let [where "id >= 4169"]
   (gen-protocols where))
 (sh "vivaldi" (str midb-path "protocol.html"))
 
 (pprint (get-protocols-data "id = 3893"))
 
 ;; #gen#measurements#values
-(let [where "id >= 4164"]
+(let [where "id >= 4169"]
   (gen-values! where))
 
 ;;#gen#custom#protocols
@@ -105,19 +107,19 @@
   (gen-custom-protocols (get-protocols-data where)))
 
 ;; #find#counteragents
-(counteragents "ТАМПОНАЖНА")
+(counteragents "УЭСП")
 (sh "vivaldi" (str midb-path "counteragents.html"))
 
 ;; #copy#record
-(copy-record! 4167 1)
+(copy-record! 3105 1)
 
 (let [nums (map (fn [n] (str "" n))
-                (list "1C2309200671" "FB3008000039"))
-      years #_(repeat (count nums) 2020)
-            (list 2023 2021)
+                (list "KA415-1105054"))
+      years (repeat (count nums) 2015)
+            #_(list 2023 2021)
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
-      ;start-protocol-number 495]
+      ;start-protocol-number 580]
   (map (fn [n i y]
            (jdbc/update!
             midb
@@ -125,13 +127,13 @@
             (hash-map
              ;:methodology_id 193
              ;:mi_type "Сигнал-4М"
-             ;:components "Ex (0 - 50) % НКПР; O₂ (0 - 30) % об.; CO (0 - 200) мг/м³; H₂S (0 - 40) мг/м³"
+             ;:components "CH₄ (метан); O₂ (кислород); CO (оксид углерода)"
              ;:channels 4
-             :count "9/0000374"
-             :counteragent 371
-             :conditions 1172
+             :count "9/0000388"
+             :counteragent 57
+             :conditions 1164
              :manufacture_year y
-             ;:comment "Леонтьев"
+             :comment "Леонтьев"
              ;:comment 11
              ;:comment "ГИС блок 2"
              ;:upload 1
@@ -142,7 +144,7 @@
              ;:sw_version "не ниже v.6015" 
              ;:sw_checksum "8BFD"
              ;:sw_algorithm "CRC 16"
-             :sw_version_real "v3.07"
+             ;:sw_version_real "v3.07"
              :serial_number n
              :protocol_number (+ start-protocol-number i)
              :protocol nil
@@ -163,13 +165,13 @@
   "returning mi_types, components")
 
 ;; #delete#record
-(delete-record! 4167)
+(delete-record! 4169)
 
 ;; Удалить записи с id >=
 ;; #delete#record
 (map (fn [i]
-         (delete-record! (+ 4045 i)))
-     (range 25))
+         (delete-record! (+ 4167 i)))
+     (range 10))
 
 (map (fn [id] (copy-v-gso! 2337 id))
      (range 2301 2327))
@@ -188,10 +190,10 @@
 (set-v-gso!
   #_3668
   (last-id "verification")
-  (list 385 382)
-  #_(map (fn [m]
+  #_(list 340 387 390 379 403)
+  (map (fn [m]
            (:id m))
-       (check-gso (list "14631-23" "14638-23" "14636-23" "14633-23" "16871-23" "08197-23" "12210-22")
+       (check-gso (list "16871-23" "14634-23" "14639-23" "14638-23" "14636-23" "14628-23")
                   "pass_number")))
 
 ;; #update#gso
@@ -205,7 +207,7 @@
     and gso_id = ?" 3349 332])
 
 ;; #copy#gso
-(copy-v-gso! 4075 4076)
+(copy-v-gso! 4170 '(4175))
 
 ;; #delete#gso
 (delete-v-gso! 2343)
@@ -216,7 +218,7 @@
 (/ (- 94.3 95.1) 95.1)
 
 ;; #conditions
-(conditions "2024-03-18")
+(conditions "2024-03-05")
 (sh "vivaldi" (str midb-path "conditions.html"))
 
 ;; #add#conditions
@@ -246,7 +248,10 @@
              #_(list 3151 2768))
 
 ;; #copy#refs
-(copy-v-refs! 4075 4076)
+(copy-v-refs! 4075 '(4076))
+
+;; #copy#refs#set
+(copy-refs-set! 4170 '(4175))
 
 ;; #delete#refs
 (delete-v-refs! 
@@ -264,7 +269,7 @@
                  (list 2837 2756 2670))
 
 ;; #copy#opt-refs
-(copy-v-opt-refs! 4075 4076)
+(copy-v-opt-refs! 4075 '(4076))
 
 ;; #add#operations
 (jdbc/insert!
@@ -284,7 +289,7 @@
                    (list 249 523 797 1003 1282))
 
 ;; #copy#operations
-(copy-v-operations! 3187 3210)
+(copy-v-operations! 3187 '(3210))
 
 ;; #unusability#update#operations
 (unusability
@@ -455,8 +460,7 @@
            {:ref_value 1.9}))
 
 ;; #copy#measurements
-(map (fn [v] (copy-measurements! 3893 v))
-     (range 3867 3893))
+(copy-measurements! 4170 (range 4171 4175))
 
 ;; #delete#measurements
 (delete-measurements!
@@ -560,13 +564,13 @@
   (jdbc/insert!
     auto
     :travel_order
-    {:auto_id 4
-     :count "9/0000279"
-     :date_departure "2024-02-27T09:00"
-     :date_arrive "2024-02-27T13:30"
-     :odometr_departure 145039
-     :fuel_departure 23.65
-     :odometr_arrive 145078
+    {:auto_id 1
+     :count "9/0000"
+     :date_departure "2024-03-19T10:00"
+     :date_arrive "2024-03-19T13:30"
+     :odometr_departure 239660
+     :fuel_departure 21.03
+     :odometr_arrive 239725
      :fuel_add 0})
   (pprint
     (jdbc/query
@@ -698,6 +702,10 @@
 (dir metrology.lib.metrology)
 
 (doc metr/air-v->vnc)
+
+(find-doc "nil?")
+
+(nil? "")
 
 (metr/air-v->vnc 100 23.4 103.87)
 
