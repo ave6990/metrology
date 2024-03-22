@@ -149,7 +149,7 @@
       (doall
         (map (fn [~id-to]
                  (map (fn [~f ~args] (~f ~args))
-                      [~(symbol (str "metrology.lib.midb/delete-" s "!"))
+                      [~(symbol (str "metrology.lib.shell-midb/delete-" s "!"))
                         (partial jdbc/execute! midb)]
                       [~id-to
                         [~(symbol (str "q/copy-" s))
