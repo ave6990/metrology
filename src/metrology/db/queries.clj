@@ -1,4 +1,4 @@
-(ns metrology.lib.queries
+(ns metrology.db.queries
   (:require
     [clojure.string :as string]))
 
@@ -42,7 +42,7 @@ inner join
 inner join
     counteragents as ca
     on ca.id = v.counteragent
-where
-    v.upload is null
+{where}
 order by
-  v.id desc")
+  v.id desc
+limit {limit} offset {offset}")

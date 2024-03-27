@@ -1,15 +1,14 @@
-(ns metrology.lib.midb
+(ns metrology.model.midb
   (:require 
     [clojure.java.jdbc :as jdbc]
     [clojure.string :as string]
-    [clojure.pprint :refer [pprint]]
     [metrology.lib.database :as db]
-    [metrology.lib.queries :as q]
     [metrology.lib.chemistry :as ch]
     [metrology.lib.protocol :as pr]
     [metrology.lib.gs2000 :as gs]
     [metrology.lib.metrology :as metr]
     [metrology.lib.gen-html :refer :all]
+    [metrology.db.queries :as q]
     #_[metrology.protocols.custom :as protocol]))
 
 (def midb-path
@@ -18,11 +17,30 @@
 
 (db/defdb midb)
 
-(defn get-records
-  []
+#_(defn get-records
+  "The verifications database query.
+  TODO: add `page` and `records-per-page` to the function arguments."
+  [where]
   (jdbc/query
     midb
-    q/get-verifications))
+    (string/replace 
+      q/get-verifications
+      "{where}"
+      where)))
+
+(defn get-records
+  "The verifications database query.
+  TODO: add `page` and `records-per-page` to the function arguments."
+  [where limit page]
+    (jdbc/query
+      midb
+      (->
+        q/get-verifications
+        (string/replace "{where}" (if (not= where "")
+                                      (str "where " where)
+                                      ""))
+        (string/replace "{limit}" (str limit))
+        (string/replace "{offset}" (str page)))))
 
 ;;#legacy
 (comment
@@ -691,7 +709,7 @@
 
 (require '[metrology.lib.gen-html :refer :all] :reload)
 
-(require '[metrology.lib.queries :as q] :reload)
+(require '[metrology.db.queries :as q] :reload)
 
 (require '[metrology.lib.chemistry :as ch] :reload)
 

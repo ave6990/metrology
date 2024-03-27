@@ -1,19 +1,22 @@
-(ns metrology.gui.verification-table
+(ns metrology.view.main
   (:require 
     [seesaw.core :refer :all]
-    [seesaw.dev :refer :all]  ;;NB TOFIX delete before release!
-    [clojure.pprint :refer [pprint]]  ;;NB TOFIX delete before release!
     [metrology.lib.chemistry :as ch]
     [metrology.lib.metrology :as m]
-    [metrology.lib.gs2000 :as gs]
-    [metrology.lib.midb :as midb]))
+    [metrology.lib.gs2000 :as gs]))
+
+(defn make-main-menu
+  [items]
+  (menubar
+     :id :main-menu
+     :items items))
 
 (defstruct column-attr
   :key
   :width
   :text)
 
-(def ^:private columns
+(def column-settings
   (vec
     (map (fn [[k w t]]
              (struct column-attr k w t))
@@ -33,7 +36,7 @@
           [:year 75 nil]
           [:channels 50 nil]
           [:components 350 nil]
-          [:scope 30 nil]
+          [:scope 350 nil]
           [:area 30 nil]
           [:sw_name 100 nil]
           [:sw_version 100 nil]
@@ -48,32 +51,53 @@
           [:copy_from 100 nil]
           [:comment 300 nil]])))
 
-(def ^:private verifications-model
-  (let [data (midb/get-records)]
-    (seesaw.table/table-model
-      :columns (->> columns
-                    (map :key)
-                    vec)
-      :rows data)))
+(defn make-v-table-model
+  [data]
+  (seesaw.table/table-model
+    :columns (->> column-settings
+                  (map :key)
+                  vec)
+    :rows data))
 
-(def tab
+(def column-widths
+  (->>
+    column-settings
+    (map :width)
+    vec))
+
+(defn tab
+  [model c-menu]
   (table
     :id :v-table
-    :model verifications-model
+    :model model
     :auto-resize :off
     :selection-mode :multi-interval
-    :column-widths (->> columns
-                        (map :width)
-                        vec)
-    :popup (fn [e] [(action
-                      :handler (fn [e] 
-                                   (println "Refresh!"))
-                      :name "Refresh"
-                      :key "menu R")])))
+    :column-widths  column-widths
+    :popup (fn [e] c-menu)))
 
 (defn make-v-table
-  []
+  [model c-menu]
   (scrollable
-    tab
+    (tab model c-menu)
     :hscroll :as-needed
     :vscroll :as-needed))
+
+(defn status-label
+  [s]
+  (label :id :status
+         :text s))
+
+(defn filter-panel
+  []
+  (vertical-panel
+    :border 5
+    :items
+      [(text :id :query)]))
+
+(defn make-table-panel
+  [model c-menu]
+  (border-panel
+     :border 5
+     :north (filter-panel)
+     :center (make-v-table model c-menu)
+     :south (status-label "Готов!")))

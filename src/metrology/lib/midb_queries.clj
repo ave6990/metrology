@@ -101,10 +101,11 @@
 (def copy-measurements
   "Query to copy measurements."
   "insert into measurements
-      (v_id, metrology_id, ref_value, comment)
+      (v_id, metrology_id, channel_name, ref_value, comment)
   select
       ?,
       metrology_id,
+      channel_name,
       ref_value,
       comment
   from

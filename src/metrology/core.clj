@@ -2,54 +2,109 @@
   (:gen-class)
   (:require 
     [seesaw.core :refer :all]
+    [seesaw.bind :as b]
+    [seesaw.value :refer :all]
+    [seesaw.keymap :refer :all]
     [seesaw.dev :refer :all]  ;;NB TOFIX delete before release!
+    [clojure.pprint :refer [pprint]]  ;;NB TOFIX delete before release!
     [metrology.lib.chemistry :as ch]
     [metrology.lib.metrology :as m]
     [metrology.lib.gs2000 :as gs]
-    [metrology.lib.midb :as midb]
-    [metrology.gui.main-menu :refer [make-menu]]
-    [metrology.gui.verification-table :refer [make-v-table update-data!]]))
+    [metrology.model.midb :as midb]
+    [metrology.view.main :as v]
+    [metrology.controller.controller :as control]
+    [metrology.controller.main-menu :as m-menu]))
+
+(def limit (atom 100))
+(def page (atom 0))
+
+(def main-menu
+  (v/make-main-menu
+    [(menu :text "File"
+           :items [m-menu/about-action m-menu/exit-action])
+     (menu :text "Edit"
+           :items [m-menu/copy-action m-menu/paste-action])]))
 
 (defn handler
-  [event]
-  (alert event
-           (str "<html>Hello from <b>Clojure</b>. Button"
-                (.getActionCommand event) "clicked.")))
+  [e]
+  (config!
+    (select (to-frame e)
+            [:#status])
+    :text "Button pressed"))
 
 (defn make-frame
-  []
+  [model c-menu]
   (frame
     :title "MIdb v.0.0.1"
-    :menubar (make-menu)
+    :menubar main-menu
     ;:on-close :exit
-    :content (border-panel
-               :border 5
-               :north (make-v-table)
-               :south (label :id :status
-                             :text "Ready"))))
+    :content (v/make-table-panel model c-menu)))
 
-(-main)
+(defn set-status
+  [s]
+  (config! status-label :text s))
+
+(defn add-behavior
+  [root]
+  (let [query (select root [:#query])
+        v-table (select root [:#v-table])
+        status (select root [:#status])]
+    (b/bind
+      query
+      status)
+    (map-key query "ENTER"
+      (fn [e]
+          (config!
+            v-table
+            :model (v/make-v-table-model
+                     (midb/get-records (value query) @limit @page))
+            :column-widths v/column-widths)))
+    #_(b/bind
+      upload
+      (b/transform #(if %
+                        "Фильтр включает выгруженные записи."
+                        "Фильтр не включает выгруженные записи."))
+      status))
+  root)
+
+(doc b/bind)
+
+(doc config!)
+
+(dir seesaw.value)
+
+(doc map-key)
+
+(find-doc "value-at")
+
+(show-options (table))
+
+(show-events (text))
 
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (-> 
-    (make-frame)
+  (->>
+    (make-frame
+      (v/make-v-table-model
+        (midb/get-records "v.upload is null" @limit @page))
+      control/table-c-menu)
+    add-behavior
     pack!
     show!))
+
+(-main)
 
 (comment
 
 (frame :title "Hello Swing"
-             :on-close :exit
-             :content (w/button :text "Click Me"
-                                :listen [:action handler]))
+       :on-close :exit
+       :content (w/button :text "Click Me"
+                          :listen [:action handler]))
 
 (config!
   main-frame
   :content tab)
-
-(require '[metrology.lib.midb :as midb] :reload)
 
 (dir w)
 
@@ -57,23 +112,26 @@
 
 (doc defstruct)
 
-(show-options (w/vertical-panel))
+(show-options (vertical-panel))
 
-(show-options (w/scrollable tab))
+(show-options (checkbox))
 
-(show-options (w.table/table-model))
+(show-options (seesaw.table/table-model))
 
-(show-events (w/table))
+(show-events (toggle))
 
-(doc w/config!)
+(doc config!)
 
-(doc select)
+(doc b/tee)
 
-(find-doc "border-panel")
+(doc swap!)
 
-(require '[metrology.gui.main-menu :refer [make-menu]] :reload)
+(dir seesaw.core)
 
-(require '[metrology.gui.verification-table :refer [make-v-table update-data!]] :reload)
+(find-doc "table-panel")
 
+(require '[metrology.model.midb :as midb] :reload)
+
+(require '[metrology.view.main :as v] :reload)
 
 )
