@@ -59,6 +59,42 @@
                   vec)
     :rows data))
 
+(def toolbar-fields-panel
+  (toolbar
+    :items
+    (vec
+      (map (fn [[txt data]]
+               (button :class :query-toolbar
+                       :text txt
+                       :user-data data))
+           '(["id" " v.id "]
+             ["выгрузка" " v.upload "]
+             ["год" " v.year "]
+             ["дата" " c.date "]
+             ["зав. №" " v.serial_number "]
+             ["количество" " v.channels "]
+             ["контрагент" " ca.short_name "]
+             ["объем" " v.scope"]
+             ["протокол" " v.protocol_number "]
+             ["состав" " v.components "]
+             ["счет" " v.count "]
+             ["тип СИ" " v.mi_type "])))))
+
+(def toolbar-operations-panel
+  (toolbar
+    :items
+    (vec
+      (map (fn [[txt data]]
+               (button :class :query-toolbar
+                       :text txt
+                       :user-data data))
+           '(["AND" " AND "]
+             ["OR" " OR "]
+             ["LIKE" " LIKE "]
+             ["IS" " IS "]
+             ["NOT" " NOT "]
+             ["NULL" " NULL "])))))
+
 (def column-widths
   (->>
     column-settings
@@ -84,20 +120,38 @@
 
 (defn status-label
   [s]
-  (label :id :status
+  (label :id :status-label
          :text s))
 
-(defn filter-panel
-  []
-  (vertical-panel
-    :border 5
+(def navigation-panel
+  (toolbar
     :items
-      [(text :id :query)]))
+      [(text :id :page-text
+             :border 5
+             :halign :center
+             :text "1"
+             :size [50 :by 20])
+       (button :id :prev-page-button
+               :border 5
+               :size [20 :by 20]
+               :text "<")
+       (button :id :next-page-button
+               :border 5
+               :size [20 :by 20]
+               :text ">")
+       (label :id :pages-label
+              :border 5
+              :size [100 :by 20]
+              :text "1")
+       (text :id :query-text)]))
 
-(defn make-table-panel
+(defn make-verifications-panel
   [model c-menu]
   (border-panel
-     :border 5
-     :north (filter-panel)
+     :border 2
+     :north (vertical-panel
+               :items [toolbar-fields-panel
+                       toolbar-operations-panel
+                       navigation-panel])
      :center (make-v-table model c-menu)
      :south (status-label "Готов!")))

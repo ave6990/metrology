@@ -7,7 +7,7 @@
     [metrology.lib.protocol :as pr]
     [metrology.lib.gs2000 :as gs]
     [metrology.lib.metrology :as metr]
-    [metrology.lib.gen-html :refer :all]
+    #_[metrology.lib.gen-html :refer :all]
     [metrology.db.queries :as q]
     #_[metrology.protocols.custom :as protocol]))
 
@@ -17,30 +17,30 @@
 
 (db/defdb midb)
 
-#_(defn get-records
-  "The verifications database query.
-  TODO: add `page` and `records-per-page` to the function arguments."
-  [where]
-  (jdbc/query
-    midb
-    (string/replace 
-      q/get-verifications
-      "{where}"
-      where)))
-
 (defn get-records
   "The verifications database query.
   TODO: add `page` and `records-per-page` to the function arguments."
   [where limit page]
-    (jdbc/query
-      midb
-      (->
-        q/get-verifications
-        (string/replace "{where}" (if (not= where "")
-                                      (str "where " where)
-                                      ""))
-        (string/replace "{limit}" (str limit))
-        (string/replace "{offset}" (str page)))))
+  {:data
+     (jdbc/query
+       midb
+       (->
+         q/get-verifications
+         (string/replace "{where}" (if (not= where "")
+                                       (str "where " where)
+                                       ""))
+         (string/replace "{limit}" (str limit))
+         (string/replace "{offset}" (str page))))
+    :count
+      (:count
+        (first
+          (jdbc/query
+            midb
+            (->
+              q/get-records-count
+              (string/replace "{where}" (if (not= where "")
+                                            (str "where " where)
+                                            ""))))))})
 
 ;;#legacy
 (comment

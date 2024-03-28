@@ -2,6 +2,19 @@
   (:require
     [clojure.string :as string]))
 
+(def get-records-count
+"select
+  count(*) as count
+from
+    verification as v
+inner join
+    conditions as c
+    on c.id = v.conditions
+inner join
+    counteragents as ca
+    on ca.id = v.counteragent
+{where}")
+
 (def get-verifications
 "select
     v.id

@@ -1,6 +1,7 @@
 (ns metrology.core
   (:gen-class)
   (:require 
+    [clojure.string :as string]
     [seesaw.core :refer :all]
     [seesaw.bind :as b]
     [seesaw.value :refer :all]
@@ -14,9 +15,6 @@
     [metrology.view.main :as v]
     [metrology.controller.controller :as control]
     [metrology.controller.main-menu :as m-menu]))
-
-(def limit (atom 100))
-(def page (atom 0))
 
 (def main-menu
   (v/make-main-menu
@@ -38,7 +36,7 @@
     :title "MIdb v.0.0.1"
     :menubar main-menu
     ;:on-close :exit
-    :content (v/make-table-panel model c-menu)))
+    :content (v/make-verifications-panel model c-menu)))
 
 (defn set-status
   [s]
@@ -46,19 +44,37 @@
 
 (defn add-behavior
   [root]
-  (let [query (select root [:#query])
+  (let [query (select root [:#query-text])
         v-table (select root [:#v-table])
-        status (select root [:#status])]
+        status (select root [:#status-label])
+        page-text (select root [:#page-text])
+        prev-page-button (select root [:#prev-page-button])
+        next-page-button (select root [:#next-page-button])
+        pages-label (select root [:#pages-label])]
+    (doall
+      (map (fn [btn]
+               (listen
+                 btn
+                 :mouse-clicked
+                 (control/query-toolbar-button-handler btn)))
+           (select root [:.query-toolbar])))
+    (listen
+      page-text
+      :action-performed
+      control/query-enter-pressed)
+    (listen
+      prev-page-button
+      :mouse-clicked
+      control/prev-page-button-clicked)
+    (listen
+      next-page-button
+      :mouse-clicked
+      control/next-page-button-clicked)
     (b/bind
       query
       status)
     (map-key query "ENTER"
-      (fn [e]
-          (config!
-            v-table
-            :model (v/make-v-table-model
-                     (midb/get-records (value query) @limit @page))
-            :column-widths v/column-widths)))
+      control/query-enter-pressed)
     #_(b/bind
       upload
       (b/transform #(if %
@@ -67,31 +83,21 @@
       status))
   root)
 
-(doc b/bind)
-
-(doc config!)
-
-(dir seesaw.value)
-
-(doc map-key)
-
-(find-doc "value-at")
-
-(show-options (table))
-
-(show-events (text))
-
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
   (->>
     (make-frame
       (v/make-v-table-model
-        (midb/get-records "v.upload is null" @limit @page))
+        (:data (midb/get-records "v.upload is null" 100 0)))
       control/table-c-menu)
     add-behavior
     pack!
     show!))
+
+(require '[metrology.controller.controller :as control] :reload)
+(require '[metrology.model.midb :as midb] :reload)
+(require '[metrology.view.main :as v] :reload)
 
 (-main)
 
@@ -102,35 +108,38 @@
        :content (w/button :text "Click Me"
                           :listen [:action handler]))
 
-(config!
-  main-frame
-  :content tab)
+(pprint (w-opt/get-widget-option-map* (text)))
 
-(dir w)
+(:text (text :text "hello"))
+
+(dir string)
 
 (find-doc "sorted-map")
 
-(doc defstruct)
+(doc string/split)
 
-(show-options (vertical-panel))
+(string/join (take 2 "hello"))
+(cons (flatten (take 2 "hello")) (drop 2 "hello"))
 
-(show-options (checkbox))
+(string/join (take 2 "hello") (drop 2 "hello"))
 
-(show-options (seesaw.table/table-model))
+(string/join
+  (map string/join
+     (list (take 2 "hello")
+     "+"
+       (drop 2 "hello"))))
 
-(show-events (toggle))
+(show-options (text))
 
-(doc config!)
-
-(doc b/tee)
-
-(doc swap!)
-
-(dir seesaw.core)
+(show-events (text))
 
 (find-doc "table-panel")
 
+(require '[seesaw.widget-options :as w-opt])
+
 (require '[metrology.model.midb :as midb] :reload)
+
+(require '[clojure.string :as string])
 
 (require '[metrology.view.main :as v] :reload)
 

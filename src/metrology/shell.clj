@@ -50,7 +50,7 @@
 ;; #report#find#mi
 (gen-report
   (find-records
-    "lower(mi_type) like '%elgas%'
+    "lower(mi_type) like '%Микросенс М3%'
      --and lower(mi_type) not like '%elgas%'
      --and channels = 1
      --and methodology_id = 305
@@ -107,15 +107,15 @@
   (gen-custom-protocols (get-protocols-data where)))
 
 ;; #find#counteragents
-(counteragents "ШАХТОСТ")
+(counteragents "ТЕПЛОИЗ")
 (sh "vivaldi" (str midb-path "counteragents.html"))
 
 ;; #copy#record
-(copy-record! 4142 1)
+(copy-record! 3651 1)
 
 (let [nums (map (fn [n] (str "" n))
-                (list "G0251089R3"))
-      years (repeat (count nums) 2014)
+                (list "038515"))
+      years (repeat (count nums) 2018)
             #_(list 2020 2020 2020 2017 2017 2017 2018)
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
@@ -129,8 +129,8 @@
              ;:mi_type "СЕАН-П, мод. СЕАН-П2"
              ;:components "CH₄ (0 - 50) % НКПР"
              ;:channels 1
-             :count "9/0000498"
-             :counteragent 50
+             :count "9/0000549"
+             :counteragent 42328
              :conditions 1176
              :manufacture_year y
              :comment "Леонтьев"
@@ -542,10 +542,10 @@
 (jdbc/insert!
   midb
   :counteragents
-  {:name "Общество с ограниченной ответственностью «ТАТНЕФТЬ-АЗС ЦЕНТР»"
-   :short_name "ООО «ТАТНЕФТЬ-АЗС ЦЕНТР»"
-   :address nil
-   :inn 1683003077})
+  {:name "Общество с ограниченной ответственностью «ТЕПЛОИЗОЛЯЦИЯ-1»"
+   :short_name "ООО «ТЕПЛОИЗОЛЯЦИЯ-1»"
+   :address "453104, Республика Башкортостан, г. Стерлитамак, ул. Профсоюзная, дом 16"
+   :inn "0268046915"})
 
 ;; #edit#counteragents#update
 (jdbc/update!
