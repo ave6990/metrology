@@ -30,7 +30,7 @@
     :title "MIdb v.0.0.1"
     :menubar main-menu
     ;:on-close :exit
-    :content (v/make-table-panel model c-menu)))
+    :content v/table-panel))
 
 (defn set-status
   [s]
@@ -84,9 +84,10 @@
   [& args]
   (->>
     (make-frame
-      (v/make-v-table-model
-        (:data (midb/get-records "v.upload is null" 100 0)))
-      control/table-c-menu)
+      (control/make-table-model
+        (:data (midb/get-records "v.upload is null" 100 0))
+        v/column-settings)
+      control/table-c-menu)  ;;FIX table menu for each frame (different controllers)
     add-behavior
     pack!
     show!))
@@ -110,7 +111,7 @@
 
 (find-doc "sorted-map")
 
-(doc grid-panel)
+(doc string/replace)
 
 (string/join (take 2 "hello"))
 (cons (flatten (take 2 "hello")) (drop 2 "hello"))

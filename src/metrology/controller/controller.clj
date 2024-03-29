@@ -3,8 +3,19 @@
     [clojure.string :as string]
     [seesaw.core :refer :all]
     [seesaw.value :refer :all]
+    [seesaw.table :refer [table-model]]
     [metrology.view.main :as v]
     [metrology.model.midb :as midb]))
+
+(defn make-table-model
+  "external deps:
+    metrology.core.clj"
+  [data column-settings]
+  (table-model
+    :columns (->> column-settings
+                  (map :key)
+                  vec)
+    :rows data))
 
 (def table-c-menu
   [(action
@@ -15,12 +26,16 @@
 
 (defn insert-string
   [ss s pos]
-  (string/join
-    (map string/join
-         (list 
-           (take pos ss)
-           s
-           (drop pos ss)))))
+  (string/replace
+    (->>
+      (list 
+        (take pos ss)
+        s
+        (drop pos ss))
+      (map string/join)
+      string/join)
+    #"/s+"
+    " "))
 
 (defn query-toolbar-button-handler
   [btn]
@@ -85,12 +100,14 @@
                   (calc-offset (read-string (value page-text)) limit))
         data (:data records)
         records-count (:count records)]
-    (type records-count)
     (config!
       v-table
-      :model (v/make-v-table-model
-               data)
-      :column-widths v/column-widths)
+      :model (make-table-model
+               data v/column-settings)
+      :column-widths (->>
+                       column-settings
+                       (map :width)
+                       vec))
     (text!
       pages-label
       (str

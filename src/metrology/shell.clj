@@ -2,12 +2,12 @@
 (require '[metrology.lib.gs2000 :as gs])
 (require '[clojure.java.shell :refer [sh]])
 
-(pprint (gs2000 0
-                "H2S"
-                79
-                (list 2.8 25) 
-                #_(map #(ch/ppm->mg "H2S" %1)
-                     (list 2.5 25 45))))
+(pprint (gs2000 2
+                "CO"
+                9030
+                #_(list 2.8 25) 
+                (map #(ch/ppm->mg "CO" %1)
+                     (list 40 250 475))))
 
 ((gs/calculator
   (gs/passports 1))
@@ -75,7 +75,8 @@
 ;; #report#find#verification
 (gen-report
   (find-verifications
-    "lower(v.mi_type) like '%СГГ-20%'
+    "--lower(v.mi_type) like '%СГГ-20%'
+     v.upload is null
      --and lower(v.mi_type) not like '%elgas%'
      --and v.channels = 1
      --and v.methodology_id = 305
@@ -86,20 +87,20 @@
      --and met.registry_number like '%-17%'
      --v.protocol_number = 1293 and v.protocol_number = 1295
      --and v.serial_number like '%1752554%'
-     and v.serial_number like '%850%'
+     --and v.serial_number like '%850%'
      --v.count like '%000388%'
      --v.id = 1322 or v.id = 1320"))
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#protocols
-(let [where "id >= 4184 and id <= 4188"]
+(let [where "id >= 4222"]
   (gen-protocols where))
 (sh "vivaldi" (str midb-path "protocol.html"))
 
 (pprint (get-protocols-data "id = 3893"))
 
 ;; #gen#measurements#values
-(let [where "id >= 4189"]
+(let [where "id >= 4225"]
   (gen-values! where))
 
 ;;#gen#custom#protocols
@@ -131,9 +132,9 @@
              ;:channels 1
              :count "9/0000549"
              :counteragent 42328
-             :conditions 1176
+             :conditions 1177
              :manufacture_year y
-             :comment "Леонтьев"
+             ;:comment "Леонтьев"
              ;:comment 11
              ;:comment "ГИС блок 2"
              ;:upload 1
@@ -144,7 +145,7 @@
              ;:sw_version "не ниже v.6015" 
              ;:sw_checksum "8BFD"
              ;:sw_algorithm "CRC 16"
-             ;:sw_version_real "1.7"
+             :sw_version_real "4.21"
              :serial_number n
              :protocol_number (+ start-protocol-number i)
              :protocol nil
@@ -218,15 +219,15 @@
 (/ (- 94.3 95.1) 95.1)
 
 ;; #conditions
-(conditions "2024-03-18")
+(conditions "2024-03-27")
 (sh "vivaldi" (str midb-path "conditions.html"))
 
 ;; #add#conditions
-(insert-conditions! {:date "2024-03-22"
-                     :temperature 22.4
-                     :humidity 51.1
-                     :pressure 101.21
-                     :voltage 224.0
+(insert-conditions! {:date "2024-03-28"
+                     :temperature 21.7
+                     :humidity 52.1
+                     :pressure 98.43
+                     :voltage 223.1
                      :frequency 50
                      ;:other "0,4 (0,4 ± 0,1) дм³/мин"
                      ;:location "ОГЗ"
@@ -244,8 +245,8 @@
 ;; #set#refs
 (set-v-refs! ;3668
              (last-id "verification")
-             #_(list 3151 2768)
-             (list 2765 2768))
+             (list 3151 2768)
+             #_(list 2765 2768))
 
 ;; #copy#refs
 (copy-v-refs! 4075 '(4076))
@@ -625,7 +626,7 @@
 (control-points [10 100])
 
 ;; #air#volume
-(metr/air-vnc->v 100 23.1 101.14)
+(metr/air-vnc->v 100 22.1 99.97)
 
 (metr/air-v->vnc 106 23.1 101.14)
 

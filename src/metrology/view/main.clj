@@ -52,14 +52,6 @@
           [:copy_from 100 nil]
           [:comment 300 nil]])))
 
-(defn make-v-table-model
-  [data]
-  (seesaw.table/table-model
-    :columns (->> column-settings
-                  (map :key)
-                  vec)
-    :rows data))
-
 (def toolbar-fields-panel
   (toolbar
     :items
@@ -70,12 +62,12 @@
                        :user-data data))
            '(["id" " v.id "]
              ["выгрузка" " v.upload "]
-             ["год" " v.year "]
+             ["год" " v.manufacture_year "]
              ["дата" " c.date "]
              ["зав. №" " v.serial_number "]
              ["количество" " v.channels "]
              ["контрагент" " ca.short_name "]
-             ["объем" " v.scope"]
+             ["объем" " v.scope "]
              ["протокол" " v.protocol_number "]
              ["состав" " v.components "]
              ["счет" " v.count "]
@@ -97,26 +89,12 @@
                          :user-data data)))
         vec)))
 
-(def column-widths
-  (->>
-    column-settings
-    (map :width)
-    vec))
-
-(defn tab
-  [model c-menu]
-  (table
-    :id :v-table
-    :model model
-    :auto-resize :off
-    :selection-mode :multi-interval
-    :column-widths  column-widths
-    :popup (fn [e] c-menu)))
-
-(defn make-v-table
-  [model c-menu]
+(def tab
   (scrollable
-    (tab model c-menu)
+    (table
+      :id :v-table
+      :auto-resize :off
+      :selection-mode :multi-interval)
     :hscroll :as-needed
     :vscroll :as-needed))
 
@@ -149,17 +127,12 @@
        (label :id :cursor-position-label
               :text "0")]))
 
-(defn make-table-panel
-  [model c-menu]
+(def table-panel
   (border-panel
      :border 2
      :north  (mig-panel
                :items [[toolbar-fields-panel "width max!, wrap"]
                        [toolbar-operations-panel "grow, wrap"]
                        [navigation-panel "grow"]])
-     #_(vertical-panel
-               :items [toolbar-fields-panel
-                       toolbar-operations-panel
-                       navigation-panel])
-     :center (make-v-table model c-menu)
+     :center tab
      :south (status-label "Готов!")))
