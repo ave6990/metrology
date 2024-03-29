@@ -1,6 +1,7 @@
 (ns metrology.view.main
   (:require 
     [seesaw.core :refer :all]
+    [seesaw.mig :refer [mig-panel]]
     [metrology.lib.chemistry :as ch]
     [metrology.lib.metrology :as m]
     [metrology.lib.gs2000 :as gs]))
@@ -83,17 +84,18 @@
 (def toolbar-operations-panel
   (toolbar
     :items
-    (vec
-      (map (fn [[txt data]]
-               (button :class :query-toolbar
-                       :text txt
-                       :user-data data))
-           '(["AND" " AND "]
-             ["OR" " OR "]
-             ["LIKE" " LIKE "]
-             ["IS" " IS "]
-             ["NOT" " NOT "]
-             ["NULL" " NULL "])))))
+      (->>
+        '(["AND" " AND ()"]
+          ["OR" " OR ()"]
+          ["LIKE" " LIKE '%%'"]
+          ["IS" " IS "]
+          ["NOT" " NOT "]
+          ["NULL" " NULL "])
+        (map (fn [[txt data]]
+                 (button :class :query-toolbar
+                         :text txt
+                         :user-data data)))
+        vec)))
 
 (def column-widths
   (->>
@@ -143,13 +145,19 @@
               :border 5
               :size [100 :by 20]
               :text "1")
-       (text :id :query-text)]))
+       (text :id :query-text)
+       (label :id :cursor-position-label
+              :text "0")]))
 
-(defn make-verifications-panel
+(defn make-table-panel
   [model c-menu]
   (border-panel
      :border 2
-     :north (vertical-panel
+     :north  (mig-panel
+               :items [[toolbar-fields-panel "width max!, wrap"]
+                       [toolbar-operations-panel "grow, wrap"]
+                       [navigation-panel "grow"]])
+     #_(vertical-panel
                :items [toolbar-fields-panel
                        toolbar-operations-panel
                        navigation-panel])

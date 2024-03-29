@@ -18,17 +18,11 @@
 
 (def main-menu
   (v/make-main-menu
-    [(menu :text "File"
-           :items [m-menu/about-action m-menu/exit-action])
-     (menu :text "Edit"
-           :items [m-menu/copy-action m-menu/paste-action])]))
-
-(defn handler
-  [e]
-  (config!
-    (select (to-frame e)
-            [:#status])
-    :text "Button pressed"))
+    [(menu :text "Главное"
+           :items [m-menu/main-about-action m-menu/main-exit-action])
+     (menu :text "Окна"
+           :items [m-menu/frames-conditions-action
+                   m-menu/frames-gso-action])]))
 
 (defn make-frame
   [model c-menu]
@@ -36,7 +30,7 @@
     :title "MIdb v.0.0.1"
     :menubar main-menu
     ;:on-close :exit
-    :content (v/make-verifications-panel model c-menu)))
+    :content (v/make-table-panel model c-menu)))
 
 (defn set-status
   [s]
@@ -83,6 +77,8 @@
       status))
   root)
 
+((keyword "a") {:a 4 :b 5})
+
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
@@ -108,15 +104,13 @@
        :content (w/button :text "Click Me"
                           :listen [:action handler]))
 
-(pprint (w-opt/get-widget-option-map* (text)))
-
 (:text (text :text "hello"))
 
 (dir string)
 
 (find-doc "sorted-map")
 
-(doc string/split)
+(doc grid-panel)
 
 (string/join (take 2 "hello"))
 (cons (flatten (take 2 "hello")) (drop 2 "hello"))
@@ -129,13 +123,15 @@
      "+"
        (drop 2 "hello"))))
 
-(show-options (text))
+(show-options (label))
 
 (show-events (text))
 
 (find-doc "table-panel")
 
 (require '[seesaw.widget-options :as w-opt])
+
+(require '[metrology.controller.main-menu :as m-menu] :reload)
 
 (require '[metrology.model.midb :as midb] :reload)
 

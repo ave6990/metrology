@@ -2,24 +2,24 @@
   (:require 
     [seesaw.core :refer :all]))
 
-(def about-action
+(def main-about-action
   (action
     :handler (fn [e] (alert "MIdb version 0.0.1"))
-    :name "About"
+    :name "О программе"
     :key "menu O"))
 
-(def exit-action
+(def main-exit-action
   (action
     :handler (fn [e] (.dispose (to-frame e)))
-    :name "Exit"
+    :name "Выход"
     :key "menu X"))
 
-(def copy-action
+(def frames-gso-action 
   (action
     :handler (fn [e] (alert "Nothing yet"))
-    :name "Copy"))
+    :name "ГСО"))
 
-(def paste-action
+(def frames-conditions-action
   (action
     :handler (fn [e] (alert "Nothing yet"))
-    :name "Edit"))
+    :name "Условия поверки"))
