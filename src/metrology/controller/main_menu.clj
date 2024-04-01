@@ -14,12 +14,17 @@
     :name "Выход"
     :key "menu X"))
 
-(def frames-gso-action 
+(def frame-gso-action 
   (action
     :handler (fn [e] (alert "Nothing yet"))
     :name "ГСО"))
 
-(def frames-conditions-action
+(def frame-conditions-action
   (action
     :handler (fn [e] (alert "Nothing yet"))
     :name "Условия поверки"))
+
+(def frame-counteragents-action
+  (action
+    :handler (fn [e] ())
+    :name "Контрагенты"))

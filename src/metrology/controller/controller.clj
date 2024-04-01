@@ -61,16 +61,17 @@
               :caret-position))))))
 
 (defn prev-page-button-clicked
-  [e]
-  (let [root (to-frame e)
-        page-text (select root [:#page-text])
-        v (read-string (value page-text))]
-    (text!
-      page-text
-      (if (> v 1)
-          (dec v)
-          1)))
-  (query-enter-pressed e))
+  [query-event-handler]
+  (fn [e]
+    (let [root (to-frame e)
+          page-text (select root [:#page-text])
+          v (read-string (value page-text))]
+      (text!
+        page-text
+        (if (> v 1)
+            (dec v)
+            1)))
+    (query-event-handler e)))
 
 (defn calc-offset
   [page limit]
@@ -138,17 +139,18 @@
             " (" records-count ")")))))
 
 (defn next-page-button-clicked
-  [e]
-  (let [root (to-frame e)
-        page-text (select root [:#page-text])
-        pages-label (select root [:#pages-label])
-        pages-count (read-string (first (string/split (value pages-label) #" ")))
-        current-page (read-string (value page-text))]
-    (text!
-      page-text
-      (if (< current-page pages-count)
-          (inc current-page)
-          pages-count)))
-  (query-enter-pressed e))
+  [query-event-handler]
+  (fn [e]
+      (let [root (to-frame e)
+            page-text (select root [:#page-text])
+            pages-label (select root [:#pages-label])
+            pages-count (read-string (first (string/split (value pages-label) #" ")))
+            current-page (read-string (value page-text))]
+        (text!
+          page-text
+          (if (< current-page pages-count)
+              (inc current-page)
+              pages-count)))
+      (query-event-handler e)))
 
 

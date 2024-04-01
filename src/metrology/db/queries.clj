@@ -15,21 +15,6 @@ inner join
     on ca.id = v.counteragent
 {where}")
 
-(def get-condition-records-count
-"select
-  count(*) as count
-from
-  conditions
-{where}")
-
-(def get-conditions
-"select
-  *
-from
-  conditions
-{where}
-limit {limit} offset {offset}")
-
 (def get-verifications
 "select
     v.id
@@ -73,4 +58,53 @@ inner join
 {where}
 order by
   v.id desc
+limit {limit} offset {offset}")
+
+(def get-condition-records-count
+"select
+  count(*) as count
+from
+  conditions
+{where}")
+
+(def get-conditions
+"select
+  *
+from
+  conditions
+{where}
+order by
+  id desc
+limit {limit} offset {offset}")
+
+(def get-gso-records-count
+"select
+  count(*) as count
+from
+  gso
+{where}")
+
+(def get-gso
+"select
+  *
+from
+  gso
+{where}
+order by
+  id desc
+limit {limit} offset {offset}")
+
+(def get-counteragents-count
+"select
+  count(*) as count
+from
+  counteragents
+{where}")
+
+(def get-counteragents
+"select
+  *
+from
+  counteragents
+{where}
 limit {limit} offset {offset}")

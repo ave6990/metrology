@@ -1,4 +1,4 @@
-(ns metrology.view.verifications-panel)
+(ns metrology.view.verifications-panel-settings)
 
 (def column-settings
   [[:id 50 nil]

@@ -16,37 +16,6 @@
     [metrology.controller.controller :as control]
     [metrology.controller.main-menu :as m-menu]))
 
-(def main-menu
-  (v/make-main-menu
-    [(menu :text "Главное"
-           :items [m-menu/main-about-action m-menu/main-exit-action])
-     (menu :text "Окна"
-           :items [#_m-menu/frames-conditions-action
-                   (action
-                    :handler (fn [e]
-                                 (->>
-                                   (make-frame
-                                     :verifications
-                                     "Условия поверки"
-                                     nil
-                                     v/conditions-table-panel)
-                                   (add-behavior
-                                     midb/get-conditions
-                                     v/conditions-column-settings)
-                                   pack!
-                                   show!))
-                    :name "Условия поверки")
-                   m-menu/frames-gso-action])]))
-
-(defn make-frame
-  [id title main-menu content]
-  (frame
-    :id id
-    :title title
-    :menubar main-menu
-    ;:on-close :exit
-    :content content))
-
 ;;TO_FIX move to controller
 (defn add-behavior
   [fn-get-records column-settings root]
@@ -56,7 +25,10 @@
         page-text (select root [:#page-text])
         prev-page-button (select root [:#prev-page-button])
         next-page-button (select root [:#next-page-button])
-        pages-label (select root [:#pages-label])]
+        pages-label (select root [:#pages-label])
+        query-enter-pressed (control/query-enter-pressed
+                              fn-get-records
+                              column-settings)]
     (doall
       (map (fn [btn]
                (listen
@@ -67,9 +39,7 @@
     (listen
       page-text
       :action-performed
-      (control/query-enter-pressed
-        fn-get-records
-        column-settings))
+      query-enter-pressed)
     (listen
       prev-page-button
       :mouse-clicked
@@ -82,9 +52,7 @@
       query
       status)
     (map-key query "ENTER"
-      (control/query-enter-pressed
-        fn-get-records
-        column-settings))
+      query-enter-pressed)
     (listen
       v-table
       :mouse-clicked
@@ -96,6 +64,50 @@
                         "Фильтр не включает выгруженные записи."))
       status))
   root)
+
+(defn make-frame
+  [id title main-menu content]
+  (frame
+    :id id
+    :title title
+    :menubar main-menu
+    ;:on-close :exit
+    :content content))
+
+(def main-menu
+  (v/make-main-menu
+    [(menu :text "Главное"
+           :items [m-menu/main-about-action m-menu/main-exit-action])
+     (menu :text "Окна"
+           :items [#_m-menu/frames-conditions-action
+                   (action
+                    :handler (fn [e]
+                                 (->>
+                                   (make-frame
+                                     :conditions
+                                     "Условия поверки"
+                                     nil
+                                     v/conditions-table-panel)
+                                   (add-behavior
+                                     midb/get-conditions
+                                     v/conditions-column-settings)
+                                   pack!
+                                   show!))
+                    :name "Условия поверки")
+                  (action
+                    :handler (fn [e]
+                                 (->>
+                                   (make-frame
+                                     :gso
+                                     "ГСО"
+                                     nil
+                                     v/gso-table-panel)
+                                   (add-behavior
+                                     midb/get-gso
+                                     v/gso-column-settings)
+                                   pack!
+                                   show!))
+                    :name "ГСО")])]))
 
 (defn -main
   "I don't do a whole lot ... yet."

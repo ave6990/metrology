@@ -17,52 +17,50 @@
 
 (db/defdb midb)
 
-(defn get-verifications
-  "The verifications database query."
-  [where limit page]
-  {:data
-     (jdbc/query
-       midb
-       (->
-         q/get-verifications
-         (string/replace "{where}" (if (not= where "")
-                                       (str "where " where)
-                                       ""))
-         (string/replace "{limit}" (str limit))
-         (string/replace "{offset}" (str page))))
-    :count
-      (:count
-        (first
-          (jdbc/query
-            midb
-            (->
-              q/get-verification-records-count
-              (string/replace "{where}" (if (not= where "")
-                                            (str "where " where)
-                                            ""))))))})
+(defn get-records
+  ""
+  [query-get-records query-get-records-count]
+  (fn [where limit page]
+      {:data
+         (jdbc/query
+           midb
+           (->
+             query-get-records
+             (string/replace "{where}" (if (not= where "")
+                                           (str "where " where)
+                                           ""))
+             (string/replace "{limit}" (str limit))
+             (string/replace "{offset}" (str page))))
+        :count
+          (:count
+            (first
+              (jdbc/query
+                midb
+                (->
+                  query-get-records-count
+                  (string/replace "{where}" (if (not= where "")
+                                                (str "where " where)
+                                                ""))))))}))
 
-(defn get-conditions
-  [where limit page]
-  {:data
-   (jdbc/query
-     midb
-     (->
-       q/get-conditions
-       (string/replace "{where}" (if (not= where "")
-                                     (str "where " where)
-                                     ""))
-       (string/replace "{limit}" (str limit))
-       (string/replace "{offset}" (str page))))
-  :count
-    (:count
-      (first
-        (jdbc/query
-          midb
-          (->
-            q/get-condition-records-count
-            (string/replace "{where}" (if (not= where "")
-                                          (str "where " where)
-                                          ""))))))})
+(def get-verifications
+  (get-records
+    q/get-verifications
+    q/get-verifications-records-count))
+
+(def get-gso
+  (get-records
+    q/get-gso
+    q/get-gso-records-count))
+
+(def get-conditions
+  (get-records
+    q/get-conditions
+    q/get-conditions-count))
+
+(def get-counteragents
+  (get-records
+    q/get-counteragents
+    q/get-counteragents-count))
 
 ;;#legacy
 (comment
@@ -734,6 +732,9 @@
 (require '[metrology.db.queries :as q] :reload)
 
 (require '[metrology.lib.chemistry :as ch] :reload)
+
+(require '[metrology.view.gso-panel-settings] :reload)
+(require '[metrology.view.verifications-panel-settings :as v-panel-settings] :reload)
 
 (doc flatten)
 

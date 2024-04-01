@@ -5,8 +5,9 @@
     [metrology.lib.chemistry :as ch]
     [metrology.lib.metrology :as m]
     [metrology.lib.gs2000 :as gs]
-    [metrology.view.verifications-panel :as v-panel-settings]
-    [metrology.view.conditions-panel :as c-panel-settings]))
+    [metrology.view.verifications-panel-settings :as v-panel-settings]
+    [metrology.view.conditions-panel-settings :as c-panel-settings]
+    [metrology.view.gso-panel-settings :as gso-panel-settings]))
 
 (defn make-main-menu
   [items]
@@ -140,3 +141,16 @@
   (make-table-panel
     :c-table
     conditions-toolbar-fields))
+
+(def gso-column-settings
+  (make-column-settings
+    gso-panel-settings/column-settings))
+
+(def gso-toolbar-fields
+  (make-toolbar-fields
+    gso-panel-settings/toolbar-fields-settings))
+
+(def gso-table-panel
+  (make-table-panel
+    :gso-table
+    gso-toolbar-fields))
