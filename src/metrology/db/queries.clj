@@ -2,7 +2,7 @@
   (:require
     [clojure.string :as string]))
 
-(def get-records-count
+(def get-verification-records-count
 "select
   count(*) as count
 from
@@ -14,6 +14,21 @@ inner join
     counteragents as ca
     on ca.id = v.counteragent
 {where}")
+
+(def get-condition-records-count
+"select
+  count(*) as count
+from
+  conditions
+{where}")
+
+(def get-conditions
+"select
+  *
+from
+  conditions
+{where}
+limit {limit} offset {offset}")
 
 (def get-verifications
 "select

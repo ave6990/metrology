@@ -3,7 +3,7 @@
     [clojure.string :as string]
     [seesaw.core :refer :all]
     [seesaw.value :refer :all]
-    [seesaw.table :refer [table-model]]
+    [seesaw.table :refer [table-model value-at]]
     [metrology.view.main :as v]
     [metrology.model.midb :as midb]))
 
@@ -16,6 +16,15 @@
                   (map :key)
                   vec)
     :rows data))
+
+(defn table-mouse-clicked
+  [id]
+  (fn [e]
+    (let [root (to-frame e)
+          tab (select root id)]
+      (println (value-at
+                  tab
+                  (selection tab {:multi? true}))))))
 
 (def table-c-menu
   [(action
@@ -71,7 +80,7 @@
   [records-count limit]
   (int (Math/ceil (/ records-count limit))))
 
-(defn query-enter-pressed
+#_(defn query-enter-pressed
   [e]
   (let [root (to-frame e)
         limit 100
@@ -79,7 +88,7 @@
         v-table (select root [:#v-table])
         pages-label (select root [:#pages-label])
         page-text (select root [:#page-text])
-        records (midb/get-records
+        records (midb/get-verifications
                   (value query)
                   limit
                   (calc-offset (read-string (value page-text)) limit))
@@ -88,9 +97,9 @@
     (config!
       v-table
       :model (make-table-model
-               data v/column-settings)
+               data v/verifications-column-settings)
       :column-widths (->>
-                       v/column-settings
+                       v/verifications-column-settings
                        (map :width)
                        vec))
     (text!
@@ -98,6 +107,35 @@
       (str
         (calc-pages records-count limit)
         " (" records-count ")"))))
+
+(defn query-enter-pressed
+  [fn-get-records column-settings]
+  (fn [e]
+      (let [root (to-frame e)
+            limit 100
+            query (select root [:#query-text])
+            v-table (select root [:#v-table])
+            pages-label (select root [:#pages-label])
+            page-text (select root [:#page-text])
+            records (fn-get-records 
+                      (value query)
+                      limit
+                      (calc-offset (read-string (value page-text)) limit))
+            data (:data records)
+            records-count (:count records)]
+        (config!
+          v-table
+          :model (make-table-model
+                   data column-settings)
+          :column-widths (->>
+                           column-settings
+                           (map :width)
+                           vec))
+        (text!
+          pages-label
+          (str
+            (calc-pages records-count limit)
+            " (" records-count ")")))))
 
 (defn next-page-button-clicked
   [e]

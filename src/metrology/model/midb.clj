@@ -17,9 +17,8 @@
 
 (db/defdb midb)
 
-(defn get-records
-  "The verifications database query.
-  TODO: add `page` and `records-per-page` to the function arguments."
+(defn get-verifications
+  "The verifications database query."
   [where limit page]
   {:data
      (jdbc/query
@@ -37,10 +36,33 @@
           (jdbc/query
             midb
             (->
-              q/get-records-count
+              q/get-verification-records-count
               (string/replace "{where}" (if (not= where "")
                                             (str "where " where)
                                             ""))))))})
+
+(defn get-conditions
+  [where limit page]
+  {:data
+   (jdbc/query
+     midb
+     (->
+       q/get-conditions
+       (string/replace "{where}" (if (not= where "")
+                                     (str "where " where)
+                                     ""))
+       (string/replace "{limit}" (str limit))
+       (string/replace "{offset}" (str page))))
+  :count
+    (:count
+      (first
+        (jdbc/query
+          midb
+          (->
+            q/get-condition-records-count
+            (string/replace "{where}" (if (not= where "")
+                                          (str "where " where)
+                                          ""))))))})
 
 ;;#legacy
 (comment

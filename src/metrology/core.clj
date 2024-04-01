@@ -21,19 +21,35 @@
     [(menu :text "Главное"
            :items [m-menu/main-about-action m-menu/main-exit-action])
      (menu :text "Окна"
-           :items [m-menu/frames-conditions-action
+           :items [#_m-menu/frames-conditions-action
+                   (action
+                    :handler (fn [e]
+                                 (->>
+                                   (make-frame
+                                     :verifications
+                                     "Условия поверки"
+                                     nil
+                                     v/conditions-table-panel)
+                                   (add-behavior
+                                     midb/get-conditions
+                                     v/conditions-column-settings)
+                                   pack!
+                                   show!))
+                    :name "Условия поверки")
                    m-menu/frames-gso-action])]))
 
 (defn make-frame
-  [model c-menu]
+  [id title main-menu content]
   (frame
-    :title "MIdb v.0.0.1"
+    :id id
+    :title title
     :menubar main-menu
     ;:on-close :exit
-    :content v/table-panel))
+    :content content))
 
+;;TO_FIX move to controller
 (defn add-behavior
-  [root]
+  [fn-get-records column-settings root]
   (let [query (select root [:#query-text])
         v-table (select root [:#v-table])
         status (select root [:#status-label])
@@ -51,7 +67,9 @@
     (listen
       page-text
       :action-performed
-      control/query-enter-pressed)
+      (control/query-enter-pressed
+        fn-get-records
+        column-settings))
     (listen
       prev-page-button
       :mouse-clicked
@@ -64,7 +82,13 @@
       query
       status)
     (map-key query "ENTER"
-      control/query-enter-pressed)
+      (control/query-enter-pressed
+        fn-get-records
+        column-settings))
+    (listen
+      v-table
+      :mouse-clicked
+      (control/table-mouse-clicked [:#v-table]))
     #_(b/bind
       upload
       (b/transform #(if %
@@ -78,11 +102,13 @@
   [& args]
   (->>
     (make-frame
-      (control/make-table-model
-        (:data (midb/get-records "v.upload is null" 100 0))
-        v/column-settings)
-      control/table-c-menu)  ;;FIX table menu for each frame (different controllers)
-    add-behavior
+      :verifications
+      "MIdb v.0.0.1"
+      main-menu
+      v/verifications-table-panel)
+    (add-behavior
+      midb/get-verifications
+      v/verifications-column-settings)
     pack!
     show!))
 
@@ -101,28 +127,15 @@
 
 (:text (text :text "hello"))
 
+(find-doc "table-panel")
+
 (dir string)
 
-(find-doc "sorted-map")
+(doc clojure.core/juxt)
 
-(doc string/replace)
+(show-options (table))
 
-(string/join (take 2 "hello"))
-(cons (flatten (take 2 "hello")) (drop 2 "hello"))
-
-(string/join (take 2 "hello") (drop 2 "hello"))
-
-(string/join
-  (map string/join
-     (list (take 2 "hello")
-     "+"
-       (drop 2 "hello"))))
-
-(show-options (label))
-
-(show-events (text))
-
-(find-doc "table-panel")
+(show-events (table))
 
 (require '[seesaw.widget-options :as w-opt])
 

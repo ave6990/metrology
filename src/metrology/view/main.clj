@@ -4,7 +4,9 @@
     [seesaw.mig :refer [mig-panel]]
     [metrology.lib.chemistry :as ch]
     [metrology.lib.metrology :as m]
-    [metrology.lib.gs2000 :as gs]))
+    [metrology.lib.gs2000 :as gs]
+    [metrology.view.verifications-panel :as v-panel-settings]
+    [metrology.view.conditions-panel :as c-panel-settings]))
 
 (defn make-main-menu
   [items]
@@ -17,42 +19,15 @@
   :width
   :text)
 
-(def column-settings
+(defn make-column-settings
+  [items]
   (vec
     (map (fn [[k w t]]
              (struct column-attr k w t))
-         [[:id 50 nil]
-          [:upload 25 nil]
-          [:count 100 nil]
-          ;[:ca nil nil]
-          [:short_name 350 nil]
-          ;[:conditions nil nil]
-          [:date 100 nil]
-          [:v_type 30 nil]
-          [:interval 30 nil]
-          [:protocol_number 50 nil]
-          [:mi_type 350 nil]
-          ;[:meth_id nil nil]
-          [:serial_number 150 nil]
-          [:year 75 nil]
-          [:channels 50 nil]
-          [:components 350 nil]
-          [:scope 350 nil]
-          [:area 30 nil]
-          [:sw_name 100 nil]
-          [:sw_version 100 nil]
-          [:sw_version_real 100 nil]
-          [:sw_checksum 100 nil]
-          [:sw_algorithm 100 nil]
-          ;[:voltage nil nil]
-          ;[:other nil nil]
-          ;[:sign_mi nil nil]
-          ;[:sign_pass nil nil]
-          [:protocol 100 nil]
-          [:copy_from 100 nil]
-          [:comment 300 nil]])))
+         items)))
 
-(def toolbar-fields-panel
+(defn make-toolbar-fields  
+  [items]
   (toolbar
     :items
     (vec
@@ -60,20 +35,10 @@
                (button :class :query-toolbar
                        :text txt
                        :user-data data))
-           '(["id" " v.id "]
-             ["выгрузка" " v.upload "]
-             ["год" " v.manufacture_year "]
-             ["дата" " c.date "]
-             ["зав. №" " v.serial_number "]
-             ["количество" " v.channels "]
-             ["контрагент" " ca.short_name "]
-             ["объем" " v.scope "]
-             ["протокол" " v.protocol_number "]
-             ["состав" " v.components "]
-             ["счет" " v.count "]
-             ["тип СИ" " v.mi_type "])))))
+           items))))
 
-(def toolbar-operations-panel
+(defn toolbar-operations-panel
+  []
   (toolbar
     :items
       (->>
@@ -89,6 +54,16 @@
                          :user-data data)))
         vec)))
 
+(defn make-table
+  [id]
+  (scrollable
+    (table
+      :id :v-table
+      :auto-resize :off
+      :selection-mode :multi-interval)
+    :hscroll :as-needed
+    :vscroll :as-needed))
+
 (def tab
   (scrollable
     (table
@@ -103,7 +78,8 @@
   (label :id :status-label
          :text s))
 
-(def navigation-panel
+(defn navigation-panel
+  []
   (toolbar
     :items
       [(text :id :page-text
@@ -127,12 +103,40 @@
        (label :id :cursor-position-label
               :text "0")]))
 
-(def table-panel
+(defn make-table-panel
+  [id toolbar-fields]
   (border-panel
      :border 2
      :north  (mig-panel
-               :items [[toolbar-fields-panel "width max!, wrap"]
-                       [toolbar-operations-panel "grow, wrap"]
-                       [navigation-panel "grow"]])
-     :center tab
-     :south (status-label "Готов!")))
+               :items [[toolbar-fields "width max!, wrap"]
+                       [(toolbar-operations-panel) "grow, wrap"]
+                       [(navigation-panel) "grow, wrap"]])
+     :center (make-table id) 
+     :south (label :id :status-label
+                   :text "Готов!")))
+
+(def verifications-column-settings
+  (make-column-settings
+    v-panel-settings/column-settings))
+
+(def verifications-toolbar-fields
+  (make-toolbar-fields
+    v-panel-settings/toolbar-fields-settings))
+
+(def verifications-table-panel
+  (make-table-panel
+    :v-table
+    verifications-toolbar-fields))
+
+(def conditions-column-settings
+  (make-column-settings
+    c-panel-settings/column-settings))
+
+(def conditions-toolbar-fields
+  (make-toolbar-fields
+    c-panel-settings/toolbar-fields-settings))
+
+(def conditions-table-panel
+  (make-table-panel
+    :c-table
+    conditions-toolbar-fields))
