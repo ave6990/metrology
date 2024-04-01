@@ -7,6 +7,7 @@
     [metrology.lib.gs2000 :as gs]
     [metrology.view.verifications-panel-settings :as v-panel-settings]
     [metrology.view.conditions-panel-settings :as c-panel-settings]
+    [metrology.view.counteragents-panel-settings :as ca-panel-settings]
     [metrology.view.gso-panel-settings :as gso-panel-settings]))
 
 (defn make-main-menu
@@ -49,6 +50,21 @@
           ["IS" " IS "]
           ["NOT" " NOT "]
           ["NULL" " NULL "])
+        (map (fn [[txt data]]
+                 (button :class :query-toolbar
+                         :text txt
+                         :user-data data)))
+        vec)))
+
+(defn toolbar-symbols-panel
+  []
+  (toolbar
+    :items
+      (->>
+        '(["млн⁻¹" " млн⁻¹ "]
+          ["мг/м³" " мг/м³ "]
+          ["«" "«"]
+          ["»" "»"])
         (map (fn [[txt data]]
                  (button :class :query-toolbar
                          :text txt
@@ -109,9 +125,10 @@
   (border-panel
      :border 2
      :north  (mig-panel
-               :items [[toolbar-fields "width max!, wrap"]
-                       [(toolbar-operations-panel) "grow, wrap"]
-                       [(navigation-panel) "grow, wrap"]])
+               :items [[toolbar-fields "width max!, span 3, wrap"]
+                       [(toolbar-operations-panel)]
+                       [(toolbar-symbols-panel) "span 2, grow, wrap"]
+                       [(navigation-panel) "span 3, grow, wrap"]])
      :center (make-table id) 
      :south (label :id :status-label
                    :text "Готов!")))
@@ -154,3 +171,16 @@
   (make-table-panel
     :gso-table
     gso-toolbar-fields))
+
+(def counteragents-column-settings
+  (make-column-settings
+    ca-panel-settings/column-settings))
+
+(def counteragents-toolbar-fields
+  (make-toolbar-fields
+    ca-panel-settings/toolbar-fields-settings))
+
+(def counteragents-table-panel
+  (make-table-panel
+    :ca-table
+    counteragents-toolbar-fields))
