@@ -49,8 +49,7 @@
             (user-data btn)
             (config
               query-text
-              :caret-position))
-          #_(str (value query-text) (user-data btn))))))
+              :caret-position))))))
 
 (defn prev-page-button-clicked
   [e]
@@ -62,20 +61,6 @@
       (if (> v 1)
           (dec v)
           1)))
-  (query-enter-pressed e))
-
-(defn next-page-button-clicked
-  [e]
-  (let [root (to-frame e)
-        page-text (select root [:#page-text])
-        pages-label (select root [:#pages-label])
-        pages-count (read-string (first (string/split (value pages-label) #" ")))
-        current-page (read-string (value page-text))]
-    (text!
-      page-text
-      (if (< current-page pages-count)
-          (inc current-page)
-          pages-count)))
   (query-enter-pressed e))
 
 (defn calc-offset
@@ -105,7 +90,7 @@
       :model (make-table-model
                data v/column-settings)
       :column-widths (->>
-                       column-settings
+                       v/column-settings
                        (map :width)
                        vec))
     (text!
@@ -113,3 +98,19 @@
       (str
         (calc-pages records-count limit)
         " (" records-count ")"))))
+
+(defn next-page-button-clicked
+  [e]
+  (let [root (to-frame e)
+        page-text (select root [:#page-text])
+        pages-label (select root [:#pages-label])
+        pages-count (read-string (first (string/split (value pages-label) #" ")))
+        current-page (read-string (value page-text))]
+    (text!
+      page-text
+      (if (< current-page pages-count)
+          (inc current-page)
+          pages-count)))
+  (query-enter-pressed e))
+
+

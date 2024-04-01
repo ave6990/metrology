@@ -32,10 +32,6 @@
     ;:on-close :exit
     :content v/table-panel))
 
-(defn set-status
-  [s]
-  (config! status-label :text s))
-
 (defn add-behavior
   [root]
   (let [query (select root [:#query-text])
@@ -76,8 +72,6 @@
                         "Фильтр не включает выгруженные записи."))
       status))
   root)
-
-((keyword "a") {:a 4 :b 5})
 
 (defn -main
   "I don't do a whole lot ... yet."
