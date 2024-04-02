@@ -20,7 +20,7 @@
 (defn get-records
   ""
   [query-get-records query-get-records-count]
-  (fn [where limit page]
+  (fn [where limit page & [group-by]]
       {:data
          (jdbc/query
            midb
@@ -29,6 +29,9 @@
              (string/replace "{where}" (if (not= where "")
                                            (str "where " where)
                                            ""))
+             (string/replace "{group-by}" (if (not= group-by "")
+                                              (str "group by " group-by)
+                                              ""))
              (string/replace "{limit}" (str limit))
              (string/replace "{offset}" (str page))))
         :count
@@ -40,12 +43,15 @@
                   query-get-records-count
                   (string/replace "{where}" (if (not= where "")
                                                 (str "where " where)
-                                                ""))))))}))
+                                                ""))
+                  (string/replace "{group-by}" (if (not= group-by "")
+                                              (str "group by " group-by)
+                                              ""))))))}))
 
 (def get-verifications
   (get-records
     q/get-verifications
-    q/get-verifications-records-count))
+    q/get-verification-records-count))
 
 (def get-gso
   (get-records
@@ -55,12 +61,12 @@
 (def get-conditions
   (get-records
     q/get-conditions
-    q/get-conditions-count))
+    q/get-condition-records-count))
 
 (def get-counteragents
   (get-records
     q/get-counteragents
-    q/get-counteragents-count))
+    q/get-counteragent-records-count))
 
 ;;#legacy
 (comment

@@ -13,7 +13,8 @@ inner join
 inner join
     counteragents as ca
     on ca.id = v.counteragent
-{where}")
+{where}
+{group-by}")
 
 (def get-verifications
 "select
@@ -56,6 +57,7 @@ inner join
     counteragents as ca
     on ca.id = v.counteragent
 {where}
+{group-by}
 order by
   v.id desc
 limit {limit} offset {offset}")
@@ -94,7 +96,7 @@ order by
   id desc
 limit {limit} offset {offset}")
 
-(def get-counteragents-count
+(def get-counteragent-records-count
 "select
   count(*) as count
 from
