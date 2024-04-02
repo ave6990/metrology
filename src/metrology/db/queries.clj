@@ -110,3 +110,18 @@ from
   counteragents
 {where}
 limit {limit} offset {offset}")
+
+(def get-reference-records-count
+"select
+  count(*) as count
+from
+  view_refs_use_count
+{where}")
+
+(def get-references
+"select
+  *
+from
+  view_refs_use_count
+{where}
+limit {limit} offset {offset}")

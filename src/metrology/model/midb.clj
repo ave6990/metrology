@@ -68,6 +68,11 @@
     q/get-counteragents
     q/get-counteragent-records-count))
 
+(def get-references
+  (get-records
+    q/get-references
+    q/get-reference-records-count))
+
 ;;#legacy
 (comment
 

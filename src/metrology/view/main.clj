@@ -8,6 +8,7 @@
     [metrology.view.verifications-panel-settings :as v-panel-settings]
     [metrology.view.conditions-panel-settings :as c-panel-settings]
     [metrology.view.counteragents-panel-settings :as ca-panel-settings]
+    [metrology.view.references-panel-settings :as refs-panel-settings]
     [metrology.view.gso-panel-settings :as gso-panel-settings]))
 
 (defn make-main-menu
@@ -134,7 +135,12 @@
                        [(toolbar-operations-panel)]
                        [(toolbar-symbols-panel) "span 2, grow, wrap"]
                        [(navigation-panel) "span 3, grow, wrap"]])
-     :center (make-table id) 
+     :center (vertical-panel
+                :items
+                  [(make-table id)
+                   (mig-panel
+                     :id :edit-panel
+                     :visible? false)]) 
      :south (label :id :status-label
                    :text "Готов!")))
 
@@ -157,6 +163,10 @@
   (make-table-panel
     :v-table
     verifications-toolbar-fields))
+
+(def verifications-edit-panel
+  (vector
+    (label :text "good")))
 
 (def conditions-column-settings
   (make-column-settings
@@ -196,3 +206,33 @@
   (make-table-panel
     :ca-table
     counteragents-toolbar-fields))
+
+(def references-column-settings
+  (make-column-settings
+    refs-panel-settings/column-settings))
+
+(def references-toolbar-fields
+  (make-toolbar-fields
+    refs-panel-settings/toolbar-fields-settings))
+
+(def references-table-panel
+  (make-table-panel
+    :refs-table
+    references-toolbar-fields))
+
+(comment
+  
+(require
+  '[metrology.view.counteragents-panel-settings :as ca-panel-settings]
+  :reload)
+(require
+  '[metrology.view.references-panel-settings :as refs-panel-settings]
+  :reload)
+(require
+  '[metrology.view.gso-panel-settings :as gso-panel-settings]
+  :reload)
+(require
+  '[metrology.view.verifications-panel-settings :as v-panel-settings]
+  :reload)
+
+)

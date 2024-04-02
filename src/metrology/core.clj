@@ -35,9 +35,9 @@
     pack!
     show!))
 
-(require '[metrology.controller.controller :as control] :reload)
-(require '[metrology.model.midb :as midb] :reload)
 (require '[metrology.view.main :as v] :reload)
+(require '[metrology.model.midb :as midb] :reload)
+(require '[metrology.controller.controller :as control] :reload)
 
 (-main)
 
@@ -56,7 +56,7 @@
 
 (doc clojure.core/juxt)
 
-(show-options (checkbox))
+(show-options (seesaw.mig/mig-panel))
 
 (show-events (table))
 

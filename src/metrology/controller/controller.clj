@@ -98,7 +98,6 @@
                        (filter #(value %))
                        (map (fn [el]
                                 (user-data el)))
-                       #_(filter #(not (nil? %)))
                        (string/join ", "))
             records (fn-get-records 
                       (value query)
@@ -228,12 +227,36 @@
       midb/get-counteragents
       v/counteragents-column-settings)))
 
+(def references-frame
+  (->>
+    (make-frame
+      :references
+      "Эталоны"
+      nil
+      v/references-table-panel)
+    (add-behavior
+      midb/get-references
+      v/references-column-settings)))
+
 (def main-menu
   (v/make-main-menu
     [(menu :text "Главное"
            :items [m-menu/main-about-action m-menu/main-exit-action])
      (menu :text "Окна"
-           :items [(action
+           :items 
+             (vec
+               (map (fn [nm fr]
+                        (action
+                          :handler (fn [e]
+                                       (->>
+                                         fr
+                                         pack!
+                                         show!))
+                          :name nm))
+                    ["ГСО" "Контрагенты" "Условия поверки" "Эталоны"]
+                    [gso-frame counteragents-frame
+                     conditions-frame references-frame]))
+              #_[(action
                      :handler (fn [e]
                                   (->>
                                     conditions-frame
@@ -253,4 +276,4 @@
                                     counteragents-frame
                                     pack!
                                     show!))
-                     :name "Контрагент")])]))
+                     :name "Контрагенты")])]))
