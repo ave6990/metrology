@@ -33,15 +33,15 @@
    [:comment 300 nil]])
 
 (def toolbar-fields-settings
-  '(["id" " v.id "]
-   ["выгрузка" " v.upload "]
-   ["год" " v.manufacture_year "]
-   ["дата" " c.date "]
-   ["зав. №" " v.serial_number "]
-   ["количество" " v.channels "]
-   ["контрагент" " ca.short_name "]
-   ["объем" " v.scope "]
-   ["протокол" " v.protocol_number "]
-   ["состав" " v.components "]
-   ["счет" " v.count "]
-   ["тип СИ" " v.mi_type "]))
+  '(["id" " id "]
+   ["выгрузка" " upload "]
+   ["год" " manufacture_year "]
+   ["дата" " date "]
+   ["зав. №" " serial_number "]
+   ["количество" " channels "]
+   ["контрагент" " short_name "]
+   ["объем" " scope "]
+   ["протокол" " protocol_number "]
+   ["состав" " components "]
+   ["счет" " count "]
+   ["тип СИ" " mi_type "]))

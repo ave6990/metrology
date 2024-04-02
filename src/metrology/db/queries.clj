@@ -17,7 +17,9 @@ inner join
 {group-by}")
 
 (def get-verifications
-"select
+"select *
+from
+(select
     v.id
     , v.upload
     , v.count
@@ -48,6 +50,7 @@ inner join
     , v.protocol
     , v.copy_from
     , v.comment
+    , v.hash_refs
 from
     verification as v
 inner join
@@ -56,10 +59,11 @@ inner join
 inner join
     counteragents as ca
     on ca.id = v.counteragent
+order by
+  c.date desc,
+  v.id desc)
 {where}
 {group-by}
-order by
-  v.id desc
 limit {limit} offset {offset}")
 
 (def get-condition-records-count

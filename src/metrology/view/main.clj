@@ -155,7 +155,7 @@
     (cons
       (checkbox :class :group-by
                 :text "группировка по КСП"
-                :user-data "v.hash_refs"))
+                :user-data "hash_refs"))
     vec
     (toolbar :items)))
 
