@@ -28,16 +28,21 @@
              (struct column-attr k w t))
          items)))
 
+(defn make-buttons-vec
+  [items]
+  (vec
+    (map (fn [[txt data]]
+             (button :class :query-toolbar
+                     :text txt
+                     :user-data data))
+         items)))
+
 (defn make-toolbar-fields  
   [items]
   (toolbar
     :items
-    (vec
-      (map (fn [[txt data]]
-               (button :class :query-toolbar
-                       :text txt
-                       :user-data data))
-           items))))
+    (make-buttons-vec
+      items)))
 
 (defn toolbar-operations-panel
   []
@@ -138,8 +143,15 @@
     v-panel-settings/column-settings))
 
 (def verifications-toolbar-fields
-  (make-toolbar-fields
-    v-panel-settings/toolbar-fields-settings))
+  (->>
+    (make-buttons-vec
+      v-panel-settings/toolbar-fields-settings)
+    (cons
+      (checkbox :class :group-by
+                :text "группировка по КСП"
+                :user-data "v.hash_refs"))
+    vec
+    (toolbar :items)))
 
 (def verifications-table-panel
   (make-table-panel
