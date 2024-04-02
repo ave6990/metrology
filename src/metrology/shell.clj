@@ -68,7 +68,7 @@
 
 ;; #report#find#verifications
 (gen-report
-  (list 4183)
+  (list 4234)
   #_(range 4167 4171))
 (sh "vivaldi" (str midb-path "report.html"))
 
@@ -93,14 +93,14 @@
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#protocols
-(let [where "id >= 4222"]
+(let [where "id >= 4226"]
   (gen-protocols where))
 (sh "vivaldi" (str midb-path "protocol.html"))
 
 (pprint (get-protocols-data "id = 3893"))
 
 ;; #gen#measurements#values
-(let [where "id >= 4225"]
+(let [where "id >= 4226"]
   (gen-values! where))
 
 ;;#gen#custom#protocols
@@ -112,11 +112,11 @@
 (sh "vivaldi" (str midb-path "counteragents.html"))
 
 ;; #copy#record
-(copy-record! 3651 1)
+(copy-record! 3949 4)
 
 (let [nums (map (fn [n] (str "" n))
-                (list "038515"))
-      years (repeat (count nums) 2018)
+                (list 192889 215292 208098 208326))
+      years (repeat (count nums) nil)
             #_(list 2020 2020 2020 2017 2017 2017 2018)
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
@@ -130,9 +130,9 @@
              ;:mi_type "СЕАН-П, мод. СЕАН-П2"
              ;:components "CH₄ (0 - 50) % НКПР"
              ;:channels 1
-             :count "9/0000549"
-             :counteragent 42328
-             :conditions 1177
+             :count "9/0000596"
+             :counteragent 3
+             :conditions 1180
              :manufacture_year y
              ;:comment "Леонтьев"
              ;:comment 11
@@ -145,7 +145,7 @@
              ;:sw_version "не ниже v.6015" 
              ;:sw_checksum "8BFD"
              ;:sw_algorithm "CRC 16"
-             :sw_version_real "4.21"
+             ;:sw_version_real "4.21"
              :serial_number n
              :protocol_number (+ start-protocol-number i)
              :protocol nil
@@ -294,9 +294,9 @@
 
 ;; #unusability#update#operations
 (unusability
-  4210
-  773
-  "превышение предела допускаемой основной погрешности")
+  4234
+  275
+  "негерметичен")
 
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
