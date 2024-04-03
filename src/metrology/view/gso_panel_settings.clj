@@ -21,6 +21,7 @@
    ["дата" " date "]
    ["№ паспорта" " pass_number "]
    ["номер 1С" " number_1c "]
+   ["компонент" " components "]
    ["концентрация %" " conc "]
    ["рег. №" " number "]
    ["срок годности" " expiration_date "]))

@@ -28,7 +28,7 @@
       v/verifications-column-settings)))
 
 (defn -main
-  "I don't do a whole lot ... yet."
+  ""
   [& args]
   (->>
     main-frame
@@ -56,7 +56,13 @@
 
 (doc clojure.core/juxt)
 
-(show-options (seesaw.mig/mig-panel))
+(doc seesaw.table/value-at)
+
+(source seesaw.table/value-at)
+
+(show-options (table))
+
+(seesaw.event/events-for (table))
 
 (show-events (table))
 

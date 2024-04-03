@@ -85,7 +85,7 @@ from
   gso
 {where}
 order by
-  id desc
+  available desc, components, conc
 limit {limit} offset {offset}")
 
 (def get-counteragent-records-count
