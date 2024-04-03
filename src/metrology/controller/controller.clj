@@ -168,7 +168,7 @@
       :mouse-clicked
       (next-page-button-clicked
         query-enter-pressed))
-    (b/bind
+    #_(b/bind
       query
       status)
     (map-key query "ENTER"
