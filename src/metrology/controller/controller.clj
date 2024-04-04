@@ -252,6 +252,17 @@
       midb/get-references
       v/references-column-settings)))
 
+(def operations-frame
+  (->>
+    (make-frame
+      :operations
+      "Операции поверки"
+      nil
+      v/operations-table-panel)
+    (add-behavior
+      midb/get-operations
+      v/operations-column-settings)))
+
 (def main-menu
   (v/make-main-menu
     [(menu :text "Главное"

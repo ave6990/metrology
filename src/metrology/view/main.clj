@@ -9,6 +9,7 @@
     [metrology.view.conditions-panel-settings :as c-panel-settings]
     [metrology.view.counteragents-panel-settings :as ca-panel-settings]
     [metrology.view.references-panel-settings :as refs-panel-settings]
+    [metrology.view.operations-panel-settings :as ops-panel-settings]
     [metrology.view.gso-panel-settings :as gso-panel-settings]))
 
 (defn make-main-menu
@@ -255,6 +256,20 @@
   (make-table-panel
     :refs-table
     references-toolbar-fields))
+
+(def operations-column-settings
+  (make-column-settings
+    ops-panel-settings/column-settings))
+
+(def operations-toolbar-fields
+  (make-toolbar-fields
+    ops-panel-settings/toolbar-fields-settings))
+
+(def operations-table-panel
+  (make-table-panel
+    :ops-table
+    operations-toolbar-fields))
+
 
 (comment
   

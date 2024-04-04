@@ -1,27 +1,15 @@
-(ns metrology.view.gso-panel-settings)
+(ns metrology.view.operations-panel-settings)
 
 (def column-settings
   [[:id 50 nil]
-   [:number_1c 75 nil]
-   [:type 75 nil]
-   [:number 150 nil]
-   [:level 50 nil]
-   [:available 50 nil]
-   [:components 150 nil]
-   [:concentration 75 nil]
-   [:uncertainity 75 nil]
-   [:units 75 nil]
-   [:pass_number 100 nil]
-   [:date 100 nil]
-   [:expiration_date 100 nil]
-   [:metrology 300 nil]])
+   [:result 50 nil]
+   [:section 50 nil]
+   [:name 350 nil]
+   [:unusability 350 nil]
+   [:verification_type 50 nil]
+   [:comment 150 nil]])
 
 (def toolbar-fields-settings
-  '(["id" " id "]
-   ["№ паспорта" " pass_number "]
-   ["дата" " date "]
-   ["компонент" " components "]
-   ["концентрация %" " conc "]
-   ["номер 1С" " number_1c "]
-   ["рег. №" " number "]
-   ["срок годности" " expiration_date "]))
+  '(["id" " op.id "]
+    ["v_id" " v_op.v_id "]
+    ["МП" " op.methodology_id "]))
