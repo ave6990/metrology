@@ -101,29 +101,65 @@
   (label :id :status-label
          :text s))
 
-(defn navigation-panel
+#_(defn navigation-panel
   []
-  (toolbar
+  (#_toolbar horizontal-panel
     :items
       [(text :id :page-text
              :border 5
              :halign :center
              :text "1"
-             :size [50 :by 20])
+             :size [50 :by 40])
        (button :id :prev-page-button
                :border 5
-               :size [20 :by 20]
+               :size [20 :by 40]
                :text "<")
        (button :id :next-page-button
                :border 5
-               :size [20 :by 20]
+               :size [20 :by 40]
                :text ">")
        (label :id :pages-label
               :border 5
-              :size [100 :by 20]
+              :size [100 :by 40]
               :text "1")
-       (text :id :query-text)
-       (label :id :cursor-position-label
+       (scrollable
+         (text :id :query-text)
+         :hscroll :always)
+       ;;TOFIX use the cursor position to paste a text at the position
+       #_(label :id :cursor-position-label
+              :text "0")]))
+
+(defn navigation-panel
+  []
+  (mig-panel
+    :items
+      [[(text :id :page-text
+             ;:border 5
+             :halign :center
+             :size [50 :by 20]
+             :text "1")
+        "width 50"]
+       [(button :id :prev-page-button
+               ;:border 5
+               ;:size [20 :by 40]
+               :text "<")
+        "width 20"]
+       [(button :id :next-page-button
+               ;:border 5
+               ;:size [20 :by 40]
+               :text ">")
+        "width 20"]
+       [(scrollable
+         (text :id :query-text)
+         :hscroll :always)
+        "width 100%, span 1 2, wrap"]
+       [(label :id :pages-label
+              ;:border 5
+              ;:size [100 :by 40]
+              :text "1")
+        "span 3"]
+       ;;TOFIX use the cursor position to paste a text at the position
+       #_(label :id :cursor-position-label
               :text "0")]))
 
 (defn make-table-panel
@@ -131,10 +167,10 @@
   (border-panel
      :border 2
      :north  (mig-panel
-               :items [[toolbar-fields "width max!, span 3, wrap"]
+               :items [[toolbar-fields "width 100%, span 2, wrap"]
                        [(toolbar-operations-panel)]
-                       [(toolbar-symbols-panel) "span 2, grow, wrap"]
-                       [(navigation-panel) "span 3, grow, wrap"]])
+                       [(toolbar-symbols-panel) "grow, wrap"]
+                       [(navigation-panel) "span 2, grow, wrap"]])
      :center (vertical-panel
                 :items
                   [(make-table id)

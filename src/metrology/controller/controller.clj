@@ -5,7 +5,7 @@
     [seesaw.bind :as b]
     [seesaw.keymap :refer :all]
     [seesaw.value :refer :all]
-    [seesaw.table :refer [table-model value-at]]
+    [seesaw.table :refer [table-model value-at update-at!]]
     [metrology.model.midb :as midb]
     [metrology.view.main :as v]
     [metrology.controller.main-menu :as m-menu]))
@@ -21,10 +21,10 @@
     :rows data))
 
 (defn table-mouse-clicked
-  [id]
+  [column-settings]
   (fn [e]
     (let [root (to-frame e)
-          tab (select root id)]
+          tab (select root [:#v-table])]
       (println (value-at
                   tab
                   (selection tab {:multi? true}))))))
@@ -85,11 +85,19 @@
   (int (Math/ceil (/ records-count limit))))
 
 (defn query-enter-pressed
+  [e]
+  (let [root (to-frame e)
+        page-text (select root [:#page-text])]
+    (value! page-text 1)))
+
+(defn make-query-handler
   [fn-get-records column-settings]
   (fn [e]
       (let [root (to-frame e)
             limit 100
-            query (select root [:#query-text])
+            query (->>
+                    (select root [:#query-text])
+                    value)
             v-table (select root [:#v-table])
             pages-label (select root [:#pages-label])
             page-text (select root [:#page-text])
@@ -99,11 +107,15 @@
                        (map (fn [el]
                                 (user-data el)))
                        (string/join ", "))
+            #_order-by #_(->>
+                       (select root [:#order-by])
+                       value)
             records (fn-get-records 
-                      (value query)
+                      query
                       limit
                       (calc-offset (read-string (value page-text)) limit)
-                      group-by)
+                      group-by
+                      #_order-by)
             data (:data records)
             records-count (:count records)]
         (config!
@@ -144,7 +156,7 @@
         prev-page-button (select root [:#prev-page-button])
         next-page-button (select root [:#next-page-button])
         pages-label (select root [:#pages-label])
-        query-enter-pressed (query-enter-pressed
+        query-handler (make-query-handler
                               fn-get-records
                               column-settings)]
     (doall
@@ -157,26 +169,28 @@
     (listen
       page-text
       :action-performed
-      query-enter-pressed)
+      query-handler)
     (listen
       prev-page-button
       :mouse-clicked
       (prev-page-button-clicked
-        query-enter-pressed))
+        query-handler))
     (listen
       next-page-button
       :mouse-clicked
       (next-page-button-clicked
-        query-enter-pressed))
+        query-handler))
     #_(b/bind
       query
       status)
     (map-key query "ENTER"
-      query-enter-pressed)
+      (fn [e]
+        (query-enter-pressed e)
+        (query-handler e)))
     (listen
       v-table
       :mouse-clicked
-      (table-mouse-clicked [:#v-table]))
+      (table-mouse-clicked column-settings))
     #_(b/bind
       upload
       (b/transform #(if %

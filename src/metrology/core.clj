@@ -16,6 +16,9 @@
     [metrology.controller.controller :as control]
     [metrology.controller.main-menu :as m-menu]))
 
+(require '[metrology.view.main :as v] :reload)
+(require '[metrology.model.midb :as midb] :reload)
+(require '[metrology.controller.controller :as control] :reload)
 (def main-frame
   (->>
     (control/make-frame
@@ -26,7 +29,6 @@
     (control/add-behavior
       midb/get-verifications
       v/verifications-column-settings)))
-
 (defn -main
   ""
   [& args]
@@ -34,10 +36,6 @@
     main-frame
     pack!
     show!))
-
-(require '[metrology.view.main :as v] :reload)
-(require '[metrology.model.midb :as midb] :reload)
-(require '[metrology.controller.controller :as control] :reload)
 
 (-main)
 
@@ -54,13 +52,13 @@
 
 (dir string)
 
-(doc clojure.core/juxt)
+(doc reduce)
 
 (doc seesaw.table/value-at)
 
 (source seesaw.table/value-at)
 
-(show-options (table))
+(show-options (text))
 
 (seesaw.event/events-for (table))
 

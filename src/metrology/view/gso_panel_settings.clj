@@ -18,10 +18,10 @@
 
 (def toolbar-fields-settings
   '(["id" " id "]
-   ["дата" " date "]
    ["№ паспорта" " pass_number "]
-   ["номер 1С" " number_1c "]
+   ["дата" " date "]
    ["компонент" " components "]
    ["концентрация %" " conc "]
+   ["номер 1С" " number_1c "]
    ["рег. №" " number "]
    ["срок годности" " expiration_date "]))
