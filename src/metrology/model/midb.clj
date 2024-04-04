@@ -17,61 +17,53 @@
 
 (db/defdb midb)
 
+(defmacro ^:private q-replace
+  "The macros expand to:
+    `(string/replace query \"{s}\" s)`"
+  [query s]
+  `(string/replace
+     ~query
+     ~(str "{" s "}")
+     (if (not= (str ~(symbol s)) "")
+         (str ~(str s " ") ~(symbol s))
+         "")))
+
 (defn get-records
   ""
   [query-get-records query-get-records-count]
-  (fn [where limit page & [group-by]]
+  (fn [where limit offset & [group-by]]
       {:data
          (jdbc/query
            midb
            (->
              query-get-records
-             (string/replace "{where}" (if (not= where "")
-                                           (str "where " where)
-                                           ""))
-             (string/replace "{group-by}" (if (not= group-by "")
-                                              (str "group by " group-by)
-                                              ""))
-             (string/replace "{limit}" (str limit))
-             (string/replace "{offset}" (str page))))
-        :count
-          (:count
-            (first
-              (jdbc/query
-                midb
-                (->
-                  query-get-records-count
-                  (string/replace "{where}" (if (not= where "")
-                                                (str "where " where)
-                                                ""))
-                  (string/replace "{group-by}" (if (not= group-by "")
-                                              (str "group by " group-by)
-                                              ""))))))}))
+             (q-replace "where")
+             (q-replace "group-by")
+             (q-replace "limit")
+             (q-replace "offset")))
+       :count
+         (:count
+           (first
+             (jdbc/query
+               midb
+               (->
+                 query-get-records-count
+                 (q-replace "where")
+                 (q-replace "group-by")))))}))
 
-(def get-verifications
-  (get-records
-    q/get-verifications
-    q/get-verification-records-count))
+(defmacro ^:private make-get-fn
+  [name]
+  `(def ~(symbol (str "get-" name))
+     (get-records
+       ~(symbol (str "q/get-" name))
+       ~(symbol (str "q/get-" name "-records-count")))))
 
-(def get-gso
-  (get-records
-    q/get-gso
-    q/get-gso-records-count))
-
-(def get-conditions
-  (get-records
-    q/get-conditions
-    q/get-condition-records-count))
-
-(def get-counteragents
-  (get-records
-    q/get-counteragents
-    q/get-counteragent-records-count))
-
-(def get-references
-  (get-records
-    q/get-references
-    q/get-reference-records-count))
+(make-get-fn "verifications")
+(make-get-fn "gso")
+(make-get-fn "conditions")
+(make-get-fn "counteragents")
+(make-get-fn "operations")
+(make-get-fn "references")
 
 ;;#legacy
 (comment

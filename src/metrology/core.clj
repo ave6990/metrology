@@ -58,7 +58,7 @@
 
 (source seesaw.table/value-at)
 
-(show-options (text))
+(show-options (table))
 
 (seesaw.event/events-for (table))
 

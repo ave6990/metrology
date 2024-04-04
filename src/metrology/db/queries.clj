@@ -2,7 +2,7 @@
   (:require
     [clojure.string :as string]))
 
-(def get-verification-records-count
+(def get-verifications-records-count
 "select
   count(*) as count
 from
@@ -52,9 +52,10 @@ order by
   v.id desc)
 {where}
 {group-by}
-limit {limit} offset {offset}")
+{limit}
+{offset}")
 
-(def get-condition-records-count
+(def get-conditions-records-count
 "select
   count(*) as count
 from
@@ -69,7 +70,8 @@ from
 {where}
 order by
   id desc
-limit {limit} offset {offset}")
+{limit}
+{offset}")
 
 (def get-gso-records-count
 "select
@@ -86,9 +88,10 @@ from
 {where}
 order by
   available desc, components, conc
-limit {limit} offset {offset}")
+{limit}
+{offset}")
 
-(def get-counteragent-records-count
+(def get-counteragents-records-count
 "select
   count(*) as count
 from
@@ -101,9 +104,10 @@ from
 from
   counteragents
 {where}
-limit {limit} offset {offset}")
+{limit}
+{offset}")
 
-(def get-reference-records-count
+(def get-references-records-count
 "select
   count(*) as count
 from
@@ -116,4 +120,33 @@ from
 from
   view_refs_use_count
 {where}
-limit {limit} offset {offset}")
+{limit}
+{offset}")
+
+(def get-operations-records-count
+"select
+  count(*) as count
+from
+  v_operations as v_op
+inner join
+  verification_operations as op
+  on op.id = v_op.op_id
+{where}")
+
+(def get-operations
+"select
+  op.id,
+  v_op.result,
+  v_op.unusability,
+  op.section,
+  op.name,
+  op.verification_type,
+  op.comment
+from
+  v_operations as v_op
+inner join
+  verification_operations as op
+{where}
+{limit}
+{offset}")
+
