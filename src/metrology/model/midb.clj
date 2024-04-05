@@ -40,7 +40,9 @@
              (q-replace "where")
              (q-replace "group-by")
              (q-replace "limit")
-             (q-replace "offset")))
+             (q-replace "offset")
+             (string/replace "group-by" "GROUP BY")
+             (string/replace "order-by" "ORDER BY")))
        :count
          (:count
            (first
@@ -49,7 +51,8 @@
                (->
                  query-get-records-count
                  (q-replace "where")
-                 (q-replace "group-by")))))}))
+                 (q-replace "group-by")
+                 (string/replace "group-by" "GROUP BY")))))}))
 
 (defmacro ^:private make-get-fn
   [name]

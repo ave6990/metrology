@@ -6,6 +6,8 @@
 "select
   count(*) as count
 from
+(select *
+from
     verification as v
 inner join
     conditions as c
@@ -13,8 +15,11 @@ inner join
 inner join
     counteragents as ca
     on ca.id = v.counteragent
+inner join
+    methodology as met
+    on met.id = v.methodology_id
 {where}
-{group-by}")
+{group-by})")
 
 (def get-verifications
 "select *
@@ -59,8 +64,10 @@ order by
 "select
   count(*) as count
 from
+(select *
+from
   conditions
-{where}")
+{where})")
 
 (def get-conditions
 "select
@@ -77,8 +84,10 @@ order by
 "select
   count(*) as count
 from
+(select *
+from
   gso
-{where}")
+{where})")
 
 (def get-gso
 "select
@@ -95,8 +104,10 @@ order by
 "select
   count(*) as count
 from
+(select *
+from
   counteragents
-{where}")
+{where})")
 
 (def get-counteragents
 "select
@@ -111,8 +122,10 @@ from
 "select
   count(*) as count
 from
+(select *
+from
   view_refs_use_count
-{where}")
+{where})")
 
 (def get-references
 "select
@@ -127,11 +140,13 @@ from
 "select
   count(*) as count
 from
+(select *
+from
   v_operations as v_op
 inner join
   verification_operations as op
   on op.id = v_op.op_id
-{where}")
+{where})")
 
 (def get-operations
 "select
@@ -154,6 +169,9 @@ inner join
 
 (def get-measurements-records-count
 "select
+  count(*) as count
+from
+(select
   *
 from
     measurements as meas
@@ -169,7 +187,7 @@ inner join
 inner join    
     verification as v
     on meas.v_id = v.id
-{where}")
+{where})")
 
 (def get-measurements
 "select
