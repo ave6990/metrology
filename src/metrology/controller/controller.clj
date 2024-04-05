@@ -8,7 +8,8 @@
     [seesaw.table :refer [table-model value-at update-at!]]
     [metrology.model.midb :as midb]
     [metrology.view.main :as v]
-    [metrology.controller.main-menu :as m-menu]))
+    [metrology.controller.main-menu :as m-menu]
+    [metrology.controller.table-context-menu :as table-c-menu]))
 
 (defn make-table-model
   "external deps:
@@ -29,12 +30,13 @@
                   tab
                   (selection tab {:multi? true}))))))
 
-(def table-c-menu
-  [(action
-    :handler (fn [e] 
-                 (println "Refresh!"))
-    :name "Refresh"
-    :key "menu R")])
+(defn make-table-c-menu
+  [menu fr]
+  (config!
+    (select fr [:#v-table])
+    :popup
+      menu)
+  fr)
 
 (defn insert-string
   [ss s pos]
@@ -91,10 +93,9 @@
     (value! page-text 1)))
 
 (defn make-query-handler
-  [fn-get-records column-settings]
+  [fn-get-records column-settings root]
   (fn [e]
-      (let [root (to-frame e)
-            limit 100
+      (let [limit 100
             query (->>
                     (select root [:#query-text])
                     value)
@@ -157,8 +158,9 @@
         next-page-button (select root [:#next-page-button])
         pages-label (select root [:#pages-label])
         query-handler (make-query-handler
-                              fn-get-records
-                              column-settings)]
+                        fn-get-records
+                        column-settings
+                        root)]
     (doall
       (map (fn [btn]
                (listen
@@ -191,6 +193,10 @@
       v-table
       :mouse-clicked
       (table-mouse-clicked column-settings))
+    (listen
+      root
+      :window-activated
+      query-handler)
     #_(b/bind
       upload
       (b/transform #(if %
@@ -199,69 +205,18 @@
       status))
   root)
 
-(defn make-frame
-  [id title main-menu content]
-  (frame
-    :id id
-    :title title
-    :menubar main-menu
-    ;:on-close :exit
-    :content content))
-
-(def conditions-frame
-  (->>
-    (make-frame
-       :conditions
-      "Условия поверки"
-      nil
-      v/conditions-table-panel)
-    (add-behavior
-      midb/get-conditions
-      v/conditions-column-settings)))
-
-(def gso-frame
-  (->>
-    (make-frame
-      :gso
-      "ГСО"
-      nil
-      v/gso-table-panel)
-    (add-behavior
-      midb/get-gso
-      v/gso-column-settings)))
-
-(def counteragents-frame
-  (->>
-    (make-frame
-      :counteragents
-      "Контрагенты"
-      nil
-      v/counteragents-table-panel)
-    (add-behavior
-      midb/get-counteragents
-      v/counteragents-column-settings)))
-
-(def references-frame
-  (->>
-    (make-frame
-      :references
-      "Эталоны"
-      nil
-      v/references-table-panel)
-    (add-behavior
-      midb/get-references
-      v/references-column-settings)))
-
-(def operations-frame
-  (->>
-    (make-frame
-      :operations
-      "Операции поверки"
-      nil
-      v/operations-table-panel)
-    (add-behavior
-      midb/get-operations
-      v/operations-column-settings)))
+;; Add a behavior to frames 
+(doseq [[model-get column-settings fr]
+        [[midb/get-conditions v/conditions-column-settings v/conditions-frame]
+         [midb/get-gso v/gso-column-settings v/gso-frame]
+         [midb/get-references v/references-column-settings v/references-frame]
+         [midb/get-counteragents v/counteragents-column-settings v/counteragents-frame]
+         [midb/get-operations v/operations-column-settings v/operations-frame]
+         [midb/get-measurements v/measurements-column-settings v/measurements-frame]]]
+  (add-behavior
+    model-get
+    column-settings
+    fr))
 
 (def main-menu
   (v/make-main-menu
@@ -270,35 +225,19 @@
      (menu :text "Окна"
            :items 
              (vec
-               (map (fn [nm fr]
+               (map (fn [fr]
                         (action
                           :handler (fn [e]
                                        (->>
                                          fr
                                          pack!
                                          show!))
-                          :name nm))
-                    ["ГСО" "Контрагенты" "Условия поверки" "Эталоны"]
-                    [gso-frame counteragents-frame
-                     conditions-frame references-frame]))
-              #_[(action
-                     :handler (fn [e]
-                                  (->>
-                                    conditions-frame
-                                    pack!
-                                    show!))
-                     :name "Условия поверки")
-                   (action
-                     :handler (fn [e]
-                                  (->>
-                                    gso-frame
-                                    pack!
-                                    show!))
-                     :name "ГСО")
-                   (action
-                     :handler (fn [e]
-                                  (->>
-                                    counteragents-frame
-                                    pack!
-                                    show!))
-                     :name "Контрагенты")])]))
+                          :name (config fr :title)))
+                    [v/gso-frame v/counteragents-frame
+                     v/conditions-frame v/references-frame])))]))
+
+(comment
+
+(require '[metrology.view.main :as v] :reload)
+
+)

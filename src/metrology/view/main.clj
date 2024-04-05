@@ -10,6 +10,7 @@
     [metrology.view.counteragents-panel-settings :as ca-panel-settings]
     [metrology.view.references-panel-settings :as refs-panel-settings]
     [metrology.view.operations-panel-settings :as ops-panel-settings]
+    [metrology.view.measurements-panel-settings :as meas-panel-settings]
     [metrology.view.gso-panel-settings :as gso-panel-settings]))
 
 (defn make-main-menu
@@ -205,71 +206,98 @@
   (vector
     (label :text "good")))
 
+(defn make-frame
+  [id title main-menu content]
+  (frame
+    :id id
+    :title title
+    :menubar main-menu
+    ;:on-close :exit
+    :content content))
+
 (def conditions-column-settings
   (make-column-settings
     c-panel-settings/column-settings))
 
-(def conditions-toolbar-fields
-  (make-toolbar-fields
-    c-panel-settings/toolbar-fields-settings))
-
-(def conditions-table-panel
-  (make-table-panel
-    :c-table
-    conditions-toolbar-fields))
+(def conditions-frame
+  (make-frame
+    :conditions
+    "Условия поверки"
+    nil
+    (make-table-panel
+      :c-table
+      (make-toolbar-fields
+        c-panel-settings/toolbar-fields-settings))))
 
 (def gso-column-settings
   (make-column-settings
     gso-panel-settings/column-settings))
 
-(def gso-toolbar-fields
-  (make-toolbar-fields
-    gso-panel-settings/toolbar-fields-settings))
-
-(def gso-table-panel
-  (make-table-panel
-    :gso-table
-    gso-toolbar-fields))
+(def gso-frame
+  (make-frame
+    :gso
+    "ГСО"
+    nil
+    (make-table-panel
+      :gso-table
+      (make-toolbar-fields
+        gso-panel-settings/toolbar-fields-settings))))
 
 (def counteragents-column-settings
   (make-column-settings
     ca-panel-settings/column-settings))
 
-(def counteragents-toolbar-fields
-  (make-toolbar-fields
-    ca-panel-settings/toolbar-fields-settings))
-
-(def counteragents-table-panel
-  (make-table-panel
-    :ca-table
-    counteragents-toolbar-fields))
+(def counteragents-frame
+  (make-frame
+    :counteragents
+    "Контрагенты"
+    nil
+    (make-table-panel
+      :ca-table
+      (make-toolbar-fields
+        ca-panel-settings/toolbar-fields-settings))))
 
 (def references-column-settings
   (make-column-settings
     refs-panel-settings/column-settings))
 
-(def references-toolbar-fields
-  (make-toolbar-fields
-    refs-panel-settings/toolbar-fields-settings))
-
-(def references-table-panel
-  (make-table-panel
-    :refs-table
-    references-toolbar-fields))
+(def references-frame
+  (make-frame
+    :references
+    "Эталоны"
+    nil
+    (make-table-panel
+      :refs-table
+      (make-toolbar-fields
+        refs-panel-settings/toolbar-fields-settings))))
 
 (def operations-column-settings
   (make-column-settings
     ops-panel-settings/column-settings))
 
-(def operations-toolbar-fields
-  (make-toolbar-fields
-    ops-panel-settings/toolbar-fields-settings))
+(def operations-frame
+  (make-frame
+    :operations
+    "Операции поверки"
+    nil
+    (make-table-panel
+      :ops-table
+      (make-toolbar-fields
+        ops-panel-settings/toolbar-fields-settings))))
 
-(def operations-table-panel
-  (make-table-panel
-    :ops-table
-    operations-toolbar-fields))
+(def measurements-column-settings
+  (make-column-settings
+    meas-panel-settings/column-settings))
 
+(def measurements-frame
+  (make-frame
+    :measurements
+    "Результаты измерений"
+    nil
+    (make-table-panel
+      :meas-table
+      (make-toolbar-fields
+        meas-panel-settings/toolbar-fields-settings))))
 
 (comment
   
@@ -284,6 +312,12 @@
   :reload)
 (require
   '[metrology.view.verifications-panel-settings :as v-panel-settings]
+  :reload)
+(require
+  '[metrology.view.operations-panel-settings :as ops-panel-settings]
+  :reload)
+(require
+  '[metrology.view.measurements-panel-settings :as meas-panel-settings]
   :reload)
 
 )

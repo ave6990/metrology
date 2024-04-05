@@ -14,11 +14,13 @@
     [metrology.model.midb :as midb]
     [metrology.view.main :as v]
     [metrology.controller.controller :as control]
-    [metrology.controller.main-menu :as m-menu]))
+    [metrology.controller.main-menu :as m-menu]
+    [metrology.controller.table-context-menu :as table-c-menu]))
 
 (require '[metrology.view.main :as v] :reload)
 (require '[metrology.model.midb :as midb] :reload)
 (require '[metrology.controller.controller :as control] :reload)
+(require '[metrology.controller.table-context-menu :as table-c-menu] :reload)
 (def main-frame
   (->>
     (control/make-frame
@@ -26,6 +28,7 @@
       "MIdb v.0.0.1"
       control/main-menu
       v/verifications-table-panel)
+    (control/make-table-c-menu table-c-menu/verifications-table-menu)
     (control/add-behavior
       midb/get-verifications
       v/verifications-column-settings)))
@@ -46,6 +49,8 @@
        :content (w/button :text "Click Me"
                           :listen [:action handler]))
 
+(string/join '("ksdfja " "ksjf"))
+
 (:text (text :text "hello"))
 
 (find-doc "table-panel")
@@ -62,7 +67,7 @@
 
 (seesaw.event/events-for (table))
 
-(show-events (table))
+(show-events (frame))
 
 (require '[seesaw.widget-options :as w-opt])
 

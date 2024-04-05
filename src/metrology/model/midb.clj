@@ -64,6 +64,7 @@
 (make-get-fn "counteragents")
 (make-get-fn "operations")
 (make-get-fn "references")
+(make-get-fn "measurements")
 
 ;;#legacy
 (comment
