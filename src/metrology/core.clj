@@ -23,7 +23,7 @@
 (require '[metrology.controller.table-context-menu :as table-c-menu] :reload)
 (def main-frame
   (->>
-    (control/make-frame
+    (v/make-frame
       :verifications
       "MIdb v.0.0.1"
       control/main-menu
