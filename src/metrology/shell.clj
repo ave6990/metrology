@@ -3,10 +3,10 @@
 (require '[clojure.java.shell :refer [sh]])
 
 (pprint (gs2000 2
-                "CO"
-                9030
-                #_(list 2.8 25) 
-                (map #(ch/ppm->mg "CO" %1)
+                "H2S"
+                496
+                (list 50 75 95) 
+                #_(map #(ch/ppm->mg "CO" %1)
                      (list 40 250 475))))
 
 ((gs/calculator
@@ -31,7 +31,7 @@
      '(4.9 7.8 40 70))
 
 (map #(/ %1 4.4 0.01)
-     '(1.075 2.12))
+     '(2.236 4.2))
 
 (map #(* % 30)
      '(0.05 0.5 0.95))
@@ -54,7 +54,7 @@
      --and lower(mi_type) not like '%elgas%'
      --and channels = 1
      --and methodology_id = 305
-     --and components like '%H2S%'
+     and components like '%SO2%'
      --and components like '%7000%'
      --and date > '2024-02-01'
      --and comment not like 'Леонтьев'
@@ -93,14 +93,14 @@
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#protocols
-(let [where "id >= 4226"]
+(let [where "id >= 4236"]
   (gen-protocols where))
 (sh "vivaldi" (str midb-path "protocol.html"))
 
 (pprint (get-protocols-data "id = 3893"))
 
 ;; #gen#measurements#values
-(let [where "id >= 4226"]
+(let [where "id >= 4236"]
   (gen-values! where))
 
 ;;#gen#custom#protocols
@@ -112,11 +112,11 @@
 (sh "vivaldi" (str midb-path "counteragents.html"))
 
 ;; #copy#record
-(copy-record! 3949 4)
+(copy-record! 4195 1)
 
 (let [nums (map (fn [n] (str "" n))
-                (list 192889 215292 208098 208326))
-      years (repeat (count nums) nil)
+                (list "SK0821143"))
+      years (repeat (count nums) 2020)
             #_(list 2020 2020 2020 2017 2017 2017 2018)
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
@@ -128,11 +128,11 @@
             (hash-map
              ;:methodology_id 193
              ;:mi_type "СЕАН-П, мод. СЕАН-П2"
-             ;:components "CH₄ (0 - 50) % НКПР"
+             ;:components "ДТП-1 б/н"
              ;:channels 1
-             :count "9/0000596"
-             :counteragent 3
-             :conditions 1180
+             :count "9/0000387"
+             :counteragent 10646
+             :conditions 1184
              :manufacture_year y
              ;:comment "Леонтьев"
              ;:comment 11
@@ -145,7 +145,7 @@
              ;:sw_version "не ниже v.6015" 
              ;:sw_checksum "8BFD"
              ;:sw_algorithm "CRC 16"
-             ;:sw_version_real "4.21"
+             ;:sw_version_real "6.00"
              :serial_number n
              :protocol_number (+ start-protocol-number i)
              :protocol nil
@@ -191,8 +191,8 @@
 (set-v-gso!
   #_3668
   (last-id "verification")
-  #_(list 379 381 346 387 390 370)
-  (map (fn [m]
+  (list 382)
+  #_(map (fn [m]
            (:id m))
        (check-gso (list "18816-23")
                   "pass_number")))
@@ -223,11 +223,11 @@
 (sh "vivaldi" (str midb-path "conditions.html"))
 
 ;; #add#conditions
-(insert-conditions! {:date "2024-03-28"
-                     :temperature 21.7
-                     :humidity 52.1
-                     :pressure 98.43
-                     :voltage 223.1
+(insert-conditions! {:date "2024-03-27"
+                     :temperature 23.6
+                     :humidity 50.6
+                     :pressure 96.39
+                     :voltage 220.7
                      :frequency 50
                      ;:other "0,4 (0,4 ± 0,1) дм³/мин"
                      ;:location "ОГЗ"
