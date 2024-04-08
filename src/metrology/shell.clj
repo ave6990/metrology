@@ -5,7 +5,7 @@
 (pprint (gs2000 2
                 "H2S"
                 496
-                (list 50 75 95) 
+                (list 10 71 125) 
                 #_(map #(ch/ppm->mg "CO" %1)
                      (list 40 250 475))))
 
@@ -50,11 +50,11 @@
 ;; #report#find#mi
 (gen-report
   (find-records
-    "lower(mi_type) like '%Микросенс М3%'
+    "lower(mi_type) like '%gasalert%xt%'
      --and lower(mi_type) not like '%elgas%'
-     --and channels = 1
+     and channels = 3
      --and methodology_id = 305
-     and components like '%SO2%'
+     --and components like '%SO2%'
      --and components like '%7000%'
      --and date > '2024-02-01'
      --and comment not like 'Леонтьев'
@@ -112,11 +112,11 @@
 (sh "vivaldi" (str midb-path "counteragents.html"))
 
 ;; #copy#record
-(copy-record! 4195 1)
+(copy-record! 4247 1)
 
-(let [nums (map (fn [n] (str "" n))
-                (list "SK0821143"))
-      years (repeat (count nums) 2020)
+(let [nums (map (fn [n] (str "04184" n))
+                (list 2 4))
+      years (repeat (count nums) 2021)
             #_(list 2020 2020 2020 2017 2017 2017 2018)
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
@@ -130,8 +130,8 @@
              ;:mi_type "СЕАН-П, мод. СЕАН-П2"
              ;:components "ДТП-1 б/н"
              ;:channels 1
-             :count "9/0000387"
-             :counteragent 10646
+             :count "9/0000491"
+             :counteragent 50
              :conditions 1184
              :manufacture_year y
              ;:comment "Леонтьев"
@@ -145,7 +145,7 @@
              ;:sw_version "не ниже v.6015" 
              ;:sw_checksum "8BFD"
              ;:sw_algorithm "CRC 16"
-             ;:sw_version_real "6.00"
+             ;:sw_version_real "5.15"
              :serial_number n
              :protocol_number (+ start-protocol-number i)
              :protocol nil
@@ -191,7 +191,7 @@
 (set-v-gso!
   #_3668
   (last-id "verification")
-  (list 382)
+  (list 406 407 387 424 382)
   #_(map (fn [m]
            (:id m))
        (check-gso (list "18816-23")
@@ -294,9 +294,9 @@
 
 ;; #unusability#update#operations
 (unusability
-  4234
-  275
-  "негерметичен")
+  4243
+  729
+  "превышение предела допускаемой основной погрешности по каналам измерения O₂ и CH₄")
 
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
@@ -583,7 +583,7 @@
 (sh "backup_midb")
 
 ;; #hash#references
-(calc-references-hash "v_id >= 4045")
+(calc-references-hash "v_id >= 4025")
 
 ;; #documentations
 (require '[clojure.repl :refer :all])

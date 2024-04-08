@@ -32,27 +32,32 @@
   ""
   [query-get-records query-get-records-count]
   (fn [where limit offset & [group-by]]
-      {:data
-         (jdbc/query
-           midb
-           (->
-             query-get-records
-             (q-replace "where")
-             (q-replace "group-by")
-             (q-replace "limit")
-             (q-replace "offset")
-             (string/replace "group-by" "GROUP BY")
-             (string/replace "order-by" "ORDER BY")))
-       :count
-         (:count
-           (first
-             (jdbc/query
-               midb
-               (->
-                 query-get-records-count
-                 (q-replace "where")
-                 (q-replace "group-by")
-                 (string/replace "group-by" "GROUP BY")))))}))
+      (let [query-get (->
+                        query-get-records
+                        (q-replace "where")
+                        (q-replace "group-by")
+                        (q-replace "limit")
+                        (q-replace "offset")
+                        (string/replace "group-by" "GROUP BY")
+                        (string/replace "order-by" "ORDER BY"))]
+        (try
+          {:data
+               (jdbc/query
+                 midb
+                 query-get)
+           :count
+             (:count
+               (first
+                 (jdbc/query
+                   midb
+                   (->
+                     query-get-records-count
+                     (q-replace "where")
+                     (q-replace "group-by")
+                     (string/replace "group-by" "GROUP BY")))))}
+        (catch Exception e
+          (println "`get-records` query Exception!") 
+          (println query-get))))))
 
 (defmacro ^:private make-get-fn
   [name]
