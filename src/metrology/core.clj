@@ -49,9 +49,9 @@
        :content (w/button :text "Click Me"
                           :listen [:action handler]))
 
-(string/join '("ksdfja " "ksjf"))
-
 (:text (text :text "hello"))
+
+(source text)
 
 (find-doc "table-panel")
 

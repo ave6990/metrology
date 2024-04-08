@@ -257,4 +257,6 @@ from
 "select *
 from
   verification_refs
-{where}")
+{where}
+order by
+  v_id desc")
