@@ -43,20 +43,23 @@ from
   met.other as met_other, met.limited
 from
     verification as v
+inner join
+    methodology as met
+    on met.id = v.methodology_id
 left join
     conditions as c
     on c.id = v.conditions
 inner join
     counteragents as ca
     on ca.id = v.counteragent
-inner join
-    methodology as met
-    on met.id = v.methodology_id
 order by
   c.date desc,
   v.id desc)
 {where}
 {group-by}
+order by
+  date desc,
+  id desc
 {limit}
 {offset}")
 
