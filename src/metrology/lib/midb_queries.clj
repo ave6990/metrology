@@ -129,10 +129,7 @@ left join
     on c.id = v.conditions
 inner join
   counteragents as ca
-  on ca.id = v.counteragent
-order by
-    c.date desc,
-    v.id desc)
+  on ca.id = v.counteragent)
 where
    {where} 
 group by

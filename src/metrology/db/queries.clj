@@ -5,6 +5,7 @@
 (def get-verifications-records-count
 "select count(*) as count
 from
+(select * from 
 (select
   v.id as id, v.engineer, v.count, v.counteragent, v.conditions,
   v.verification_type as v_type,
@@ -32,12 +33,9 @@ left join
     on c.id = v.conditions
 inner join
     counteragents as ca
-    on ca.id = v.counteragent
-order by
-  c.date desc,
-  v.id desc)
+    on ca.id = v.counteragent)
 {where}
-{group-by}")
+{group-by})")
 
 (def get-verifications
 "select *
@@ -69,10 +67,7 @@ left join
     on c.id = v.conditions
 inner join
     counteragents as ca
-    on ca.id = v.counteragent
-order by
-  c.date desc,
-  v.id desc)
+    on ca.id = v.counteragent)
 {where}
 {group-by}
 order by

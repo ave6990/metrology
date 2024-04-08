@@ -63,7 +63,7 @@
 
 (source seesaw.table/value-at)
 
-(show-options (table))
+(show-options (text))
 
 (seesaw.event/events-for (table))
 

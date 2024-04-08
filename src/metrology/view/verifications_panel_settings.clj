@@ -47,3 +47,10 @@
    ["состав" " components "]
    ["счет" " count "]
    ["тип СИ" " mi_type "]))
+
+(def checkboxes-settings
+  '(["КСП" "hash_refs" :group-by]
+    ["тип СИ" "mi_type" :group-by]
+    ["каналов" "channels" :group-by]
+    ["состав" "components" :group-by]
+    ["методика" "methodology_id" :group-by]))

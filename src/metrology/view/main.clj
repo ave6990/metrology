@@ -40,6 +40,15 @@
                      :user-data data))
          items)))
 
+(defn make-checkboxes-vec
+  [items]
+  (vec
+    (map (fn [[txt data cls]]
+             (checkbox :class cls
+                       :text txt
+                       :user-data data))
+         items)))
+
 (defn make-toolbar-fields  
   [items]
   (toolbar
@@ -103,34 +112,6 @@
   (label :id :status-label
          :text s))
 
-#_(defn navigation-panel
-  []
-  (#_toolbar horizontal-panel
-    :items
-      [(text :id :page-text
-             :border 5
-             :halign :center
-             :text "1"
-             :size [50 :by 40])
-       (button :id :prev-page-button
-               :border 5
-               :size [20 :by 40]
-               :text "<")
-       (button :id :next-page-button
-               :border 5
-               :size [20 :by 40]
-               :text ">")
-       (label :id :pages-label
-              :border 5
-              :size [100 :by 40]
-              :text "1")
-       (scrollable
-         (text :id :query-text)
-         :hscroll :always)
-       ;;TOFIX use the cursor position to paste a text at the position
-       #_(label :id :cursor-position-label
-              :text "0")]))
-
 (defn navigation-panel
   []
   (mig-panel
@@ -152,7 +133,9 @@
                :text ">")
         "width 20"]
        [(scrollable
-         (text :id :query-text)
+         (text :id :query-text
+               #_(:multi-line? true
+               :wrap-lines? true))
          :hscroll :always)
         "width 100%, span 1 2, wrap"]
        [(label :id :pages-label
@@ -190,17 +173,23 @@
   (->>
     (make-buttons-vec
       v-panel-settings/toolbar-fields-settings)
-    (cons
-      (checkbox :class :group-by
-                :text "группировка по КСП"
-                :user-data "mi_type, methodology_id, channels, hash_refs"))
+    vec
+    (toolbar :items)))
+
+(def verifications-toolbar-group-by
+  (->>
+    (make-checkboxes-vec
+      v-panel-settings/checkboxes-settings)
     vec
     (toolbar :items)))
 
 (def verifications-table-panel
   (make-table-panel
     :v-table
-    verifications-toolbar-fields))
+    (mig-panel
+      :items
+        [[verifications-toolbar-fields "width 100%, wrap"]
+         [verifications-toolbar-group-by]])))
 
 (def verifications-edit-panel
   (vector
