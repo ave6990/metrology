@@ -246,3 +246,15 @@ inner join
 {where}
 {limit}
 {offset}")
+
+(def get-set-verification-tools-records-count
+"select count(*) as count
+from
+  verification_refs
+{where}")
+
+(def get-set-verification-tools
+"select *
+from
+  verification_refs
+{where}")

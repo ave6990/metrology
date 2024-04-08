@@ -212,7 +212,8 @@
          [midb/get-references v/references-column-settings v/references-frame]
          [midb/get-counteragents v/counteragents-column-settings v/counteragents-frame]
          [midb/get-operations v/operations-column-settings v/operations-frame]
-         [midb/get-measurements v/measurements-column-settings v/measurements-frame]]]
+         [midb/get-measurements v/measurements-column-settings v/measurements-frame]
+         [midb/get-set-verification-tools v/svt-column-settings v/svt-frame]]]
   (add-behavior
     model-get
     column-settings
@@ -239,5 +240,6 @@
 (comment
 
 (require '[metrology.view.main :as v] :reload)
+(require '[metrology.controller.table-context-menu :as table-c-menu])
 
 )

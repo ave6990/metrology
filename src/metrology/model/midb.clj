@@ -75,6 +75,7 @@
 (make-get-fn "operations")
 (make-get-fn "references")
 (make-get-fn "measurements")
+(make-get-fn "set-verification-tools")
 
 ;;#legacy
 (comment

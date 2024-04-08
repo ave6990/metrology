@@ -24,6 +24,15 @@
 (defn verifications-table-menu
   [e]
   [(action
+     :name "КСП"
+     :handler
+       (fn [e]
+           (->>
+             v/svt-frame
+             (make-filter-string :id " v_id = " (to-frame e))
+             pack!
+             show!)))
+   (action
      :name "Операции поверки"
      :handler
        (fn [e]

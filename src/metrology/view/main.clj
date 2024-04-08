@@ -11,6 +11,7 @@
     [metrology.view.references-panel-settings :as refs-panel-settings]
     [metrology.view.operations-panel-settings :as ops-panel-settings]
     [metrology.view.measurements-panel-settings :as meas-panel-settings]
+    [metrology.view.set-verification-tools-panel-settings :as svt-panel-settings]
     [metrology.view.gso-panel-settings :as gso-panel-settings]))
 
 (defn make-main-menu
@@ -218,6 +219,20 @@
       (make-toolbar-fields
         c-panel-settings/toolbar-fields-settings))))
 
+(def svt-column-settings
+  (make-column-settings
+    svt-panel-settings/column-settings))
+
+(def svt-frame
+  (make-frame
+    :set-verification-tools
+    "КСП"
+    nil
+    (make-table-panel
+      :svt-table
+      (make-toolbar-fields
+        svt-panel-settings/toolbar-fields-settings))))
+
 (def gso-column-settings
   (make-column-settings
     gso-panel-settings/column-settings))
@@ -307,6 +322,9 @@
   :reload)
 (require
   '[metrology.view.measurements-panel-settings :as meas-panel-settings]
+  :reload)
+(require
+  '[metrology.view.set-verification-tools-panel-settings :as svt-panel-settings]
   :reload)
 
 )

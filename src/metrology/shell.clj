@@ -5,7 +5,7 @@
 (pprint (gs2000 2
                 "H2S"
                 496
-                (list 10 71 125) 
+                (list 2 8.5) 
                 #_(map #(ch/ppm->mg "CO" %1)
                      (list 40 250 475))))
 
@@ -23,7 +23,7 @@
               "CO")
      '(2.149829 20.0330705))
 
-(* 28.5 0.05)
+(* 0.94 0.05)
 
 (ch/mg->ppm "NH3" 1600)
 
@@ -31,7 +31,7 @@
      '(4.9 7.8 40 70))
 
 (map #(/ %1 4.4 0.01)
-     '(2.236 4.2))
+     '(1.075 1.806))
 
 (map #(* % 30)
      '(0.05 0.5 0.95))
@@ -50,9 +50,9 @@
 ;; #report#find#mi
 (gen-report
   (find-records
-    "lower(mi_type) like '%gasalert%xt%'
+    "lower(mi_type) like '%ЭРИС-210%'
      --and lower(mi_type) not like '%elgas%'
-     and channels = 3
+     --and channels = 3
      --and methodology_id = 305
      --and components like '%SO2%'
      --and components like '%7000%'
@@ -93,14 +93,14 @@
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#protocols
-(let [where "id >= 4236"]
+(let [where "id = 4225"]
   (gen-protocols where))
 (sh "vivaldi" (str midb-path "protocol.html"))
 
 (pprint (get-protocols-data "id = 3893"))
 
 ;; #gen#measurements#values
-(let [where "id >= 4236"]
+(let [where "id >= 4259"]
   (gen-values! where))
 
 ;;#gen#custom#protocols
@@ -112,11 +112,11 @@
 (sh "vivaldi" (str midb-path "counteragents.html"))
 
 ;; #copy#record
-(copy-record! 4247 1)
+(copy-record! 2833 1)
 
-(let [nums (map (fn [n] (str "04184" n))
-                (list 2 4))
-      years (repeat (count nums) 2021)
+(let [nums (map (fn [n] (str "" n))
+                (list 2741))
+      years (repeat (count nums) 2015)
             #_(list 2020 2020 2020 2017 2017 2017 2018)
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
@@ -128,13 +128,13 @@
             (hash-map
              ;:methodology_id 193
              ;:mi_type "СЕАН-П, мод. СЕАН-П2"
-             ;:components "ДТП-1 б/н"
+             ;:components "БД зав. №№: 2736, 6400, 11422, 6130, 2751, 4739, 4962, 1850"
              ;:channels 1
-             :count "9/0000491"
-             :counteragent 50
-             :conditions 1184
+             :count "9/0000635"
+             ;:counteragent 5 
+             :conditions 1188
              :manufacture_year y
-             ;:comment "Леонтьев"
+             :comment "Леонтьев"
              ;:comment 11
              ;:comment "ГИС блок 2"
              ;:upload 1
@@ -145,7 +145,7 @@
              ;:sw_version "не ниже v.6015" 
              ;:sw_checksum "8BFD"
              ;:sw_algorithm "CRC 16"
-             ;:sw_version_real "5.15"
+             ;:sw_version_real "50D"
              :serial_number n
              :protocol_number (+ start-protocol-number i)
              :protocol nil
@@ -166,7 +166,7 @@
   "returning mi_types, components")
 
 ;; #delete#record
-(delete-record! 4186)
+(delete-record! 4286)
 
 ;; Удалить записи с id >=
 ;; #delete#record
@@ -191,7 +191,7 @@
 (set-v-gso!
   #_3668
   (last-id "verification")
-  (list 406 407 387 424 382)
+  (list 406 407)
   #_(map (fn [m]
            (:id m))
        (check-gso (list "18816-23")
@@ -208,7 +208,7 @@
     and gso_id = ?" 3349 332])
 
 ;; #copy#gso
-(copy-v-gso! 4170 '(4175))
+(copy-v-gso! 4251 '(4252))
 
 ;; #delete#gso
 (delete-v-gso! 2343)
@@ -223,11 +223,11 @@
 (sh "vivaldi" (str midb-path "conditions.html"))
 
 ;; #add#conditions
-(insert-conditions! {:date "2024-03-27"
-                     :temperature 23.6
-                     :humidity 50.6
-                     :pressure 96.39
-                     :voltage 220.7
+(insert-conditions! {:date "2024-04-08"
+                     :temperature 22.2
+                     :humidity 53.8
+                     :pressure 100.83
+                     :voltage 224.7
                      :frequency 50
                      ;:other "0,4 (0,4 ± 0,1) дм³/мин"
                      ;:location "ОГЗ"
@@ -243,7 +243,7 @@
   ["id = ?" 1147])
 
 ;; #set#refs
-(set-v-refs! ;3668
+(set-v-refs! ;4195
              (last-id "verification")
              (list 3151 2768)
              #_(list 2765 2768))
@@ -294,9 +294,9 @@
 
 ;; #unusability#update#operations
 (unusability
-  4243
-  729
-  "превышение предела допускаемой основной погрешности по каналам измерения O₂ и CH₄")
+  4287
+  311
+  "негерметичен")
 
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
