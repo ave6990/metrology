@@ -5,15 +5,19 @@
     [seesaw.table :refer [table-model value-at update-at!]]
     [metrology.view.main :as v]))
 
+(defn get-selection-field-values
+  [field tab]
+  (->>
+    (selection tab {:multi? true})
+    (value-at tab)
+    (map field)))
+
 (defn make-filter-string
   [field where root fr]
   (let [query-text (select fr [:#query-text])
         tab (select root [:#v-table])
-        id (->>
-             (selection tab {:multi? true})
-             (value-at
-                 tab)
-             (map field))]
+        id (get-selection-field-values
+             field tab)]
     (text!
       query-text
       (str
@@ -21,9 +25,36 @@
         (string/join (str " or " where) id))))
   fr)
 
+(defn make-delete-dialog
+   [ids]
+   (dialog
+     :content
+       (label
+         :text (str "Удалить записи: "
+                    (string/join ", " ids)
+                    "?"))
+     :option-type :ok-cancel
+     :type :warning
+     :success-fn (fn [e] ())))
+
 (defn verifications-table-menu
   [e]
   [(action
+     :name "Копировать запись"
+     :handler
+       (fn [e]
+           ()))
+   (action
+     :name "Удалить запись"
+     :handler
+       (fn [e]
+           (let [tab (select (to-frame e) [:#v-table])]
+             (->>
+               (make-delete-dialog 
+                 (get-selection-field-values :id tab))
+               show!))))
+   (separator)
+   (action
      :name "КСП"
      :handler
        (fn [e]

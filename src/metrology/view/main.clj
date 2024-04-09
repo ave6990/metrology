@@ -62,8 +62,8 @@
   (toolbar
     :items
       (->>
-        '(["AND" " AND ()"]
-          ["OR" " OR ()"]
+        '(["AND" " AND "]
+          ["OR" " OR "]
           ["LIKE" " LIKE '%%'"]
           ["IS" " IS "]
           ["NOT" " NOT "]
@@ -99,15 +99,6 @@
     :hscroll :as-needed
     :vscroll :as-needed))
 
-(def tab
-  (scrollable
-    (table
-      :id :v-table
-      :auto-resize :off
-      :selection-mode :multi-interval)
-    :hscroll :as-needed
-    :vscroll :as-needed))
-
 (defn status-label
   [s]
   (label :id :status-label
@@ -122,17 +113,17 @@
              :halign :center
              :size [50 :by 20]
              :text "1")
-        "width 50"]
+        "width 100px"]
        [(button :id :prev-page-button
                ;:border 5
-               ;:size [20 :by 40]
+               ;:size [30 :by 20]
                :text "<")
-        "width 20"]
+        "width 20px"]
        [(button :id :next-page-button
                ;:border 5
-               ;:size [20 :by 40]
+               ;:size [20 :by 20]
                :text ">")
-        "width 20"]
+        "width 20px"]
        [(scrollable
          (text :id :query-text
                #_(:multi-line? true
@@ -143,28 +134,31 @@
               ;:border 5
               ;:size [100 :by 40]
               :text "1")
-        "span 3"]
+        "align center, span 3"]
        ;;TOFIX use the cursor position to paste a text at the position
        #_(label :id :cursor-position-label
               :text "0")]))
 
 (defn make-table-panel
-  [id toolbar-fields]
+  [id toolbars]
   (border-panel
      :border 2
-     :north  (mig-panel
-               :items [[toolbar-fields "width 100%, span 2, wrap"]
-                       [(toolbar-operations-panel)]
-                       [(toolbar-symbols-panel) "grow, wrap"]
-                       [(navigation-panel) "span 2, grow, wrap"]])
-     :center (vertical-panel
+     :north  toolbars
+             #_(mig-panel
+               :items [[toolbars "width 100%, span 2, wrap"]])
+     :center (mig-panel
                 :items
-                  [(make-table id)
-                   (mig-panel
-                     :id :edit-panel
-                     :visible? false)]) 
-     :south (label :id :status-label
-                   :text "Готов!")))
+                  [[(toolbar-operations-panel)]
+                   [(toolbar-symbols-panel) "grow, wrap"]
+                   [(navigation-panel) "span 2, grow, wrap"]
+                   [(make-table id) "height 100%, span 2, grow, wrap"]]) 
+     :south (vertical-panel
+              :items
+                [(mig-panel
+                   :id :edit-panel
+                   :visible? false)
+                 (label :id :status-label
+                   :text "Готов!")])))
 
 (def verifications-column-settings
   (make-column-settings
@@ -188,6 +182,7 @@
   (make-table-panel
     :v-table
     (mig-panel
+      :border 0
       :items
         [[verifications-toolbar-fields "width 100%, wrap"]
          [verifications-toolbar-group-by]])))
