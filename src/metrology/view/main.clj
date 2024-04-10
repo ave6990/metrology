@@ -1,5 +1,6 @@
 (ns metrology.view.main
   (:require 
+    [clojure.string :as string]
     [seesaw.core :refer :all]
     [seesaw.mig :refer [mig-panel]]
     [metrology.lib.chemistry :as ch]
@@ -19,6 +20,40 @@
   (menubar
      :id :main-menu
      :items items))
+
+(defn make-delete-dialog
+   [ids del-fn]
+   (dialog
+     :modal? true
+     :content
+       (label
+         :text (str "Удалить записи: "
+                    (string/join ", " ids)
+                    "?"))
+     :option-type :ok-cancel
+     :type :warning
+     :success-fn (del-fn ids)))
+
+(defn make-copy-dialog
+   [ids copy-fn]
+   (let [txt (text
+               :id :copy-count
+               :size [75 :by 20]
+               :text "1")]
+     (dialog
+       :modal? true
+       :content
+         (horizontal-panel
+           :items
+           [(label
+             :text (str "Копировать запись с id: "
+                        (string/join ", " ids)
+                        ". Укажите количество копий."))
+            txt])
+       :option-type :ok-cancel
+       :type :warning
+       :success-fn (copy-fn (first ids)
+                            txt))))
 
 (defstruct column-attr
   :key

@@ -77,15 +77,13 @@
 (make-get-fn "measurements")
 (make-get-fn "set-verification-tools")
 
-;;#legacy
-(comment
-
+;;copy
 (defn last-id
-  "Получить id последней записи заданной таблицы."
-  [s]
+  "Получить id последней записи таблицы поверок."
+  []
   (:id (first (jdbc/query 
                 midb
-                (q/last-id s)))))
+                q/last-id))))
 
 (defn next-id
   "Получить очередной id."
@@ -100,61 +98,6 @@
   (:protocol_number (first (jdbc/query
                              midb
                              q/next-protocol-number))))
-
-(defn insert-conditions!
-  "Вставка данных условий поверки в БД."
-  ([m]
-    (jdbc/insert! midb :conditions m))
-  ([date temp moist press volt]
-    (insert-conditions! (hash-map :date date
-                                  :temperature temp
-                                  :humidity moist
-                                  :pressure press
-                                  :voltage 50 
-                                  :location "ОЦСМ"))))
-
-(defn get-conditions
-  "Возвращает запись БД с условиями поверки на заданную дату."
-  [date]
-  (jdbc/query midb
-              ["select * from conditions where date = ?" date]))
-
-(defn conditions
-  ""
-  [date]
-  (spit
-    (str midb-path
-         "conditions.html")
-    (report/conditions-report (get-conditions date))))
-
-(defn find-records
-  ""
-  ([s]
-    (map (fn [m]
-             (:id m))
-         (jdbc/query
-          midb
-          (string/replace
-            q/find-records
-            "{where}"
-            s)))))
-
-(defn find-verifications
-   ""
-  ([s]
-    (map (fn [m]
-             (:id m))
-         (jdbc/query
-          midb
-          (string/replace
-            q/find-verifications
-            "{where}"
-            s)))))
-
-(defn find-methodology
-  "Возвращает список записей методик поверки соответствующих запросу."
-  [s]
-  (jdbc/query midb [q/find-methodology (str "%" s "%")]))
 
 (defn copy-verification!
   "Копировать строку таблицы verification."
@@ -199,7 +142,7 @@
       (doall
         (map (fn [~id-to]
                  (map (fn [~f ~args] (~f ~args))
-                      [~(symbol (str "metrology.lib.midb/delete-" s "!"))
+                      [~(symbol (str "metrology.model.midb/delete-" s "!"))
                         (partial jdbc/execute! midb)]
                       [~id-to
                         [~(symbol (str "q/copy-" s))
@@ -249,11 +192,20 @@
   ([id-from]
     (copy-record! id-from 1)))
 
-(defn get-verification
-  "Возвращает hash-map записи verification."
-  [id]
-  (first (jdbc/query midb
-              ["select * from verification where id = ?" id]))) 
+;;#legacy
+(comment
+
+(defn insert-conditions!
+  "Вставка данных условий поверки в БД."
+  ([m]
+    (jdbc/insert! midb :conditions m))
+  ([date temp moist press volt]
+    (insert-conditions! (hash-map :date date
+                                  :temperature temp
+                                  :humidity moist
+                                  :pressure press
+                                  :voltage 50 
+                                  :location "ОЦСМ"))))
 
 (defmacro defn-get
   [s s-id]
@@ -577,41 +529,6 @@
      (report/verification-report (get-report-data coll))))
   ([from to]
    (gen-report (range from (inc to)))))
-
-(defn find-counteragent
-  "Возвращает список контрагентов соответствующих запросу."
-  [s]
-  (jdbc/query midb [q/counteragents (str "%" s "%")]))
-
-(defn counteragents
-  ""
-  [s]
-  (spit
-    (str midb-path
-         "counteragents.html")
-    (report/counteragents-report (find-counteragent s))))
-
-(defn gso
-  ([where]
-  (spit
-    (str midb-path "gso.html")
-    (report/gso-report
-      (jdbc/query
-        midb
-        (str "select * from gso"
-             (if (= "" where)
-                 ""
-                 (str " where " where))
-             " order by available desc, components, conc")))))
-  ([]
-   (gso "")))
-
-(defn methodology
-  [coll]
-  (spit
-    (str midb-path
-         "methodology.html")
-    (report/methodology-report (get-methodology-data coll))))
 
 (defn gen-values!
   "Записывает в БД случайные значения результатов измерений в пределах
