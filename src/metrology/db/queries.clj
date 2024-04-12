@@ -26,12 +26,12 @@
     met.other as met_other, met.limited
   from
       verification as v
-  inner join
-      methodology as met
-      on met.id = v.methodology_id
   left join
       conditions as c
       on c.id = v.conditions
+  inner join
+      methodology as met
+      on met.id = v.methodology_id
   inner join
       counteragents as ca
       on ca.id = v.counteragent)
@@ -60,18 +60,19 @@
     met.other as met_other, met.limited
   from
       verification as v
-  inner join
-      methodology as met
-      on met.id = v.methodology_id
   left join
       conditions as c
       on c.id = v.conditions
+  inner join
+      methodology as met
+      on met.id = v.methodology_id
   inner join
       counteragents as ca
       on ca.id = v.counteragent)
   {where}
   {group-by}
   order by
+    upload,
     date desc,
     id desc
   {limit}

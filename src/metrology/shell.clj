@@ -567,12 +567,12 @@
     auto
     :travel_order
     {:auto_id 1
-     :count "9/0000"
-     :date_departure "2024-03-19T10:00"
-     :date_arrive "2024-03-19T13:30"
-     :odometr_departure 239660
-     :fuel_departure 21.03
-     :odometr_arrive 239725
+     :count "9/0000735"
+     :date_departure "2024-04-10T09:00"
+     :date_arrive "2024-04-10T15:00"
+     :odometr_departure 240964
+     :fuel_departure 15.40
+     :odometr_arrive 241062
      :fuel_add 0})
   (pprint
     (jdbc/query

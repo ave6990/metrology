@@ -168,10 +168,11 @@
   "Удалить запись о поверке с заданным id, вместе с данными о
    эталонах, операциях и измерениях."
    [id]
-   (map (fn [f] (f id))
-        (list delete-v-gso! delete-v-refs! delete-v-opt-refs!
-         delete-v-operations!
-         delete-measurements! delete-verification!)))
+   (dorun
+     (map (fn [f] (f id))
+          (list delete-v-gso! delete-v-refs! delete-v-opt-refs!
+                delete-v-operations!
+                delete-measurements! delete-verification!))))
 
 (defn copy-record!
   "Копировать запиь о поверке с данными о применяемых эталонах, операциях
@@ -179,8 +180,9 @@
    args:
      id - целочисленный идентификатор записи в БД."
   ([id-from n]
+    (dorun
     (map (fn [i]
-          (let [id-to (inc (last-id "verification"))]
+          (let [id-to (inc (last-id))]
             (conj (copy-verification! id-from)
                   (map (fn [f] (f id-from (list id-to)))
                        (list copy-v-gso!
@@ -188,7 +190,7 @@
                              copy-v-opt-refs!
                              copy-v-operations!
                              copy-measurements!)))))
-         (range n)))
+         (range n))))
   ([id-from]
     (copy-record! id-from 1)))
 
@@ -436,8 +438,8 @@
       (jdbc/insert-multi!
         midb
         :v_gso
-        (vec (map (fn [el] (hash-map :v_id v-id :gso_id el))
-                  coll)))))
+        (vec (doall (map (fn [el] (hash-map :v_id v-id :gso_id el))
+                  coll))))))
 
 (defn set-v-refs!
   [v-id coll]
@@ -661,6 +663,7 @@
 
 (require '[metrology.lib.gen-html :refer :all] :reload)
 
+(ns metrology.model.midb)
 (require '[metrology.db.queries :as q] :reload)
 
 (require '[metrology.lib.chemistry :as ch] :reload)

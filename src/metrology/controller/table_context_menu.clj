@@ -3,6 +3,7 @@
     [clojure.string :as string]
     [seesaw.core :refer :all]
     [seesaw.table :refer [table-model value-at update-at!]]
+    [metrology.model.midb :as midb]
     [metrology.view.main :as v]))
 
 (defn get-selection-field-values
@@ -28,12 +29,17 @@
 (defn make-delete-fn
   [ids]
   (fn [e]
+      (dorun
+        (map (fn [id]
+                 (midb/delete-record! id))
+             ids))
       (println (str "Удалены записи " (string/join ", " ids)))))
 
 (defn make-copy-fn
   [id txt]
   (fn [e]
-      (println (str "Запись " id " скопирована " (value txt) " раз."))))
+      (midb/copy-record! id (read-string (value txt)))
+      (println (str "Запись " id " скопирована " (value txt) " раз!"))))
 
 (defn verifications-table-menu
   [e]
@@ -54,7 +60,6 @@
              (->>
                (v/make-delete-dialog 
                  (get-selection-field-values :id tab)
-                 ;;TOFIX change the functoin at delete-records function
                  make-delete-fn)
                show!)))
      (separator)
@@ -85,3 +90,10 @@
               (make-filter-string :id "v.id = " (to-frame e))
               pack!
               show!)))]))
+
+(comment
+
+(ns metrology.controller.table-context-menu)
+(require '[metrology.model.midb :as midb] :reload)
+
+)

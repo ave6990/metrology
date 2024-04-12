@@ -17,6 +17,7 @@
     [metrology.controller.main-menu :as m-menu]
     [metrology.controller.table-context-menu :as table-c-menu]))
 
+(ns metrology.core)
 (require '[metrology.view.main :as v] :reload)
 (require '[metrology.model.midb :as midb] :reload)
 (require '[metrology.controller.controller :as control] :reload)
@@ -43,6 +44,10 @@
 (-main)
 
 (comment
+
+(midb/copy-record! 4290 1)
+
+(midb/delete-record! 4292)
 
 (frame :title "Hello Swing"
        :on-close :exit

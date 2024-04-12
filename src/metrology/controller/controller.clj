@@ -239,6 +239,7 @@
 
 (comment
 
+(ns metrology.controller.controller)
 (require '[metrology.view.main :as v] :reload)
 (require '[metrology.controller.table-context-menu :as table-c-menu])
 

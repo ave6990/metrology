@@ -43,13 +43,15 @@
      (dialog
        :modal? true
        :content
-         (horizontal-panel
+         (mig-panel
            :items
-           [(label
+            [[(label
              :text (str "Копировать запись с id: "
                         (string/join ", " ids)
-                        ". Укажите количество копий."))
-            txt])
+                        ".")) "width 100%, wrap"]
+             [(label
+                  :text "Укажите количество копий: ")]
+             [txt "wrap"]])
        :option-type :ok-cancel
        :type :warning
        :success-fn (copy-fn (first ids)
