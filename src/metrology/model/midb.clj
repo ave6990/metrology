@@ -139,16 +139,17 @@
             s
             " соответствующие заданному v_id.")
       [~id-from ~ids-to]
-      (doall
+      (dorun
         (map (fn [~id-to]
-                 (map (fn [~f ~args] (~f ~args))
-                      [~(symbol (str "metrology.model.midb/delete-" s "!"))
-                        (partial jdbc/execute! midb)]
-                      [~id-to
-                        [~(symbol (str "q/copy-" s))
-                        ~id-to
-                        ~id-from]]))
-          ~ids-to)))))
+                 (dorun
+                   (map (fn [~f ~args] (~f ~args))
+                        [~(symbol (str "metrology.model.midb/delete-" s "!"))
+                          (partial jdbc/execute! midb)]
+                        [~id-to
+                          [~(symbol (str "q/copy-" s))
+                          ~id-to
+                          ~id-from]])))
+            ~ids-to)))))
 
 (defn-copy v-gso)
 (defn-copy v-refs)
@@ -181,16 +182,17 @@
      id - целочисленный идентификатор записи в БД."
   ([id-from n]
     (dorun
-    (map (fn [i]
-          (let [id-to (inc (last-id))]
-            (conj (copy-verification! id-from)
-                  (map (fn [f] (f id-from (list id-to)))
-                       (list copy-v-gso!
-                             copy-v-refs!
-                             copy-v-opt-refs!
-                             copy-v-operations!
-                             copy-measurements!)))))
-         (range n))))
+      (map (fn [i]
+            (let [id-to (inc (last-id))]
+              (conj (copy-verification! id-from)
+                    (dorun
+                      (map (fn [f] (f id-from (list id-to)))
+                           (list copy-v-gso!
+                                 copy-v-refs!
+                                 copy-v-opt-refs!
+                                 copy-v-operations!
+                                 copy-measurements!))))))
+           (range n))))
   ([id-from]
     (copy-record! id-from 1)))
 
@@ -532,22 +534,26 @@
   ([from to]
    (gen-report (range from (inc to)))))
 
+;; TOIFX added `dorun functions.
 (defn gen-values!
   "Записывает в БД случайные значения результатов измерений в пределах
    основной погрешности."
   [where]
-  (map (fn [prot] 
-           (map (fn [m]
-                    (map (fn [r]
-                             (jdbc/update!
-                               midb
-                               :measurements
-                               {:value (:value r)}
-                               ["id = ?"
-                                 (:measurement_id r)]))
-                         (metr/gen-values m)))
-                (list (:measurements prot))))
-       (get-protocols-data where)))
+  (dorun
+    (map (fn [prot] 
+             (dorun
+               (map (fn [m]
+                        (dorun
+                          (map (fn [r]
+                                   (jdbc/update!
+                                     midb
+                                     :measurements
+                                     {:value (:value r)}
+                                     ["id = ?"
+                                       (:measurement_id r)]))
+                               (metr/gen-values m)))
+                    (list (:measurements prot)))))
+         (get-protocols-data where))))
 
 (defn insert-measurements
   [id ch-name coll cmnt]
