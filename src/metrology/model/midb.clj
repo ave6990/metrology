@@ -17,6 +17,21 @@
 
 (db/defdb midb)
 
+(defn insert!
+  [id data]
+  (jdbc/insert!
+    midb
+    id
+    data))
+
+(defn update!
+  [id data]
+  (jdbc/update!
+    midb
+    id
+    data
+    ["id = ?" (:id data)]))
+
 (defmacro ^:private q-replace
   "The macros expand to:
     `(string/replace query \"{s}\" s)`"
@@ -109,7 +124,7 @@
   [id]
   (jdbc/delete! midb :verification ["id = ?;" id]))
 
-(defmacro defn-delete
+(defmacro defn-delete-by-v-id
   [s]
   (let [id (gensym "id")]
     `(defn ~(symbol (str "delete-" s "!"))
@@ -121,11 +136,26 @@
                     ~(keyword (clojure.string/replace s "-" "_"))
                     ["v_id = ?" ~id]))))
 
-(defn-delete v-gso)
-(defn-delete v-refs)
-(defn-delete v-opt-refs)
-(defn-delete v-operations)
-(defn-delete measurements)
+(defn-delete-by-v-id v-gso)
+(defn-delete-by-v-id v-refs)
+(defn-delete-by-v-id v-opt-refs)
+(defn-delete-by-v-id v-operations)
+(defn-delete-by-v-id measurements)
+
+(defmacro defn-delete-by-id
+  [s]
+  (let [id (gensym "id")]
+    `(defn ~(symbol (str "delete-" s "!"))
+      ~(str "Удалить строки таблицы "
+            (clojure.string/replace s "-" "_")
+            " соответствующие заданному id.")
+      [~id]
+      (jdbc/delete! midb 
+                    ~(keyword (clojure.string/replace s "-" "_"))
+                    ["id = ?" ~id]))))
+
+(defn-delete-by-id conditions)
+(defn-delete-by-id gso)
 
 (defmacro defn-copy
   [s]
@@ -553,7 +583,7 @@
                                        (:measurement_id r)]))
                                (metr/gen-values m)))
                     (list (:measurements prot)))))
-         (get-protocols-data where))))
+         (get-protocols-data where)))))
 
 (defn insert-measurements
   [id ch-name coll cmnt]

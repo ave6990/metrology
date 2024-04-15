@@ -3,7 +3,6 @@
 (def column-settings
   [[:id 50 nil]
    [:date 100 nil]
-   [:upload 25 nil]
    [:temperature 75 nil]
    [:humidity 75 nil]
    [:pressure 75 nil]
@@ -18,3 +17,14 @@
     ["дата" " date "]
     ["локация" " location "]
     ["комментарий" " comment "]))
+
+(def edit-panel-settings
+  '(["id" :id ""]
+    ["Дата" :date ""]
+    ["Температура, °C" :temperature ""]
+    ["Влажность, %" :humidity ""]
+    ["Давление, кПа" :pressure ""]
+    ["Напряжение, В" :voltage ""]
+    ["Частота, Гц" :frequency ""]
+    ["Место" :location ""]
+    ["Комментарий" :comment ""]))

@@ -25,10 +25,17 @@
   [column-settings]
   (fn [e]
     (let [root (to-frame e)
-          tab (select root [:#v-table])]
-      (println (value-at
-                  tab
-                  (selection tab {:multi? true}))))))
+          tab (select root [:#v-table])
+          edit-fields (select root [:.record-editor])
+          record (first
+                   (value-at
+                     tab
+                     (selection tab {:multi? true})))]
+      (dorun (map (fn [field]
+               (value! field
+                      ((config field :id) record)))
+           edit-fields))
+      (println record))))
 
 (defn make-table-c-menu
   [menu fr]
@@ -148,6 +155,61 @@
               pages-count)))
       (query-event-handler e)))
 
+(defn read-fields
+  [fields]
+  (doall
+    (reduce (fn [m field]
+                (let [v (value field)]
+                  (if (not= v "")
+                      (assoc m (config field :id) v)
+                      m)))
+         {}
+         fields)))
+
+(defn make-insert-fn
+  [id data]
+  (fn [e]
+      (midb/insert!
+        id
+        data)))
+
+(defn make-update-fn
+  [id data]
+  (fn [e]
+      (midb/update!
+        id
+        data)))
+
+(defn save-button-clicked
+  [e]
+  (let [root (to-root e)
+        btn (to-widget e)
+        tab-id (user-data btn)
+        m (read-fields (select root [:.record-editor]))]
+    (when (not (empty? m))
+          (if (:id m)
+              (->>
+                (v/make-insert-dialog
+                  tab-id
+                  m
+                  make-update-fn)
+                show!)
+              (->>
+                (v/make-insert-dialog
+                  tab-id
+                  m
+                  make-insert-fn)
+                show!)))))
+
+(defn clear-button-clicked
+  [e]
+  (let [root (to-root e)
+        edit-fields (select root [:.record-editor])]
+    (dorun
+      (map (fn [field]
+               (text! field ""))
+           edit-fields))))
+
 (defn add-behavior
   [fn-get-records column-settings root]
   (let [query (select root [:#query-text])
@@ -156,6 +218,9 @@
         page-text (select root [:#page-text])
         prev-page-button (select root [:#prev-page-button])
         next-page-button (select root [:#next-page-button])
+        save-button (select root [:#save-button])
+        clear-button (select root [:#clear-button])
+        cancel-button (select root [:#cancel-button])
         pages-label (select root [:#pages-label])
         query-handler (make-query-handler
                         fn-get-records
@@ -182,6 +247,16 @@
       :mouse-clicked
       (next-page-button-clicked
         query-handler))
+    (when save-button
+      (listen
+        save-button
+        :mouse-clicked
+        save-button-clicked))
+    (when clear-button
+      (listen
+        clear-button
+        :mouse-clicked
+        clear-button-clicked))
     #_(b/bind
       query
       status)
@@ -202,18 +277,21 @@
       (b/transform #(if %
                         "Фильтр включает выгруженные записи."
                         "Фильтр не включает выгруженные записи."))
-      status))
-  root)
+      status)
+  root))
 
 ;; Add a behavior to frames 
-(doseq [[model-get column-settings fr]
-        [[midb/get-conditions v/conditions-column-settings v/conditions-frame]
-         [midb/get-gso v/gso-column-settings v/gso-frame]
-         [midb/get-references v/references-column-settings v/references-frame]
-         [midb/get-counteragents v/counteragents-column-settings v/counteragents-frame]
-         [midb/get-operations v/operations-column-settings v/operations-frame]
-         [midb/get-measurements v/measurements-column-settings v/measurements-frame]
-         [midb/get-set-verification-tools v/svt-column-settings v/svt-frame]]]
+(doseq [[model-get column-settings context-menu fr]
+        [[midb/get-conditions v/conditions-column-settings nil v/conditions-frame]
+         [midb/get-gso v/gso-column-settings nil v/gso-frame]
+         [midb/get-references v/references-column-settings nil v/references-frame]
+         [midb/get-counteragents v/counteragents-column-settings nil v/counteragents-frame]
+         [midb/get-operations v/operations-column-settings nil v/operations-frame]
+         [midb/get-measurements v/measurements-column-settings nil v/measurements-frame]
+         [midb/get-set-verification-tools v/svt-column-settings nil v/svt-frame]]]
+  ;; Add context menu to a table
+  (when context-menu
+        (make-table-c-menu context-menu fr))
   (add-behavior
     model-get
     column-settings
@@ -241,6 +319,7 @@
 
 (ns metrology.controller.controller)
 (require '[metrology.view.main :as v] :reload)
-(require '[metrology.controller.table-context-menu :as table-c-menu])
+(require '[metrology.controller.table-context-menu :as table-c-menu] :reload)
+(require '[metrology.model.midb :as midb] :reload)
 
 )

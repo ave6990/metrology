@@ -41,10 +41,9 @@
       (midb/copy-record! id (read-string (value txt)))
       (println (str "Запись " id " скопирована " (value txt) " раз!"))))
 
-(defn verifications-table-menu
-  [e]
-  (let [tab (select (to-frame e) [:#v-table])]
-    [(action
+(defn make-copy-del-records-menu
+  [tab]
+  [(action
        :name "Копировать запись"
        :handler
          (fn [e]
@@ -61,35 +60,47 @@
                (v/make-delete-dialog 
                  (get-selection-field-values :id tab)
                  make-delete-fn)
-               show!)))
-     (separator)
-     (action
-       :name "КСП"
-       :handler
-         (fn [e]
-             (->>
-               v/svt-frame
-               (make-filter-string :id " v_id = " (to-frame e))
+               show!)))])
+
+(defn verifications-table-menu
+  [e]
+  (let [tab (select (to-frame e) [:#v-table])]
+    (conj
+      (make-copy-del-records-menu tab)
+      (separator)
+      (action
+        :name "КСП"
+        :handler
+          (fn [e]
+              (->>
+                v/svt-frame
+                (make-filter-string :id " v_id = " (to-frame e))
+                pack!
+                show!)))
+      (action
+        :name "Операции поверки"
+        :handler
+          (fn [e]
+              (->>
+                v/operations-frame
+                (make-filter-string :id "v_op.v_id = " (to-frame e))
+                pack!
+                show!)))
+      (action
+        :name "Результаты измерений"
+        :handler
+          (fn [e]
+              (->>
+                v/measurements-frame
+               (make-filter-string :id "v.id = " (to-frame e))
                pack!
-               show!)))
-     (action
-       :name "Операции поверки"
-       :handler
-         (fn [e]
-             (->>
-               v/operations-frame
-               (make-filter-string :id "v_op.v_id = " (to-frame e))
-               pack!
-               show!)))
-     (action
-       :name "Результаты измерений"
-       :handler
-         (fn [e]
-             (->>
-               v/measurements-frame
-              (make-filter-string :id "v.id = " (to-frame e))
-              pack!
-              show!)))]))
+               show!))))))
+
+;;TOFIX delete records from verification table
+#_(defn conditions-table-menu
+  [e]
+  (let [tab (select (to-root e) [:#v-table])]
+    (make-copy-del-records-menu tab)))
 
 (comment
 

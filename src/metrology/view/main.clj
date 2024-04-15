@@ -34,6 +34,19 @@
      :type :warning
      :success-fn (del-fn ids)))
 
+(defn make-insert-dialog
+   [tab-id data f]
+   (dialog
+     :modal? true
+     :content
+       (label
+         :text (str "Создать/обновить запись "
+                    (:id data)
+                    "?"))
+     :option-type :ok-cancel
+     :type :warning
+     :success-fn (f tab-id data)))
+
 (defn make-copy-dialog
    [ids copy-fn]
    (let [txt (text
@@ -177,25 +190,46 @@
               :text "0")]))
 
 (defn make-table-panel
-  [id toolbars]
-  (border-panel
-     :border 2
-     :north  toolbars
-             #_(mig-panel
-               :items [[toolbars "width 100%, span 2, wrap"]])
-     :center (mig-panel
-                :items
-                  [[(toolbar-operations-panel)]
-                   [(toolbar-symbols-panel) "grow, wrap"]
-                   [(navigation-panel) "span 2, grow, wrap"]
-                   [(make-table id) "height 100%, span 2, grow, wrap"]]) 
-     :south (vertical-panel
-              :items
-                [(mig-panel
-                   :id :edit-panel
-                   :visible? false)
-                 (label :id :status-label
-                   :text "Готов!")])))
+  ([id toolbars edit-panel]
+   (mig-panel
+     :items
+       [[toolbars "grow, wrap"]
+        [(mig-panel
+           :items
+             [[(toolbar-operations-panel)]
+              [(toolbar-symbols-panel) "grow, wrap"]
+              [(navigation-panel) "span 2, grow, wrap"]
+              [(make-table id) "height 100%, span 2, grow, wrap"]]) "grow, wrap"] 
+              [edit-panel "grow, wrap"]]))
+  ([id toolbars]
+   (make-table-panel id toolbars (mig-panel
+                                   :id :edit-panel
+                                   :visible? false))))
+
+(defn make-edit-fields
+  [settings]
+  (vec
+    (reduce (fn [v [txt id stl]]
+                (conj v
+                      [(label :text txt) ""]
+                      [(text :id id
+                        :class :record-editor) "x 150, width 90%, wrap"]))
+         []
+         settings)))
+
+(defn make-edit-panel
+  [id settings]
+  (scrollable
+    (mig-panel
+      :id :edit-panel
+      :items
+        (conj
+          (make-edit-fields settings)
+          [(button :id :save-button
+                   :text "Сохранить"
+                   :user-data id) "newline"]
+          [(button :id :clear-button
+                   :text "Очистить") "wrap"]))))
 
 (def verifications-column-settings
   (make-column-settings
@@ -222,7 +256,11 @@
       :border 0
       :items
         [[verifications-toolbar-fields "width 100%, wrap"]
-         [verifications-toolbar-group-by]])))
+         [verifications-toolbar-group-by]])
+    #_(mig-panel
+      :border 0
+      :items
+        [])))
 
 (def verifications-edit-panel
   (vector
@@ -249,7 +287,8 @@
     (make-table-panel
       :c-table
       (make-toolbar-fields
-        c-panel-settings/toolbar-fields-settings))))
+        c-panel-settings/toolbar-fields-settings)
+      (make-edit-panel :conditions c-panel-settings/edit-panel-settings))))
 
 (def svt-column-settings
   (make-column-settings
@@ -337,6 +376,9 @@
 
 (comment
   
+(require
+  '[metrology.view.conditions-panel-settings :as c-panel-settings]
+  :reload)
 (require
   '[metrology.view.counteragents-panel-settings :as ca-panel-settings]
   :reload)
