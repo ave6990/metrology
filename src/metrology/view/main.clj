@@ -193,14 +193,16 @@
   ([id toolbars edit-panel]
    (mig-panel
      :items
-       [[toolbars "grow, wrap"]
-        [(mig-panel
-           :items
-             [[(toolbar-operations-panel)]
-              [(toolbar-symbols-panel) "grow, wrap"]
-              [(navigation-panel) "span 2, grow, wrap"]
-              [(make-table id) "height 100%, span 2, grow, wrap"]]) "grow, wrap"] 
-              [edit-panel "grow, wrap"]]))
+       (conj
+         [[toolbars "grow, wrap"]]
+         [(mig-panel
+            :border 0
+            :items
+              [[(toolbar-operations-panel) "pad 0"]
+               [(toolbar-symbols-panel) "pad 0, grow, wrap"]]) "pad 0, grow, wrap"] 
+         [(navigation-panel) "pad 0, grow, wrap"]
+         [(make-table id) "height 70%, grow, wrap"]
+         [edit-panel "height 30%, grow, wrap"])))
   ([id toolbars]
    (make-table-panel id toolbars (mig-panel
                                    :id :edit-panel
@@ -376,6 +378,7 @@
 
 (comment
   
+(ns metrology.view.main)
 (require
   '[metrology.view.conditions-panel-settings :as c-panel-settings]
   :reload)

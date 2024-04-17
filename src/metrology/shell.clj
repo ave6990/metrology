@@ -3,9 +3,9 @@
 (require '[clojure.java.shell :refer [sh]])
 
 (pprint (gs2000 2
-                "NH3"
-                13290
-                (list 45 1600) 
+                "CO"
+                9030
+                (list ) 
                 #_(map #(ch/ppm->mg "CO" %1)
                      (list 40 250 475))))
 
@@ -44,7 +44,7 @@
 (methodology
   (map (fn [m]
            (:id m))
-       (find-methodology "ИГМ")))
+       (find-methodology "ЦВЕТ")))
 (sh "vivaldi" (str midb-path "methodology.html"))
 
 ;; #report#find#mi
@@ -115,12 +115,13 @@
 (copy-record! 2833 1)
 
 (let [nums (map (fn [n] (str "" n))
-                (list "09602791"))
-      years (repeat (count nums) 2020)
-            #_(list 2018 2020)
+                (list 230078)
+                #_(range 13))
+      years (repeat (count nums) 2023)
+            #_(list 2014 )
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
-      ;start-protocol-number 617]
+      ;start-protocol-number 701]
   (map (fn [n i y]
            (jdbc/update!
             midb
@@ -128,12 +129,12 @@
             (hash-map
              ;:methodology_id 193
              ;:mi_type "СЕАН-П, мод. СЕАН-П2"
-             ;:components "CH₄ (0 - 100) % НКПР"
-             ;:channels 1
-             ;:count "9/0000688"
-             ;:counteragent 2 
-             ;:conditions 1189
-             ;:manufacture_year y
+             :components "БД №№: 230566, 230556, 230574, 230557, 230541, 230585, 230581, 230589"
+             :channels 8
+             :count "9/0000735"
+             :counteragent 50
+             :conditions 1190
+             :manufacture_year y
              ;:comment "Леонтьев"
              ;:comment 11
              ;:comment "ГИС блок 2"
@@ -189,12 +190,12 @@
 
 ;; #set#gso
 (set-v-gso!
-  #_3668
+  #_4329
   (last-id "verification")
-  (list 412 413)
-  #_(map (fn [m]
+  #_(list )
+  (map (fn [m]
            (:id m))
-       (check-gso (list "18816-23")
+       (check-gso (list "18809-23" "14634-23" "16871-23")
                   "pass_number")))
 
 ;; #update#gso
@@ -243,7 +244,7 @@
   ["id = ?" 1147])
 
 ;; #set#refs
-(set-v-refs! ;4195
+(set-v-refs! ;4329
              (last-id "verification")
              (list 3151 2768)
              #_(list 2765 2768))
@@ -276,11 +277,11 @@
 (jdbc/insert!
   midb
   :verification_operations
-  {:methodology_id 393
-   :section "6.4.2"
-   :name "Определение вариации выходного сигнала"
-   :verification_type 1
-   :comment "См. в приложении к протоколу"
+  {:methodology_id 394
+   :section "3.3.4"
+   :name "Определение погрешности результатов измерений"
+   ;:verification_type 1
+   ;:comment "При наличии НТД по ГОСТ 8.563-84 на методику выполнения измерений"
    ;:info "для Микрохром-1121-3"
    })
 
@@ -294,9 +295,9 @@
 
 ;; #unusability#update#operations
 (unusability
-  4287
-  311
-  "негерметичен")
+  4373
+  390
+  "не включается")
 
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
@@ -394,20 +395,20 @@
 (jdbc/insert!
   midb
   :methodology
-  {:registry_number "72341-18"
-   :mi_name "Газоанализаторы стационарные"
-   :mi_types "ИГМ-13М"
-   :name "МП-045/06-2018 «Газоанализаторы стационарные ИГМ-13М. Методика поверки»"
-   :short_name "МП-045/06-2018"
+  {:registry_number "16904-03"
+   :mi_name "Хроматографы газовые аналитические"
+   :mi_types "ЦВЕТ-800"
+   :name "5Е1.550.205 МП «Хроматограф газовый аналитический «ЦВЕТ-800». Методика поверки»"
+   :short_name "5Е1.550.205 МП"
    :date_from nil 
    ;:order nil
-   :date_to "2028-09-06"
-   :temperature "15 ÷ 25"
+   :date_to "2008-02-01"
+   :temperature "20 ± 5"
    :humidity "30 ÷ 80"
-   :pressure "101,3 ± 4,0"
-   ;:voltage "220 ± 22"
-   ;:frequency "50 ± 1"
-   ;:other "колебания температуры окружающего воздуха при провдении поверки и регламентных работах"
+   :pressure "84 ÷106" 
+   :voltage "220 ± 5"
+   :frequency "50 ± 1"
+   :other "изменение атмосферного давления в процессе поверки не более чем на ± 5 кПа"
    ;:other_limit "± 5 °C"
    :limited 0
    :comment nil
@@ -437,7 +438,11 @@
 ;; #add#measurements
 (add-measurements
   (last-id "verification")
-  (list [nil [[1778 0 50] [1779 95.235] [1778 50 0] [1779 95.235]] nil]
+  (list [nil [[752 0 9.6] [753 20.31 27.56 20.31]
+              [752 9.6 0] [753 27.56]
+              [543 0 17.38] [544 128.92 219.05 128.92]
+              [543 17.38 0] [544 219.05]
+              [817 0 25.36 47.5 25.36 0 47.5]] nil]
         ))
 
 (insert-measurements

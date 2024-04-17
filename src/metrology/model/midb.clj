@@ -92,7 +92,7 @@
 (make-get-fn "measurements")
 (make-get-fn "set-verification-tools")
 
-;;copy
+;;#copy
 (defn last-id
   "Получить id последней записи таблицы поверок."
   []
