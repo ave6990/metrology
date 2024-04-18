@@ -17,20 +17,18 @@
 
 (db/defdb midb)
 
-(defn insert!
+(defn write!
   [id data]
-  (jdbc/insert!
-    midb
-    id
-    data))
-
-(defn update!
-  [id data]
-  (jdbc/update!
-    midb
-    id
-    data
-    ["id = ?" (:id data)]))
+  (if (:id data)
+      (jdbc/update!
+        midb
+        id
+        data
+        ["id = ?" (:id data)])
+      (jdbc/insert!
+        midb
+        id
+        data)))
 
 (defmacro ^:private q-replace
   "The macros expand to:
@@ -90,6 +88,7 @@
 (make-get-fn "operations")
 (make-get-fn "references")
 (make-get-fn "measurements")
+(make-get-fn "methodology")
 (make-get-fn "set-verification-tools")
 
 ;;#copy
@@ -156,6 +155,7 @@
 
 (defn-delete-by-id conditions)
 (defn-delete-by-id gso)
+(defn-delete-by-id methodology)
 
 (defmacro defn-copy
   [s]

@@ -78,6 +78,15 @@
                 pack!
                 show!)))
       (action
+        :name "Методика поверки"
+        :handler
+          (fn [e]
+              (->>
+                v/methodology-frame
+                (make-filter-string :methodology_id "id = " (to-frame e))
+                pack!
+                show!)))
+      (action
         :name "Операции поверки"
         :handler
           (fn [e]

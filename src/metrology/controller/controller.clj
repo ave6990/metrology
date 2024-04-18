@@ -166,17 +166,10 @@
          {}
          fields)))
 
-(defn make-insert-fn
+(defn make-write-fn
   [id data]
   (fn [e]
-      (midb/insert!
-        id
-        data)))
-
-(defn make-update-fn
-  [id data]
-  (fn [e]
-      (midb/update!
+      (midb/write!
         id
         data)))
 
@@ -187,19 +180,12 @@
         tab-id (user-data btn)
         m (read-fields (select root [:.record-editor]))]
     (when (not (empty? m))
-          (if (:id m)
-              (->>
-                (v/make-insert-dialog
-                  tab-id
-                  m
-                  make-update-fn)
-                show!)
-              (->>
-                (v/make-insert-dialog
-                  tab-id
-                  m
-                  make-insert-fn)
-                show!)))))
+          (->>
+            (v/make-insert-dialog
+              tab-id
+              m
+              make-write-fn)
+            show!))))
 
 (defn clear-button-clicked
   [e]
@@ -288,6 +274,7 @@
          [midb/get-counteragents v/counteragents-column-settings nil v/counteragents-frame]
          [midb/get-operations v/operations-column-settings nil v/operations-frame]
          [midb/get-measurements v/measurements-column-settings nil v/measurements-frame]
+         [midb/get-methodology v/methodology-column-settings nil v/methodology-frame]
          [midb/get-set-verification-tools v/svt-column-settings nil v/svt-frame]]]
   ;; Add context menu to a table
   (when context-menu

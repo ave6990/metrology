@@ -265,6 +265,20 @@
   order by
     v_id desc;")
 
+(def get-methodology-records-count
+  "select count(*) as count
+  from
+    methodology
+  {where};")
+
+(def get-methodology
+  "select *
+  from
+    methodology
+  {where}
+  order by
+    id desc;")
+
 ;;#copy
 (def last-id
   "select id from verification order by id desc limit 1;")

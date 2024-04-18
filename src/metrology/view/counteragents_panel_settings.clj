@@ -13,3 +13,11 @@
     ["наименование" " (short_name || ' ' || name) LIKE '%%' "]
     ["инн" " inn "]
     [" адрес " " address "]))
+
+(def edit-panel-settings
+  '(["id" :id ""]
+    ["Наименование" :name ""]
+    ["Краткое" :short_name ""]
+    ["Адрес" :address ""]
+    ["ИНН" :inn ""]
+    ["Тип" :type ""]))

@@ -11,6 +11,7 @@
     [metrology.view.counteragents-panel-settings :as ca-panel-settings]
     [metrology.view.references-panel-settings :as refs-panel-settings]
     [metrology.view.operations-panel-settings :as ops-panel-settings]
+    [metrology.view.methodology-panel-settings :as met-panel-settings]
     [metrology.view.measurements-panel-settings :as meas-panel-settings]
     [metrology.view.set-verification-tools-panel-settings :as svt-panel-settings]
     [metrology.view.gso-panel-settings :as gso-panel-settings]))
@@ -35,7 +36,7 @@
      :success-fn (del-fn ids)))
 
 (defn make-insert-dialog
-   [tab-id data f]
+   [tab-id data write-fn]
    (dialog
      :modal? true
      :content
@@ -45,7 +46,7 @@
                     "?"))
      :option-type :ok-cancel
      :type :warning
-     :success-fn (f tab-id data)))
+     :success-fn (write-fn tab-id data)))
 
 (defn make-copy-dialog
    [ids copy-fn]
@@ -318,7 +319,8 @@
     (make-table-panel
       :gso-table
       (make-toolbar-fields
-        gso-panel-settings/toolbar-fields-settings))))
+        gso-panel-settings/toolbar-fields-settings)
+      (make-edit-panel :gso gso-panel-settings/edit-panel-settings))))
 
 (def counteragents-column-settings
   (make-column-settings
@@ -332,7 +334,8 @@
     (make-table-panel
       :ca-table
       (make-toolbar-fields
-        ca-panel-settings/toolbar-fields-settings))))
+        ca-panel-settings/toolbar-fields-settings)
+      (make-edit-panel :counteragents ca-panel-settings/edit-panel-settings))))
 
 (def references-column-settings
   (make-column-settings
@@ -376,6 +379,21 @@
       (make-toolbar-fields
         meas-panel-settings/toolbar-fields-settings))))
 
+(def methodology-column-settings
+  (make-column-settings
+    met-panel-settings/column-settings))
+
+(def methodology-frame
+  (make-frame
+    :methodology
+    "Методики"
+    nil
+    (make-table-panel
+      :met-table
+      (make-toolbar-fields
+        met-panel-settings/toolbar-fields-settings)
+      (make-edit-panel :methodology met-panel-settings/edit-panel-settings))))
+
 (comment
   
 (ns metrology.view.main)
@@ -402,6 +420,9 @@
   :reload)
 (require
   '[metrology.view.set-verification-tools-panel-settings :as svt-panel-settings]
+  :reload)
+(require
+  '[metrology.view.methodology-panel-settings :as met-panel-settings]
   :reload)
 
 )

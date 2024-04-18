@@ -25,3 +25,23 @@
    ["номер 1С" " number_1c "]
    ["рег. №" " number "]
    ["срок годности" " expiration_date "]))
+
+(def edit-panel-settings
+  '(["id" :id ""]
+    ["1С №" :number_1c ""]
+    ["Тип" :type ""]
+    ["Рег. №" :number ""]
+    ["Разряд" :level ""]
+    ["Наличие" :available ""]
+    ["Компоненты" :components ""]
+    ["Концентрация" :concentration ""]
+    ["Неопределенность" :uncertainity ""]
+    ["Ед. изм." :units ""]
+    ["Документ" :document ""]
+    ["Паспорт №" :pass_number ""]
+    ["Дата получения" :date ""]
+    ["Дата изготовления" :manufacture_date ""]
+    ["Срок годности" :expiration_date ""]
+    ["Баллон №" :cylinder_number ""]
+    ["Объем" :volume ""]
+    ["Давление" :pressure ""]))
