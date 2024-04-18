@@ -3,11 +3,11 @@
 (require '[clojure.java.shell :refer [sh]])
 
 (pprint (gs2000 2
-                "CO"
-                9030
-                (list ) 
-                #_(map #(ch/ppm->mg "CO" %1)
-                     (list 40 250 475))))
+                "H2S"
+                496 
+                #_(list ) 
+                (map #(ch/ppm->mg "H2S" %1)
+                     (list 5 9 11 15 18))))
 
 ((gs/calculator
   (gs/passports 1))
@@ -20,8 +20,8 @@
 (ch/coefficient "NH3")
 
 (map (partial ch/ppm->mg
-              "CO")
-     '(2.149829 20.0330705))
+              "H2S")
+     '(25 47.5))
 
 (* 0.94 0.05)
 
@@ -93,14 +93,14 @@
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#protocols
-(let [where "id >= 4299"]
+(let [where "id >= 4411"]
   (gen-protocols where))
 (sh "vivaldi" (str midb-path "protocol.html"))
 
 (pprint (get-protocols-data "id = 3893"))
 
 ;; #gen#measurements#values
-(let [where "id >= 4299"]
+(let [where "id >= 4411"]
   (gen-values! where))
 
 ;;#gen#custom#protocols
@@ -115,9 +115,9 @@
 (copy-record! 2833 1)
 
 (let [nums (map (fn [n] (str "" n))
-                (list 230078)
+                (list 479)
                 #_(range 13))
-      years (repeat (count nums) 2023)
+      years (repeat (count nums) 2014)
             #_(list 2014 )
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
@@ -129,11 +129,11 @@
             (hash-map
              ;:methodology_id 193
              ;:mi_type "СЕАН-П, мод. СЕАН-П2"
-             :components "БД №№: 230566, 230556, 230574, 230557, 230541, 230585, 230581, 230589"
-             :channels 8
-             :count "9/0000735"
-             :counteragent 50
-             :conditions 1190
+             :components "БД зав. №№: 3911, 3935, 3933"
+             :channels 3
+             :count "9/0000633"
+             :counteragent 248
+             :conditions 1195
              :manufacture_year y
              ;:comment "Леонтьев"
              ;:comment 11
@@ -146,7 +146,7 @@
              ;:sw_version "не ниже V 7.47" 
              ;:sw_checksum "387535e5"
              ;:sw_algorithm "CRC 32"
-             ;:sw_version_real "V 7.52"
+             ;:sw_version_real "V 7.135"
              :serial_number n
              :protocol_number (+ start-protocol-number i)
              :protocol nil
@@ -192,8 +192,8 @@
 (set-v-gso!
   #_4329
   (last-id "verification")
-  #_(list )
-  (map (fn [m]
+  (list 382)
+  #_(map (fn [m]
            (:id m))
        (check-gso (list "18809-23" "14634-23" "16871-23")
                   "pass_number")))
@@ -246,7 +246,7 @@
 ;; #set#refs
 (set-v-refs! ;4329
              (last-id "verification")
-             (list 3151 2768)
+             (list 3151 2820)
              #_(list 2765 2768))
 
 ;; #copy#refs
@@ -268,7 +268,7 @@
 ;; #set#opt-refs
 (set-v-opt-refs! ;3668
                  (last-id "verification")
-                 (list 2643 2762 2827 2756 2670 2715 2717))
+                 (list 2643 2827 2762 2756 2670 2715))
 
 ;; #copy#opt-refs
 (copy-v-opt-refs! 4075 '(4076))
@@ -288,7 +288,7 @@
 ;; #set#operations
 (set-v-operations! ;4193
                    (last-id "verification")
-                   (list 1897 1898 1899 1901 1902))
+                   (list 1903 1904 1906 1907 1908))
 
 ;; #copy#operations
 (copy-v-operations! 3187 '(3210))
@@ -323,27 +323,27 @@
   :verification
   (hash-map
      :engineer 3514
-     :count "9/0000711"
-     :counteragent 2
-     :conditions 1189
+     :count "9/0000736"
+     :counteragent 3
+     :conditions 1197
      :verification_type 1
-     :protocol_number (next-protocol-number) 
-     ;:protocol_number 237
-     :mi_type "ИГМ-13М"
-     :methodology_id 393
-     :serial_number "09602789"
-     :manufacture_year 2020
+     ;:protocol_number (next-protocol-number) 
+     :protocol_number 837
+     :mi_type "ОПТИМУС"
+     :methodology_id 395
+     :serial_number 1260
+     :manufacture_year 2023
      :channels 1
      :area "05"
-     :interval 24
-     :components "CH₄ (0 - 100) % НКПР"
+     :interval 12
+     :components "ПГЭ-H₂S (0 - 141,3) мг/м³"
      ;:components "CO (0 - 0,5) % об.; CH (0 - 0,2) % об.; NO (0 - 0,5) % об.; CO₂ (0 - 15) % об.; O₂ (0 - 21) % об."
      ;:scope
-     :sw_name "igm13M-x-x1_v1.03r.hex"
-     :sw_version "1.03"
-     :sw_checksum "0x1CC1"
-     :sw_algorithm "CRC16 CCITT"
-     :sw_version_real "8.03"
+     :sw_name "Optimus_T_FW_3.16"
+     :sw_version "не ниже 3.16"
+     :sw_checksum "A9F46EAB"
+     :sw_algorithm "CRC32"
+     :sw_version_real "3.17"
      ;:voltage 24
      ;:upload 
      ;:comment "Леонтьев"
@@ -481,16 +481,16 @@
 
 ;; #add#metrology#channel
 (ins-channel!
-  {:methodology_id 393
+  {:methodology_id 395
    :channel nil
-   :component "C3H8"
+   :component "H2S"
    :range_from 0
-   :range_to 100
-   :units "% НКПР"
+   :range_to 141.3
+   :units "мг/м³"
    :low_unit 0.1
    :view_range_from 0
-   :view_range_to 100
-   ;:comment "Колион-1В-27 (диапазон показаний условно!)"
+   :view_range_to 160
+   :comment "диапазон показаний условно!"
    }
   (list {:r_from 0
          :r_to 60
@@ -570,14 +570,14 @@
   (jdbc/insert!
     auto
     :travel_order
-    {:auto_id 2
-     :count "9/0000735"
-     :date_departure "2024-04-11T09:00"
-     :date_arrive "2024-04-11T20:00"
-     :odometr_departure 146699
-     :fuel_departure 14.98
-     :odometr_arrive 147160
-     :fuel_add 50})
+    {:auto_id 3
+     :count "9/0000633"
+     :date_departure "2024-04-16T09:00"
+     :date_arrive "2024-04-16T12:00"
+     :odometr_departure 148867
+     :fuel_departure 29.36
+     :odometr_arrive 148901
+     :fuel_add 0})
   (pprint
     (jdbc/query
       auto

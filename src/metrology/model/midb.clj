@@ -214,14 +214,15 @@
     (dorun
       (map (fn [i]
             (let [id-to (inc (last-id))]
-              (conj (copy-verification! id-from)
-                    (dorun
-                      (map (fn [f] (f id-from (list id-to)))
-                           (list copy-v-gso!
-                                 copy-v-refs!
-                                 copy-v-opt-refs!
-                                 copy-v-operations!
-                                 copy-measurements!))))))
+              ;(conj (copy-verification! id-from)
+              (copy-verification! id-from)
+              (dorun
+                (map (fn [f] (f id-from (list id-to)))
+                     (list copy-v-gso!
+                           copy-v-refs!
+                           copy-v-opt-refs!
+                           copy-v-operations!
+                           copy-measurements!)))))
            (range n))))
   ([id-from]
     (copy-record! id-from 1)))

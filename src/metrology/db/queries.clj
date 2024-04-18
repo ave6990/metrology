@@ -323,6 +323,7 @@
 (def copy-v-gso
   "Query to copy gso."
   "insert into v_gso
+     (v_id, gso_id)
   select
       ?,
       gso_id
@@ -334,6 +335,7 @@
 (def copy-v-refs
   "Query to copy refs."
   "insert into v_refs
+    (v_id, ref_id)
   select
       ?,
       ref_id
@@ -345,6 +347,7 @@
 (def copy-v-opt-refs
   "Query to copy refs."
   "insert into v_opt_refs
+    (v_id, ref_id)
   select
       ?,
       ref_id
