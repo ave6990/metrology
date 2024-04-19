@@ -9,9 +9,9 @@
   (select * from 
   (select
     v.id as id, v.engineer, v.count, v.counteragent, v.conditions,
-    v.verification_type as v_type,
+    v.verification_type,
     v.protocol_number, v.mi_type, v.methodology_id, v.serial_number,
-    v.manufacture_year as year, v.channels, v.area, v.interval, v.components,
+    v.manufacture_year, v.channels, v.area, v.interval, v.components,
     v.scope, v.sw_name, v.sw_version, v.sw_version_real,
     v.sw_checksum, v.sw_algorithm, v.protocol,
     v.protolang, v.voltage as v_voltage, v.other_conditions as v_other_conditions
@@ -44,9 +44,9 @@
   from
   (select
     v.id as id, v.engineer, v.count, v.counteragent, v.conditions,
-    v.verification_type as v_type,
+    v.verification_type,
     v.protocol_number, v.mi_type, v.methodology_id, v.serial_number,
-    v.manufacture_year as year, v.channels, v.area, v.interval, v.components,
+    v.manufacture_year, v.channels, v.area, v.interval, v.components,
     v.scope, v.sw_name, v.sw_version, v.sw_version_real,
     v.sw_checksum, v.sw_algorithm, v.protocol,
     v.protolang, v.voltage as v_voltage, v.other_conditions as v_other_conditions

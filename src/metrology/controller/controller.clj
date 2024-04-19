@@ -284,6 +284,7 @@
     column-settings
     fr))
 
+;; TOFIX move to main_menu.clj
 (def main-menu
   (v/make-main-menu
     [(menu :text "Главное"

@@ -104,6 +104,7 @@
 (defn make-toolbar-fields  
   [items]
   (toolbar
+    :border 5
     :items
     (make-buttons-vec
       items)))
@@ -111,6 +112,7 @@
 (defn toolbar-operations-panel
   []
   (toolbar
+    :border 1
     :items
       (->>
         '(["AND" " AND "]
@@ -128,17 +130,17 @@
 (defn toolbar-symbols-panel
   []
   (toolbar
+    :border 1
     :items
       (->>
         '(["млн⁻¹" " млн⁻¹ "]
           ["мг/м³" " мг/м³ "]
-          ["«" "«"]
-          ["»" "»"]
-          ["±" "±"]
-          ["÷" "÷"]
-          ["°" "°"])
+          ["«" "«"] ["»" "»"] ["±" "±"] ["÷" "÷"] ["°" "°"]
+          ["₁" "₁"] ["₂" "₂"] ["₃" "₃"] ["₄" "₄"] ["₅" "₅"]
+          ["₆" "₆"] ["₇" "₇"] ["₈" "₈"] ["₉" "₉"] ["₀" "₀"])
         (map (fn [[txt data]]
                  (button :class :query-toolbar
+                         ;:border 1
                          :text txt
                          :user-data data)))
         vec)))
@@ -161,21 +163,22 @@
 (defn navigation-panel
   []
   (mig-panel
+    :border 0
     :items
       [[(text :id :page-text
-             ;:border 5
+             :border 1
              :halign :center
              :size [50 :by 20]
              :text "1")
         "width 100px"]
        [(button :id :prev-page-button
-               ;:border 5
-               ;:size [30 :by 20]
+               :border 1
+               :size [20 :by 20]
                :text "<")
         "width 20px"]
        [(button :id :next-page-button
-               ;:border 5
-               ;:size [20 :by 20]
+               :border 1
+               :size [20 :by 20]
                :text ">")
         "width 20px"]
        [(scrollable
@@ -185,8 +188,7 @@
          :hscroll :always)
         "width 100%, span 1 2, wrap"]
        [(label :id :pages-label
-              ;:border 5
-              ;:size [100 :by 40]
+              :border 1
               :text "1")
         "align center, span 3"]
        ;;TOFIX use the cursor position to paste a text at the position
@@ -196,6 +198,7 @@
 (defn make-table-panel
   ([id toolbars edit-panel]
    (mig-panel
+     :border 0
      :items
        (conj
          [[toolbars "grow, wrap"]]
@@ -206,7 +209,7 @@
                [(toolbar-symbols-panel) "pad 0, grow, wrap"]]) "pad 0, grow, wrap"] 
          [(navigation-panel) "pad 0, grow, wrap"]
          [(make-table id) "height 70%, grow, wrap"]
-         [edit-panel "height 30%, grow, wrap"])))
+         [edit-panel "height 50%, grow, wrap"])))
   ([id toolbars]
    (make-table-panel id toolbars (mig-panel
                                    :id :edit-panel
@@ -227,6 +230,7 @@
   [id settings]
   (scrollable
     (mig-panel
+      :border 0
       :id :edit-panel
       :items
         (conj
@@ -246,14 +250,16 @@
     (make-buttons-vec
       v-panel-settings/toolbar-fields-settings)
     vec
-    (toolbar :items)))
+    (toolbar :border 1
+             :items)))
 
 (def verifications-toolbar-group-by
   (->>
     (make-checkboxes-vec
       v-panel-settings/checkboxes-settings)
     vec
-    (toolbar :items)))
+    (toolbar :border 1
+             :items)))
 
 (def verifications-table-panel
   (make-table-panel
@@ -263,10 +269,9 @@
       :items
         [[verifications-toolbar-fields "width 100%, wrap"]
          [verifications-toolbar-group-by]])
-    #_(mig-panel
-      :border 0
-      :items
-        [])))
+    (make-edit-panel
+      :verification
+      v-panel-settings/edit-panel-settings)))
 
 (def verifications-edit-panel
   (vector

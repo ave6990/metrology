@@ -93,14 +93,14 @@
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#protocols
-(let [where "id >= 4411"]
+(let [where "id >= 4416"]
   (gen-protocols where))
 (sh "vivaldi" (str midb-path "protocol.html"))
 
 (pprint (get-protocols-data "id = 3893"))
 
 ;; #gen#measurements#values
-(let [where "id >= 4411"]
+(let [where "id >= 4416"]
   (gen-values! where))
 
 ;;#gen#custom#protocols
@@ -115,9 +115,9 @@
 (copy-record! 2833 1)
 
 (let [nums (map (fn [n] (str "" n))
-                (list 479)
+                (list 191)
                 #_(range 13))
-      years (repeat (count nums) 2014)
+      years (repeat (count nums) 2017)
             #_(list 2014 )
       start-id (next-id)
       start-protocol-number (next-protocol-number)]
@@ -129,11 +129,11 @@
             (hash-map
              ;:methodology_id 193
              ;:mi_type "СЕАН-П, мод. СЕАН-П2"
-             :components "БД зав. №№: 3911, 3935, 3933"
-             :channels 3
+             :components "БД зав. №№: 2226, 2011, 2261, 2265, 2232, 2251"
+             ;:channels 6
              :count "9/0000633"
-             :counteragent 248
-             :conditions 1195
+             :counteragent 2
+             :conditions 1197
              :manufacture_year y
              ;:comment "Леонтьев"
              ;:comment 11
@@ -192,7 +192,7 @@
 (set-v-gso!
   #_4329
   (last-id "verification")
-  (list 382)
+  (list 377 369)
   #_(map (fn [m]
            (:id m))
        (check-gso (list "18809-23" "14634-23" "16871-23")
@@ -246,7 +246,8 @@
 ;; #set#refs
 (set-v-refs! ;4329
              (last-id "verification")
-             (list 3151 2820)
+             #_(list 3151 2820)
+             (list 2663 2820)
              #_(list 2765 2768))
 
 ;; #copy#refs
@@ -277,18 +278,18 @@
 (jdbc/insert!
   midb
   :verification_operations
-  {:methodology_id 394
-   :section "3.3.4"
-   :name "Определение погрешности результатов измерений"
-   ;:verification_type 1
-   ;:comment "При наличии НТД по ГОСТ 8.563-84 на методику выполнения измерений"
+  {:methodology_id 395
+   :section "11.2"
+   :name "Определение вариации выходного сигнала"
+   :verification_type 2
+   :comment "См. в приложении к протоколу"
    ;:info "для Микрохром-1121-3"
    })
 
 ;; #set#operations
 (set-v-operations! ;4193
                    (last-id "verification")
-                   (list 1903 1904 1906 1907 1908))
+                   (list 1910 1911 1912 1914))
 
 ;; #copy#operations
 (copy-v-operations! 3187 '(3210))
@@ -438,11 +439,7 @@
 ;; #add#measurements
 (add-measurements
   (last-id "verification")
-  (list [nil [[752 0 9.6] [753 20.31 27.56 20.31]
-              [752 9.6 0] [753 27.56]
-              [543 0 17.38] [544 128.92 219.05 128.92]
-              [543 17.38 0] [544 219.05]
-              [817 0 25.36 47.5 25.36 0 47.5]] nil]
+  (list [nil [[1786 0 35.432 67.314]] nil]
         ))
 
 (insert-measurements
@@ -481,42 +478,42 @@
 
 ;; #add#metrology#channel
 (ins-channel!
-  {:methodology_id 395
-   :channel nil
+  {:methodology_id 291
+   :channel "EC-H₂S-20"
    :component "H2S"
    :range_from 0
-   :range_to 141.3
+   :range_to 28.4
    :units "мг/м³"
    :low_unit 0.1
    :view_range_from 0
-   :view_range_to 160
+   :view_range_to 35
    :comment "диапазон показаний условно!"
    }
   (list {:r_from 0
-         :r_to 60
-         :value 3
+         :r_to 14.2
+         :value 10
          :fraction nil
-         :type_id 0
+         :type_id 2
          :units nil
-         :operation_id 1901
+         :operation_id 1112
          ;:text "отсутствует"
          :comment nil}
-        {:r_from 60
-         :r_to 100
-         :value 5
+        {:r_from 14.2
+         :r_to 28.4 
+         :value 10
          :fraction nil
          :type_id 1
          :units nil
-         :operation_id 1901
+         :operation_id 1112
          ;:comment "(15 - 30) % об."
          }
         {:value 0.5
          :type_id 5
          :units ""
-         :operation_id 1902}
+         :operation_id 1239}
         {;:r_from 0
          ;:r_to 10
-         :value 5
+         :value 45
          :type_id 6
          :units "с"
          :operation_id nil}

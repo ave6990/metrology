@@ -51,6 +51,7 @@
                (v/make-copy-dialog
                  (get-selection-field-values :id tab)
                  make-copy-fn)
+               pack!
                show!)))
      (action
        :name "Удалить запись"
@@ -60,50 +61,36 @@
                (v/make-delete-dialog 
                  (get-selection-field-values :id tab)
                  make-delete-fn)
+               pack!
                show!)))])
+
+(defn make-window-context
+  [[action-name target-frame field where]]
+  (action
+    :name action-name
+    :handler
+      (fn [e]
+          (->>
+            target-frame
+            (make-filter-string field where (to-frame e))
+            pack!
+            show!))))
 
 (defn verifications-table-menu
   [e]
-  (let [tab (select (to-frame e) [:#v-table])]
-    (conj
-      (make-copy-del-records-menu tab)
-      (separator)
-      (action
-        :name "КСП"
-        :handler
-          (fn [e]
-              (->>
-                v/svt-frame
-                (make-filter-string :id " v_id = " (to-frame e))
-                pack!
-                show!)))
-      (action
-        :name "Методика поверки"
-        :handler
-          (fn [e]
-              (->>
-                v/methodology-frame
-                (make-filter-string :methodology_id "id = " (to-frame e))
-                pack!
-                show!)))
-      (action
-        :name "Операции поверки"
-        :handler
-          (fn [e]
-              (->>
-                v/operations-frame
-                (make-filter-string :id "v_op.v_id = " (to-frame e))
-                pack!
-                show!)))
-      (action
-        :name "Результаты измерений"
-        :handler
-          (fn [e]
-              (->>
-                v/measurements-frame
-               (make-filter-string :id "v.id = " (to-frame e))
-               pack!
-               show!))))))
+  (let [root (to-frame e)
+        tab (select root [:#v-table])]
+    (doall
+    (reduce
+      conj
+      (conj
+        (make-copy-del-records-menu tab)
+        (separator))
+      (vec (doall (map make-window-context
+           [["КСП" v/svt-frame :id " v_id = "]
+            ["Методика поверки" v/methodology-frame :methodology_id " id = "]
+            ["Операции поверки" v/operations-frame :id " v_op.v_id = "]
+            ["Результаты измерений" v/measurements-frame :id " v.id = "]])))))))
 
 ;;TOFIX delete records from verification table
 #_(defn conditions-table-menu
