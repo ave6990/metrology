@@ -26,7 +26,8 @@
   (fn [e]
     (let [root (to-frame e)
           tab (select root [:#v-table])
-          edit-fields (select root [:.record-editor])
+          edit-fields (concat (select root [:.record-editor])
+                              (select root [:.record-info]))
           record (first
                    (value-at
                      tab
@@ -162,7 +163,7 @@
                 (let [v (value field)]
                   (if (not= v "")
                       (assoc m (config field :id) v)
-                      m)))
+                      (assoc m (config field :id) nil))))
          {}
          fields)))
 
@@ -275,6 +276,7 @@
          [midb/get-operations v/operations-column-settings nil v/operations-frame]
          [midb/get-measurements v/measurements-column-settings nil v/measurements-frame]
          [midb/get-methodology v/methodology-column-settings nil v/methodology-frame]
+         [midb/get-journal v/journal-column-settings nil v/journal-frame]
          [midb/get-set-verification-tools v/svt-column-settings nil v/svt-frame]]]
   ;; Add context menu to a table
   (when context-menu

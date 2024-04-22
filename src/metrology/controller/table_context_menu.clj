@@ -76,7 +76,7 @@
             pack!
             show!))))
 
-(defn verifications-table-menu
+#_(defn verifications-table-menu
   [e]
   (let [root (to-frame e)
         tab (select root [:#v-table])]
@@ -92,6 +92,23 @@
             ["Операции поверки" v/operations-frame :id " v_op.v_id = "]
             ["Результаты измерений" v/measurements-frame :id " v.id = "]])))))))
 
+(defn verifications-table-menu
+  [e]
+  (let [root (to-frame e)
+        tab (select root [:#v-table])]
+    (doall
+    (reduce
+      conj
+      (conj
+        (make-copy-del-records-menu tab)
+        (separator))
+      (vec (doall (map make-window-context
+           [["КСП" v/svt-frame :id " v_id = "]
+            ["Методика поверки" v/methodology-frame :methodology_id " id = "]
+            ["Операции поверки" v/operations-frame :id " v_op.v_id = "]
+            ["Результаты измерений" v/measurements-frame :id " v.id = "]
+            ["Журнал ПР" v/journal-frame :id " id = "]])))))))
+
 ;;TOFIX delete records from verification table
 #_(defn conditions-table-menu
   [e]
@@ -102,5 +119,6 @@
 
 (ns metrology.controller.table-context-menu)
 (require '[metrology.model.midb :as midb] :reload)
+(require '[metrology.view.main :as main] :reload)
 
 )

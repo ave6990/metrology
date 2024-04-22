@@ -100,6 +100,25 @@
   {limit}
   {offset};")
 
+(def get-journal-records-count
+  "select
+    count(*) as count
+  from
+  (select *
+   from
+    journal
+  {where});")
+
+(def get-journal
+  "select *
+   from
+     journal
+   {where}
+   order by
+     cast(protocol_number as integer)
+   {limit}
+   {offset};")
+
 (def get-gso-records-count
   "select
     count(*) as count

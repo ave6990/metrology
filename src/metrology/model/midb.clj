@@ -89,6 +89,7 @@
 (make-get-fn "references")
 (make-get-fn "measurements")
 (make-get-fn "methodology")
+(make-get-fn "journal")
 (make-get-fn "set-verification-tools")
 
 ;;#copy

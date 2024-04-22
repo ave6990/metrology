@@ -14,6 +14,7 @@
     [metrology.view.methodology-panel-settings :as met-panel-settings]
     [metrology.view.measurements-panel-settings :as meas-panel-settings]
     [metrology.view.set-verification-tools-panel-settings :as svt-panel-settings]
+    [metrology.view.journal-panel-settings :as j-panel-settings]
     [metrology.view.gso-panel-settings :as gso-panel-settings]))
 
 (defn make-main-menu
@@ -218,11 +219,14 @@
 (defn make-edit-fields
   [settings]
   (vec
-    (reduce (fn [v [txt id stl]]
+    (reduce (fn [v [txt id editable]]
                 (conj v
                       [(label :text txt) ""]
                       [(text :id id
-                        :class :record-editor) "x 150, width 90%, wrap"]))
+                        :class (if editable
+                                   :record-editor
+                                   :record-info)
+                        :editable? editable) "x 150, width 90%, wrap"]))
          []
          settings)))
 
@@ -402,6 +406,20 @@
         met-panel-settings/toolbar-fields-settings)
       (make-edit-panel :methodology met-panel-settings/edit-panel-settings))))
 
+(def journal-column-settings
+  (make-column-settings
+    j-panel-settings/column-settings))
+
+(def journal-frame
+  (make-frame
+    :journal
+    "Журнал ПР"
+    nil
+    (make-table-panel
+      :j-table
+      (make-toolbar-fields
+        j-panel-settings/toolbar-fields-settings))))
+
 (comment
   
 (ns metrology.view.main)
@@ -431,6 +449,9 @@
   :reload)
 (require
   '[metrology.view.methodology-panel-settings :as met-panel-settings]
+  :reload)
+(require
+  '[metrology.view.journal-panel-settings :as j-panel-settings]
   :reload)
 
 )
