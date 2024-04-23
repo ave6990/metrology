@@ -391,7 +391,9 @@
     (make-table-panel
       :meas-table
       (make-toolbar-fields
-        meas-panel-settings/toolbar-fields-settings))))
+        meas-panel-settings/toolbar-fields-settings)
+      (make-edit-panel :measurements
+                       meas-panel-settings/edit-panel-settings))))
 
 (def methodology-column-settings
   (make-column-settings
