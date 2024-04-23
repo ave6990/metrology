@@ -377,7 +377,7 @@
       (make-toolbar-fields
         ops-panel-settings/toolbar-fields-settings)
       (make-edit-panel
-        :operations ops-panel-settings/edit-panel-settings))))
+        :v_operations ops-panel-settings/edit-panel-settings))))
 
 (def measurements-column-settings
   (make-column-settings

@@ -4,7 +4,6 @@
     [clojure.string :as string]
     [metrology.lib.database :as db]
     [metrology.lib.chemistry :as ch]
-    [metrology.lib.protocol :as pr]
     [metrology.lib.gs2000 :as gs]
     [metrology.lib.metrology :as metr]
     #_[metrology.lib.gen-html :refer :all]
@@ -228,6 +227,31 @@
   ([id-from]
     (copy-record! id-from 1)))
 
+(defn get-protocols-data
+  ""
+  [where]
+  (let [data (jdbc/query
+                midb
+                (str "select * from protocol where " where))
+        measurements (jdbc/query
+                        midb
+                        (str "select * from view_v_measurements where " where))
+        html (jdbc/query
+               midb
+               (str "select * from v_html where " where))]
+    (map (fn [m]
+             (assoc
+               (assoc m
+                    :measurements
+                    (doall (filter (fn [r]
+                                       (= (:id r) (:id m)))
+                                   measurements)))
+               :html
+               (doall (filter (fn [r]
+                                (= (:id r) (:id m)))
+                              html))))
+         data)))
+
 ;;#legacy
 (comment
 
@@ -291,31 +315,6 @@
                           {}
                          (list "v_gso" "v_refs" "v_opt_refs"
                           "v_operations" "measurements"))))
-
-(defn get-protocols-data
-  ""
-  [where]
-  (let [data (jdbc/query
-                midb
-                (str "select * from protocol where " where))
-        measurements (jdbc/query
-                        midb
-                        (str "select * from view_v_measurements where " where))
-        html (jdbc/query
-               midb
-               (str "select * from v_html where " where))]
-    (map (fn [m]
-             (assoc
-               (assoc m
-                    :measurements
-                    (doall (filter (fn [r]
-                                       (= (:id r) (:id m)))
-                                   measurements)))
-               :html
-               (doall (filter (fn [r]
-                                (= (:id r) (:id m)))
-                              html))))
-         data)))
 
 (defn assoc-multi
   [m nm]
@@ -547,15 +546,6 @@
                                 m)})))
         data)))
 
-(defn gen-protocols
-  "Генерирует протоколы поверки в файл protocol.html."
-  [where]
-  (let [data (get-protocols-data where)]
-    (spit
-      (str midb-path
-           "protocol.html")
-           (pr/protocols data))))
-
 (defn gen-report
   "генерирует отчет о записях в файл report.html."
   ([coll]
@@ -702,6 +692,7 @@
 (require '[metrology.lib.gen-html :refer :all] :reload)
 
 (ns metrology.model.midb)
+(require '[metrology.utils.protocol :as pr] :reload)
 (require '[metrology.db.queries :as q] :reload)
 
 (require '[metrology.lib.chemistry :as ch] :reload)

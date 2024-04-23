@@ -4,6 +4,7 @@
     [seesaw.core :refer :all]
     [seesaw.table :refer [table-model value-at update-at!]]
     [metrology.model.midb :as midb]
+    [metrology.utils.protocol :as pr]
     [metrology.view.main :as v]))
 
 (defn get-selection-field-values
@@ -25,6 +26,30 @@
         where
         (string/join (str " or " where) id))))
   fr)
+
+(defn gen-protocols
+  "Генерирует протоколы поверки в файл protocol.html."
+  [where]
+  (let [data (midb/get-protocols-data where)]
+    (spit
+      (str midb/midb-path
+           "protocol.html")
+           (pr/protocols data))))
+
+(def protocols-action
+  (action
+    :name "Создать протокол"
+    :handler
+      (fn [e]
+          (let [root (to-frame e)
+                tab (select root [:#v-table])
+                id (get-selection-field-values
+                     :id tab)
+                where " id = "]
+            (gen-protocols
+              (str
+                where
+                (string/join (str " or " where) id)))))))
 
 (defn make-delete-fn
   [ids]
@@ -76,22 +101,6 @@
             pack!
             show!))))
 
-#_(defn verifications-table-menu
-  [e]
-  (let [root (to-frame e)
-        tab (select root [:#v-table])]
-    (doall
-    (reduce
-      conj
-      (conj
-        (make-copy-del-records-menu tab)
-        (separator))
-      (vec (doall (map make-window-context
-           [["КСП" v/svt-frame :id " v_id = "]
-            ["Методика поверки" v/methodology-frame :methodology_id " id = "]
-            ["Операции поверки" v/operations-frame :id " v_op.v_id = "]
-            ["Результаты измерений" v/measurements-frame :id " v.id = "]])))))))
-
 (defn verifications-table-menu
   [e]
   (let [root (to-frame e)
@@ -102,12 +111,16 @@
       (conj
         (make-copy-del-records-menu tab)
         (separator))
-      (vec (doall (map make-window-context
-           [["КСП" v/svt-frame :id " v_id = "]
-            ["Методика поверки" v/methodology-frame :methodology_id " id = "]
-            ["Операции поверки" v/operations-frame :id " v_op.v_id = "]
-            ["Результаты измерений" v/measurements-frame :id " v.id = "]
-            ["Журнал ПР" v/journal-frame :id " id = "]])))))))
+      (reduce
+        conj
+        (vec (doall (map make-window-context
+             [["КСП" v/svt-frame :id " v_id = "]
+              ["Методика поверки" v/methodology-frame :methodology_id " id = "]
+              ["Операции поверки" v/operations-frame :id " v_op.v_id = "]
+              ["Результаты измерений" v/measurements-frame :id " v.id = "]
+              ["Журнал ПР" v/journal-frame :id " id = "]])))
+        [(separator)
+        protocols-action])))))
 
 ;;TOFIX delete records from verification table
 #_(defn conditions-table-menu
@@ -120,5 +133,6 @@
 (ns metrology.controller.table-context-menu)
 (require '[metrology.model.midb :as midb] :reload)
 (require '[metrology.view.main :as main] :reload)
+(require '[metrology.utils.protocol :as pr] :reload)
 
 )
