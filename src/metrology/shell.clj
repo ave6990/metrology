@@ -611,65 +611,8 @@
              (str (:date m) "T17:30")))
        data))
 
-(defn split-pdf
-  [scan-path f pages start-number]
-  (let [scan-path "/media/sf_SCAN/"
-        scan-pages (->
-                     (sh "identify" (str scan-path f))
-                     :out
-                     (string/split #"\n")
-                     count)
-        pages (read-string pages)
-        start-number (read-string start-number)]
-    (dotimes [i (/ scan-pages pages)]
-      (sh "pdftk"
-          (str scan-path f)
-          "cat"
-          (str (inc (* i pages)) "-" (+ (* i pages) pages))
-          "output"
-          (str scan-path "9-61-" (+ i start-number) "-2024.pdf"))
-      #_(sh "mv"
-          (str scan-path f)
-          (str scan-path "trash/")))))
-
-;; #split#rename#scan#protocol
-(let [scan-path "/media/sf_SCAN/"
-      get-files-list
-        (fn []
-            (doall
-              (filter (fn [s]
-                          (re-matches #".*\.pdf" s))
-                      (->
-                        (sh "ls" scan-path)
-                        :out
-                        (string/split #"\n")))))]
-  ;; приводим имена сканов к общему виду {start_protocol}.{pages_per_protocol}.pdf
-  (dorun
-    (map (fn [f] 
-             (sh "mv" (str scan-path f)
-                      (->
-                        (str scan-path f)
-                        (string/replace #"Protokol" "")
-                        (string/replace #"\d{6}\.pdf" "pdf"))))
-         (get-files-list)))
-  ;; делим общий скан на протоколы и переименовываем их.
-  (dorun
-    (map (fn [f]
-             (let [[start-number pages _] (string/split f #"\.")]
-               (split-pdf scan-path f pages start-number)
-               ;; реализация с использованием bash-скрипта split-pdf.sh
-               #_(sh "bash"
-                   (str scan-path "split_pdf.sh")
-                   (str scan-path f)
-                   pages
-                   start-number)
-               (println (str scan-path "split_pdf.sh") f pages start-number)))
-         (doall
-           (filter (fn [f]
-                       (re-matches #"\d+\.\d\.pdf" f))
-                   (get-files-list))))))
-
-(split-pdf "/media/sf_SCAN" "824.1.pdf" "1" "824")
+;;#scan#backup#protocol#split
+(protocol-backup)
 
 (defn control-points
   "Расчитывает значения опорных точек 5, 50 и 95 %
