@@ -189,7 +189,8 @@
 
 (def get-operations
   "select
-    op.id,
+    v_op.id,
+    v_op.op_id,
     v_op.v_id,
     v_op.result,
     v_op.unusability,

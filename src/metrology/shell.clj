@@ -93,14 +93,14 @@
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#protocols
-(let [where "id >= 4416"]
+(let [where "id >= 4435"]
   (gen-protocols where))
 (sh "vivaldi" (str midb-path "protocol.html"))
 
 (pprint (get-protocols-data "id = 3893"))
 
 ;; #gen#measurements#values
-(let [where "id >= 4416"]
+(let [where "id >= 3982 and id <= 3987"]
   (gen-values! where))
 
 ;;#gen#custom#protocols
@@ -192,10 +192,10 @@
 (set-v-gso!
   #_4329
   (last-id "verification")
-  (list 377 369)
+  (list 404)
   #_(map (fn [m]
            (:id m))
-       (check-gso (list "18809-23" "14634-23" "16871-23")
+       (check-gso (list "")
                   "pass_number")))
 
 ;; #update#gso
@@ -246,8 +246,8 @@
 ;; #set#refs
 (set-v-refs! ;4329
              (last-id "verification")
-             #_(list 3151 2820)
-             (list 2663 2820)
+             (list 3151 2768)
+             #_(list 2663 2820)
              #_(list 2765 2768))
 
 ;; #copy#refs
@@ -296,9 +296,9 @@
 
 ;; #unusability#update#operations
 (unusability
-  4373
-  390
-  "не включается")
+  4431
+  589
+  "превышение предела допускаемой основной погрешности по каналу измерения O₂")
 
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
@@ -478,27 +478,27 @@
 
 ;; #add#metrology#channel
 (ins-channel!
-  {:methodology_id 291
-   :channel "EC-H₂S-20"
-   :component "H2S"
+  {:methodology_id 306
+   :channel "ПГТ-903У-метан"
+   :component "CH4"
    :range_from 0
-   :range_to 28.4
-   :units "мг/м³"
-   :low_unit 0.1
+   :range_to 2.2
+   :units "% об."
+   :low_unit 0.01
    :view_range_from 0
-   :view_range_to 35
-   :comment "диапазон показаний условно!"
+   :view_range_to 4.4
+   ;:comment "диапазон показаний условно!"
    }
   (list {:r_from 0
-         :r_to 14.2
-         :value 10
+         :r_to 2.2
+         :value 0.22
          :fraction nil
-         :type_id 2
+         :type_id 0
          :units nil
-         :operation_id 1112
+         :operation_id 1013
          ;:text "отсутствует"
          :comment nil}
-        {:r_from 14.2
+        #_{:r_from 14.2
          :r_to 28.4 
          :value 10
          :fraction nil
@@ -510,10 +510,10 @@
         {:value 0.5
          :type_id 5
          :units ""
-         :operation_id 1239}
+         :operation_id 1015}
         {;:r_from 0
          ;:r_to 10
-         :value 45
+         :value 30
          :type_id 6
          :units "с"
          :operation_id nil}
@@ -610,6 +610,66 @@
              "-mad"
              (str (:date m) "T17:30")))
        data))
+
+(defn split-pdf
+  [scan-path f pages start-number]
+  (let [scan-path "/media/sf_SCAN/"
+        scan-pages (->
+                     (sh "identify" (str scan-path f))
+                     :out
+                     (string/split #"\n")
+                     count)
+        pages (read-string pages)
+        start-number (read-string start-number)]
+    (dotimes [i (/ scan-pages pages)]
+      (sh "pdftk"
+          (str scan-path f)
+          "cat"
+          (str (inc (* i pages)) "-" (+ (* i pages) pages))
+          "output"
+          (str scan-path "9-61-" (+ i start-number) "-2024.pdf"))
+      #_(sh "mv"
+          (str scan-path f)
+          (str scan-path "trash/")))))
+
+;; #split#rename#scan#protocol
+(let [scan-path "/media/sf_SCAN/"
+      get-files-list
+        (fn []
+            (doall
+              (filter (fn [s]
+                          (re-matches #".*\.pdf" s))
+                      (->
+                        (sh "ls" scan-path)
+                        :out
+                        (string/split #"\n")))))]
+  ;; приводим имена сканов к общему виду {start_protocol}.{pages_per_protocol}.pdf
+  (dorun
+    (map (fn [f] 
+             (sh "mv" (str scan-path f)
+                      (->
+                        (str scan-path f)
+                        (string/replace #"Protokol" "")
+                        (string/replace #"\d{6}\.pdf" "pdf"))))
+         (get-files-list)))
+  ;; делим общий скан на протоколы и переименовываем их.
+  (dorun
+    (map (fn [f]
+             (let [[start-number pages _] (string/split f #"\.")]
+               (split-pdf scan-path f pages start-number)
+               ;; реализация с использованием bash-скрипта split-pdf.sh
+               #_(sh "bash"
+                   (str scan-path "split_pdf.sh")
+                   (str scan-path f)
+                   pages
+                   start-number)
+               (println (str scan-path "split_pdf.sh") f pages start-number)))
+         (doall
+           (filter (fn [f]
+                       (re-matches #"\d+\.\d\.pdf" f))
+                   (get-files-list))))))
+
+(split-pdf "/media/sf_SCAN" "824.1.pdf" "1" "824")
 
 (defn control-points
   "Расчитывает значения опорных точек 5, 50 и 95 %
