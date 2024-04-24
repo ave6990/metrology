@@ -671,8 +671,7 @@
 
 (defn split-pdf
   [scan-path f pages start-number]
-  (let [scan-path "/media/sf_SCAN/"
-        scan-pages (->
+  (let [scan-pages (->
                      (sh "identify" (str scan-path f))
                      :out
                      (string/split #"\n")

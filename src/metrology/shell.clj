@@ -100,7 +100,7 @@
 (pprint (get-protocols-data "id = 3893"))
 
 ;; #gen#measurements#values
-(let [where "id >= 3982 and id <= 3987"]
+(let [where "id >= 4438"]
   (gen-values! where))
 
 ;;#gen#custom#protocols
@@ -192,7 +192,7 @@
 (set-v-gso!
   #_4329
   (last-id "verification")
-  (list 404)
+  (list )
   #_(map (fn [m]
            (:id m))
        (check-gso (list "")
@@ -478,42 +478,42 @@
 
 ;; #add#metrology#channel
 (ins-channel!
-  {:methodology_id 306
-   :channel "ПГТ-903У-метан"
-   :component "CH4"
+  {:methodology_id 305
+   :channel "EC-H₂S-100"
+   :component "H2S"
    :range_from 0
-   :range_to 2.2
-   :units "% об."
-   :low_unit 0.01
+   :range_to 100
+   :units "млн⁻¹"
+   :low_unit 0.1
    :view_range_from 0
-   :view_range_to 4.4
-   ;:comment "диапазон показаний условно!"
+   :view_range_to 120
+   :comment "диапазон показаний условно!"
    }
   (list {:r_from 0
-         :r_to 2.2
-         :value 0.22
+         :r_to 10
+         :value 10
          :fraction nil
-         :type_id 0
+         :type_id 2
          :units nil
-         :operation_id 1013
+         :operation_id 779 
          ;:text "отсутствует"
          :comment nil}
-        #_{:r_from 14.2
-         :r_to 28.4 
+        {:r_from 10
+         :r_to 100 
          :value 10
          :fraction nil
          :type_id 1
          :units nil
-         :operation_id 1112
+         :operation_id 779
          ;:comment "(15 - 30) % об."
          }
         {:value 0.5
          :type_id 5
          :units ""
-         :operation_id 1015}
+         :operation_id nil}
         {;:r_from 0
          ;:r_to 10
-         :value 30
+         :value 60
          :type_id 6
          :units "с"
          :operation_id nil}
@@ -568,12 +568,12 @@
     auto
     :travel_order
     {:auto_id 3
-     :count "9/0000633"
-     :date_departure "2024-04-16T09:00"
-     :date_arrive "2024-04-16T12:00"
-     :odometr_departure 148867
-     :fuel_departure 29.36
-     :odometr_arrive 148901
+     :count "9/0000"
+     :date_departure "2024-04-24T09:00"
+     :date_arrive "2024-04-24T17:00"
+     :odometr_departure 149269
+     :fuel_departure 13.18
+     :odometr_arrive 149365
      :fuel_add 0})
   (pprint
     (jdbc/query
