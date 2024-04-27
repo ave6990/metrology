@@ -192,10 +192,10 @@
 (set-v-gso!
   #_4329
   (last-id "verification")
-  (list )
-  #_(map (fn [m]
+  #_(list 406 407 387 424 351 383)
+  (map (fn [m]
            (:id m))
-       (check-gso (list "")
+       (check-gso (list "14630-23")
                   "pass_number")))
 
 ;; #update#gso
@@ -246,8 +246,8 @@
 ;; #set#refs
 (set-v-refs! ;4329
              (last-id "verification")
-             (list 3151 2768)
-             #_(list 2663 2820)
+             #_(list 3151 2768)
+             (list 2663 2820)
              #_(list 2765 2768))
 
 ;; #copy#refs
@@ -324,30 +324,30 @@
   :verification
   (hash-map
      :engineer 3514
-     :count "9/0000736"
-     :counteragent 3
-     :conditions 1197
+     :count "9/0000802"
+     :counteragent 2
+     :conditions 1201
      :verification_type 1
      ;:protocol_number (next-protocol-number) 
-     :protocol_number 837
-     :mi_type "ОПТИМУС"
-     :methodology_id 395
-     :serial_number 1260
-     :manufacture_year 2023
+     :protocol_number 876
+     :mi_type "Лидер, мод. Лидер 01"
+     :methodology_id 287
+     :serial_number 9446002169
+     :manufacture_year 2016
      :channels 1
      :area "05"
      :interval 12
-     :components "ПГЭ-H₂S (0 - 141,3) мг/м³"
+     :components "H₂S (0 - 100) мг/м³"
      ;:components "CO (0 - 0,5) % об.; CH (0 - 0,2) % об.; NO (0 - 0,5) % об.; CO₂ (0 - 15) % об.; O₂ (0 - 21) % об."
      ;:scope
-     :sw_name "Optimus_T_FW_3.16"
-     :sw_version "не ниже 3.16"
-     :sw_checksum "A9F46EAB"
-     :sw_algorithm "CRC32"
-     :sw_version_real "3.17"
+     :sw_name "15022658"
+     :sw_version "не ниже 2.03"
+     :sw_checksum nil
+     :sw_algorithm nil
+     :sw_version_real "2.03"
      ;:voltage 24
      ;:upload 
-     ;:comment "Леонтьев"
+     :comment "Леонтьев"
      ;:comment 11
      ))
 
@@ -478,45 +478,45 @@
 
 ;; #add#metrology#channel
 (ins-channel!
-  {:methodology_id 305
-   :channel "EC-H₂S-100"
+  {:methodology_id 330
+   :channel nil 
    :component "H2S"
    :range_from 0
    :range_to 100
    :units "млн⁻¹"
    :low_unit 0.1
    :view_range_from 0
-   :view_range_to 120
-   :comment "диапазон показаний условно!"
+   :view_range_to 100
+   ;:comment "диапазон показаний условно!"
    }
   (list {:r_from 0
          :r_to 10
-         :value 10
+         :value 20
          :fraction nil
          :type_id 2
          :units nil
-         :operation_id 779 
+         :operation_id 1008
          ;:text "отсутствует"
          :comment nil}
         {:r_from 10
-         :r_to 100 
-         :value 10
+         :r_to 100
+         :value 20
          :fraction nil
          :type_id 1
          :units nil
-         :operation_id 779
+         :operation_id 1008
          ;:comment "(15 - 30) % об."
          }
-        {:value 0.5
+        #_{:value 0.5
          :type_id 5
          :units ""
          :operation_id nil}
         {;:r_from 0
          ;:r_to 10
-         :value 60
+         :value 15
          :type_id 6
          :units "с"
-         :operation_id nil}
+         :operation_id 1286}
         #_{
          :r_from 0
          :r_to 71 

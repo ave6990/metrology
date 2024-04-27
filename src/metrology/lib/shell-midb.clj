@@ -669,7 +669,11 @@
                              c))
          t-conc-coll)))
 
+;; #split#rename#scan#protocol
 (defn split-pdf
+  "author: Aleksandr Ermolaev
+  version: 2024-04-23
+  dependency: pdftk"
   [scan-path f pages start-number]
   (let [scan-pages (->
                      (sh "identify" (str scan-path f))
@@ -691,6 +695,8 @@
 
 ;; #split#rename#scan#protocol
 (defn protocol-backup
+  "author: Aleksandr Ermolaev
+  version: 2024-04-23"
   []
   (let [scan-path "/media/sf_SCAN/"
       get-files-list
