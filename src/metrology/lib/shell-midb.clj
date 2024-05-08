@@ -751,6 +751,8 @@
 
 (require '[metrology.lib.metrology :as metr] :reload)
 
+(require '[metrology.lib.protocol :as pr] :reload)
+
 (require '[metrology.lib.gen-html :refer :all] :reload)
 
 (require '[metrology.lib.midb-queries :as q] :reload)

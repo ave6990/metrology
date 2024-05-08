@@ -93,14 +93,14 @@
 (sh "vivaldi" (str midb-path "report.html"))
 
 ;; #report#protocols
-(let [where "id >= 4435"]
+(let [where "id = 4575"]
   (gen-protocols where))
-(sh "vivaldi" (str midb-path "protocol.html"))
+#_(sh "vivaldi" (str midb-path "protocol.html"))
 
 (pprint (get-protocols-data "id = 3893"))
 
 ;; #gen#measurements#values
-(let [where "id >= 4438"]
+(let [where "id >= 4541"]
   (gen-values! where))
 
 ;;#gen#custom#protocols
@@ -195,7 +195,7 @@
   #_(list 406 407 387 424 351 383)
   (map (fn [m]
            (:id m))
-       (check-gso (list "14628-23" "08197-23")
+       (check-gso (list "14630-23")
                   "pass_number")))
 
 ;; #update#gso
@@ -278,9 +278,9 @@
 (jdbc/insert!
   midb
   :verification_operations
-  {:methodology_id 396
-   :section "6.3"
-   :name "Определение погрешности измерений объемной доли кислорода (O₂) и оксида углерода (CO)"
+  {:methodology_id 397
+   :section "6.5"
+   :name "Определение погрешности измерений по каналу разности давлений"
    :verification_type 1
    :comment "См. в приложении к протоколу"
    ;:info "для Микрохром-1121-3"
@@ -289,16 +289,16 @@
 ;; #set#operations
 (set-v-operations! ;4193
                    (last-id "verification")
-                   (list 1920 1922 1923))
+                   (list 1924 1925 1926 1927))
 
 ;; #copy#operations
 (copy-v-operations! 3187 '(3210))
 
 ;; #unusability#update#operations
 (unusability
-  4431
-  589
-  "превышение предела допускаемой основной погрешности по каналу измерения O₂")
+  4662
+  998
+  "негерметичен")
 
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
@@ -324,25 +324,25 @@
   :verification
   (hash-map
      :engineer 3514
-     :count "9/0000547"
-     :counteragent 75
-     :conditions 1203
+     :count "9/0000532"
+     :counteragent 67
+     :conditions 1206
      :verification_type 1
      ;:protocol_number (next-protocol-number) 
-     :protocol_number 898
-     :mi_type "Testo 320"
-     :methodology_id 253
-     :serial_number 60540503
+     :protocol_number 920
+     :mi_type "Testo-340"
+     :methodology_id 397
+     :serial_number 62097063
      :manufacture_year 2016
-     :channels 2
-     :area "05"
+     :channels 4
+     :area "14"
      :interval 12
-     :components "O₂ (0 - 21) % об.; CO (0 - 8000) млн⁻¹"
+     :components "O₂ (0 - 25) % об.; CO (0 - 10000) млн⁻¹; NO (0 - 3000) млн⁻¹; SO₂ (0 - 5000) млн⁻¹"
      ;:components "CO (0 - 0,5) % об.; CH (0 - 0,2) % об.; NO (0 - 0,5) % об.; CO₂ (0 - 15) % об.; O₂ (0 - 21) % об."
      ;:scope "O₂ (0 - 21) % об.; CO (0 - 4000) млн⁻¹"
-     :sw_name "0x0140"
-     :sw_version "не ниже 1.01"
-     :sw_checksum "41CB977B"
+     ;:sw_name "0x0140"
+     ;:sw_version "не ниже 1.01"
+     ;:sw_checksum "41CB977B"
      ;:sw_algorithm nil
      ;:sw_version_real "2.03"
      ;:voltage 24
@@ -396,17 +396,17 @@
 (jdbc/insert!
   midb
   :methodology
-  {:registry_number "52543-19"
+  {:registry_number "47581-11"
    :mi_name "Анализаторы дымовых газов"
-   :mi_types "Testo 310"
-   :name "РТ-МП-5770-448-2019 «ГСИ. Анализаторы дымовых газов Testo 310. Методика поверки»"
-   :short_name "РТ-МП-5770-448-2019"
+   :mi_types "Testo-340"
+   :name "МП РТ 1486-2010 «ГСИ. Анализаторы дымовых газов Testo 340. Методика поверки» c Изменением № 1"
+   :short_name "МП РТ 1486-2010 c Изменением № 1"
    :date_from nil 
    ;:order nil
-   :date_to "2024-10-28"
-   :temperature "15 ÷ 25"
-   :humidity "не более 80"
-   :pressure "84 ÷ 106,7" 
+   :date_to "2026-06-28"
+   :temperature "20 ± 5"
+   :humidity "30 ÷ 80"
+   :pressure "84 ÷ 107" 
    ;:voltage "220 ± 5"
    ;:frequency "50 ± 1"
    ;:other "изменение атмосферного давления в процессе поверки не более чем на ± 5 кПа"
@@ -439,9 +439,11 @@
 ;; #add#measurements
 (add-measurements
   (last-id "verification")
-  (list [nil [[1815 0 9.83 20.9 9.83 0 20.9]
-              [1816 100] [1817 1000] [1818 3500]
-              [1817 1000] [1816 100] [1818 3500]] nil]
+  (list [nil [[1827 20.9 9.83 4.75 9.83 20.9 4.75]
+              [1828 100] [1829 1000] [1830 7500]
+              [1829 1000] [1828 100] [1830 7500]
+              [1831 0 40] [1832 1800] [1831 40 0] [1832 1800]
+              [1834 0 60] [1835 2600] [1834 60 0] [1835 2600]] nil]
         ))
 
 (insert-measurements
@@ -480,42 +482,51 @@
 
 ;; #add#metrology#channel
 (ins-channel!
-  {:methodology_id 253
+  {:methodology_id 397
    :channel nil 
-   :component "O2"
+   :component "SO₂"
    :range_from 0
-   :range_to 21
-   :units "% об."
-   :low_unit 0.1
+   :range_to 5000
+   :units "млн⁻¹"
+   :low_unit 1
    :view_range_from 0
-   :view_range_to 21
+   :view_range_to 5000
    :comment "диапазон показаний условно!"
    }
   (list {:r_from 0
-         :r_to 21
-         :value 0.3
+         :r_to 100
+         :value 10
          :fraction nil
          :type_id 0
          :units nil
-         :operation_id 1922
+         :operation_id 1927
          ;:text "отсутствует"
          :comment nil}
-        #_{:r_from 200
-         :r_to 2000
-         :value 5
+        {:r_from 100
+         :r_to 5000
+         :value 10
          :fraction nil
          :type_id 1
          :units nil
-         :operation_id 1923
+         :operation_id 1927
+         ;:comment "(15 - 30) % об."
+         }
+        #_{:r_from 2000
+         :r_to 3000
+         :value 200
+         :fraction nil
+         :type_id 0
+         :units nil
+         :operation_id 1927
          ;:comment "(15 - 30) % об."
          }
         #_{:value 0.5
          :type_id 5
          :units ""
-         :operation_id nil}
+         :operation_id 1239}
         #_{;:r_from 0
          ;:r_to 10
-         :value 15
+         :value 45
          :type_id 6
          :units "с"
          :operation_id nil}
@@ -632,7 +643,7 @@
 (control-points [10 100])
 
 ;; #air#volume
-(metr/air-vnc->v 100 22.7 99.34)
+(metr/air-vnc->v 100 20.6 100.18)
 
 (metr/air-v->vnc 106.5 22.7 99.34)
 
