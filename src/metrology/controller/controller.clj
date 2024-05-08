@@ -255,9 +255,11 @@
       v-table
       :mouse-clicked
       (table-mouse-clicked column-settings))
-    (listen
+    #_(listen
       root
       :window-activated
+      query-handler)
+    (map-key root "F5"
       query-handler)
     #_(b/bind
       upload
