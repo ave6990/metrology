@@ -322,19 +322,19 @@
       )
   insert into
       verification (
-          engineer, counteragent, mi_type, methodology_id,
+          engineer, count, counteragent, mi_type, methodology_id,
           serial_number, manufacture_year, components,
           scope, channels, area, interval, verification_type,
           sw_name, sw_version, sw_version_real, sw_checksum,
-          sw_algorithm, voltage, protocol, protolang, copy_from
+          sw_algorithm, voltage, protocol, protolang, copy_from, comment
       )
   select
-      engineer, counteragent, mi_type, methodology_id,
+      engineer, count, counteragent, mi_type, methodology_id,
       serial_number, manufacture_year, components, scope,
       channels, area, interval, verification_type, sw_name,
       sw_version, sw_version_real, sw_checksum, sw_algorithm,
       voltage, protocol, protolang,
-      (select v_id from temp)
+      (select v_id from temp), comment
   from
       verification
   where

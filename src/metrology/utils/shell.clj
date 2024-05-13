@@ -1,4 +1,4 @@
-(ns metrology.lib.shell-midb
+(ns metrology.util.shell
   (:require 
     [clojure.java.jdbc :as jdbc]
     [clojure.string :as string]
@@ -7,7 +7,7 @@
     [metrology.lib.database :as db]
     [metrology.lib.midb-queries :as q]
     [metrology.lib.chemistry :as ch]
-    [metrology.lib.protocol :as pr]
+    [metrology.utils.protocol :as pr]
     [metrology.lib.gs2000 :as gs]
     [metrology.lib.metrology :as metr]
     [metrology.view.report :as report]
@@ -751,7 +751,7 @@
 
 (require '[metrology.lib.metrology :as metr] :reload)
 
-(require '[metrology.lib.protocol :as pr] :reload)
+(require '[metrology.utils.protocol :as pr] :reload)
 
 (require '[metrology.lib.gen-html :refer :all] :reload)
 

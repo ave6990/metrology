@@ -31,7 +31,7 @@
      '(4.9 7.8 40 70))
 
 (map #(/ %1 4.4 0.01)
-     '(2.236 4.2))
+     '(1.077 1.817))
 
 (map #(* % 30)
      '(0.05 0.5 0.95))
@@ -100,7 +100,7 @@
 (pprint (get-protocols-data "id = 3893"))
 
 ;; #gen#measurements#values
-(let [where "id >= 4541"]
+(let [where "id >= 4696"]
   (gen-values! where))
 
 ;;#gen#custom#protocols
@@ -192,8 +192,8 @@
 (set-v-gso!
   #_4329
   (last-id "verification")
-  #_(list 406 407 387 424 351 383)
-  (map (fn [m]
+  (list 376)
+  #_(map (fn [m]
            (:id m))
        (check-gso (list "14630-23")
                   "pass_number")))
@@ -296,8 +296,8 @@
 
 ;; #unusability#update#operations
 (unusability
-  4662
-  998
+  4691
+  275
   "негерметичен")
 
 ;Проверить ГСО в записи.
@@ -580,13 +580,13 @@
   (jdbc/insert!
     auto
     :travel_order
-    {:auto_id 3
+    {:auto_id 2
      :count "9/0000"
-     :date_departure "2024-04-24T09:00"
-     :date_arrive "2024-04-24T17:00"
-     :odometr_departure 149269
-     :fuel_departure 13.18
-     :odometr_arrive 149365
+     :date_departure "2024-05-07T10:00"
+     :date_arrive "2024-05-07T11:00"
+     :odometr_departure 148006
+     :fuel_departure 32.18
+     :odometr_arrive 148018
      :fuel_add 0})
   (pprint
     (jdbc/query

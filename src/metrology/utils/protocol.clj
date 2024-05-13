@@ -55,7 +55,7 @@
        "-" (:protocol_number m)
        "-" (:year m)))
 
-(defn protocol-header
+#_(defn protocol-header
   ""
   [m]
   (header {:class "header1"}
@@ -71,6 +71,33 @@
              "от"
              (time (date-iso->local (:date m)))
              "г.")))
+
+(defn protocol-header
+  ""
+  [m]
+  (header
+    {:class "header1"}
+    (img {:id "rst_ocsm"
+          :src "public/rst_ocsm.png"})
+    (div
+      {:id "address"}
+      (p (strong "Федеральное бюджетное учреждение «Государственный региональный центр стандартизации, метрологии и испытаний в Оренбургской области»"))
+      (p (strong "(ФБУ «ОРЕНБУРГСКИЙ ЦСМ»)"))
+      (p "460021, РОССИЯ, Оренбургская область, город Оренбург, улица 60 лет Октября, 2Б;")
+      (p "тел/факс (3532) 33-37-05, факс (3532) 33-00-76, e-mail: info@orencsm.ru, http://www.orencsm.ru/"))
+    (hr)
+    (p "Уникальный номер записи об аккредитации в реестре аккредитованных лиц  № RA.RU.311228")
+    (hr)
+    (p "460021, РОССИЯ, Оренбургская область, город Оренбург, улица 60 лет Октября, 2Б")
+    (p {:class "comment"} "место осуществления деятельности")
+    (br)
+    (p {:class "capitalize"} "протокол "
+                             (:verification_type m)
+                            " поверки")
+    (p (str "№ " (protocol-number m))
+       "от"
+       (time (date-iso->local (:date m)))
+       "г.")))
 
 (defn page-footer
   ""
@@ -96,23 +123,23 @@
   (section {:class "page_1"}
     (protocol-header m)
     (main
-      (field "Наименование, тип"
+      (field "Наименование, тип СИ"
              (str (:name m)))
       (div {:class "two-column"}
         (p
-          (strong "Заводской номер:")
+          (strong "Заводской (серийный) номер СИ:")
           (str (:serial_number m) "."))
         (p
-          (strong "Год изготовления:")
+          (strong "Год изготовления СИ:")
           (str (:manufacture_year m)
                " г.")))
-      (field "Регистрационный номер"
+      (field "Регистрационный номер типа СИ (№ ГРСИ)"
              (:registry_number m))
       (field "В составе"
              (:components m))
       (field "Объем поверки"
              (:scope m))
-      (field "Наименование, адрес владельца"
+      (field "Наименование, адрес заказчика"
              (str (:counteragent m) "; "
                   (:address m)))
       (field "НД на поверку"
@@ -151,7 +178,10 @@
                         (math/round (mod (* 100 (rand)) 72))
                         ".png")})
         (:engineer_name m))
-      (p "Сведения о результатах поверки переданы в ФИФ ОЕИ."))
+      (p "Сведения о результатах поверки переданы в ФИФ ОЕИ.")
+      (br)
+      (p {:class "comment"}
+         "Данный протокол может быть воспроизведен только полностью. Любое частичное воспроизведение содержания протокола возможно только с письменного разрешения ФБУ «Оренбургский ЦСМ»"))
     (page-footer m 1 2)))
 
 (defn sw-version
@@ -335,7 +365,7 @@
 (def styles
 "html {
   font-family: Times New Roman;
-  font-size: 12pt; }
+  font-size: 10pt; }
 section {
   position: relative;
   height: 100%;
@@ -355,6 +385,23 @@ header {
   margin: 0 0 10pt 0;
 }
 .header1 > p {
+  text-align: center;
+}
+header > hr {
+  margin: 0;
+}
+#rst_ocsm {
+  display: inline-block;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  transform: scale(0.9);
+}
+#address {
+  display: inline-block;
+  max-width: 80%;
+}
+#address > p {
   text-align: center;
 }
 .field {
@@ -389,7 +436,8 @@ ol {
   padding: 0 0.35cm;
 }
 .comment {
-  font-size: 9pt;
+  font-size: 8pt;
+  font-style: italic;
 }
 footer {
   position: absolute;
@@ -415,8 +463,8 @@ footer > p {
 }
 .sign > img {
   position: absolute;
-  top: -3.5cm;
-  left: 3.5cm;
+  top: -3.55cm;
+  left: 2.5cm;
     transform: scale(0.28);
 }")
 
