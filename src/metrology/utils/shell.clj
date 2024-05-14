@@ -4,6 +4,7 @@
     [clojure.string :as string]
     [clojure.pprint :refer [pprint]]
     [clojure.java.shell :refer [sh]]
+    [clojure.repl :refer :all]
     [metrology.lib.database :as db]
     [metrology.lib.midb-queries :as q]
     [metrology.lib.chemistry :as ch]

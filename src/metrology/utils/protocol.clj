@@ -392,6 +392,7 @@ header > hr {
 }
 #rst_ocsm {
   display: inline-block;
+  vertical-align: top;
   margin: 0;
   border: 0;
   padding: 0;

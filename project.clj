@@ -8,7 +8,12 @@
     [org.clojure/java.jdbc "0.7.12"]
     [org.xerial/sqlite-jdbc "3.42.0.0"]
     [org.clojure/core.specs.alpha "0.2.62"]
-    [seesaw "1.5.0"]]
+    [seesaw "1.5.0"]
+    [hiccup "2.0.0-RC3"]
+    [ring/ring-core "2.0.0-alpha1"]
+    [ring/ring-jetty-adapter "2.0.0-alpha1"]
+    [compojure "1.7.1"]
+    [ring/ring-defaults "0.5.0"]]
   :main ^:skip-aot metrology.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all

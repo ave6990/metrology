@@ -740,4 +740,11 @@
 
 (require '[metrology.lib.protocol :as pr] :reload)
 
+(require '[clojure.repl :refer :all] :reload)
+
+(require '[hiccup.page :as page] :reload)
+(page/html5
+  [:div [:h1 "greeting page"]
+        [:p "hello people"]])
+
 (list* 1 2 3 [4 5])
