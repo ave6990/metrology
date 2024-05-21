@@ -4,10 +4,10 @@
 
 (pprint (gs2000 2
                 "H2S"
-                496 
-                #_(list ) 
+                496
+                #_(list 15 107.5 190) 
                 (map #(ch/ppm->mg "H2S" %1)
-                     (list 5 9 11 15 18))))
+                     (list 5 27.5 47.5))))
 
 ((gs/calculator
   (gs/passports 1))
@@ -31,7 +31,7 @@
      '(4.9 7.8 40 70))
 
 (map #(/ %1 4.4 0.01)
-     '(1.077 1.817))
+     '(1.077 2.12))
 
 (map #(* % 30)
      '(0.05 0.5 0.95))
@@ -100,7 +100,7 @@
 (pprint (get-protocols-data "id = 3893"))
 
 ;; #gen#measurements#values
-(let [where "id >= 4696"]
+(let [where "id >= 4710"]
   (gen-values! where))
 
 ;;#gen#custom#protocols
@@ -190,9 +190,9 @@
 
 ;; #set#gso
 (set-v-gso!
-  #_4329
+  #_4710
   (last-id "verification")
-  (list 376)
+  (list 288 387 390 349 381 365 237 246 318 382 383)
   #_(map (fn [m]
            (:id m))
        (check-gso (list "14630-23")
@@ -244,10 +244,10 @@
   ["id = ?" 1147])
 
 ;; #set#refs
-(set-v-refs! ;4329
+(set-v-refs! #_4710
              (last-id "verification")
-             #_(list 3151 2768)
-             (list 2663 2820)
+             (list 3151 2768)
+             #_(list 2663 2820)
              #_(list 2765 2768))
 
 ;; #copy#refs
@@ -296,9 +296,9 @@
 
 ;; #unusability#update#operations
 (unusability
-  4691
-  275
-  "негерметичен")
+  4709
+  572
+  "неисправен канал измерения CO₂")
 
 ;Проверить ГСО в записи.
 (pprint (check-gso (map (fn [x] (:gso_id x))
@@ -439,11 +439,9 @@
 ;; #add#measurements
 (add-measurements
   (last-id "verification")
-  (list [nil [[1827 20.9 9.83 4.75 9.83 20.9 4.75]
-              [1828 100] [1829 1000] [1830 7500]
-              [1829 1000] [1828 100] [1830 7500]
-              [1831 0 40] [1832 1800] [1831 40 0] [1832 1800]
-              [1834 0 60] [1835 2600] [1834 60 0] [1835 2600]] nil]
+  (list [nil [[587 0 2.5 4.75 2.5 0 4.75] [591 nil]
+              [588 0 1 1.9 1 0 1.9] [593 nil]
+              [589 0 15.06 29.18 15.06 0 29.18] [595 nil]] nil]
         ))
 
 (insert-measurements
@@ -482,31 +480,31 @@
 
 ;; #add#metrology#channel
 (ins-channel!
-  {:methodology_id 397
-   :channel nil 
-   :component "SO₂"
+  {:methodology_id 351
+   :channel "EC-CxHy-3000"
+   :component "C3H8"
    :range_from 0
-   :range_to 5000
-   :units "млн⁻¹"
+   :range_to 3000
+   :units "мг/м³"
    :low_unit 1
    :view_range_from 0
-   :view_range_to 5000
+   :view_range_to 3500
    :comment "диапазон показаний условно!"
    }
   (list {:r_from 0
-         :r_to 100
+         :r_to 300
          :value 10
          :fraction nil
-         :type_id 0
+         :type_id 2
          :units nil
-         :operation_id 1927
+         :operation_id 1482
          ;:text "отсутствует"
          :comment nil}
-        {:r_from 100
-         :r_to 5000
-         :value 10
-         :fraction nil
-         :type_id 1
+        {:r_from 300
+         :r_to 3000
+         :value -16.5
+         :fraction 0.155
+         :type_id 0
          :units nil
          :operation_id 1927
          ;:comment "(15 - 30) % об."
@@ -524,9 +522,9 @@
          :type_id 5
          :units ""
          :operation_id 1239}
-        #_{;:r_from 0
+        {;:r_from 0
          ;:r_to 10
-         :value 45
+         :value 15
          :type_id 6
          :units "с"
          :operation_id nil}
@@ -606,7 +604,7 @@
 
 ;; Дата изменения скана протокола = дата поверки
 ;; #set#date#scans
-(let [scan-path "/media/sf_Y_DRIVE/СКАНЫ РЕЗЕРВНОЕ КОПИРОВАНИЕ/2023/Ермолаев/"
+(let [scan-path "/media/sf_Y_DRIVE/СКАНЫ РЕЗЕРВНОЕ КОПИРОВАНИЕ/2024/Ермолаев/"
       data (jdbc/query
              midb
              "select protocol_number, date

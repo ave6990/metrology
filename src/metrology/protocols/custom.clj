@@ -222,9 +222,9 @@
     (map (fn [item]
              (let [v-item (vec item)
                    ch-name (:channel_name (get v-item 0))
-                   t (vec (slice 3 5 v-item))
-                   s (vec (slice 8 5 v-item))
-                   h (vec (slice 13 5 v-item))
+                   t (vec (sq/slice 3 5 v-item))
+                   s (vec (sq/slice 8 5 v-item))
+                   h (vec (sq/slice 13 5 v-item))
                    t48 (get v-item 19)
                    s48 (get v-item 20)
                    h48 (get v-item 21)]

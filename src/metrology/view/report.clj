@@ -1,6 +1,6 @@
 (ns metrology.view.report
   (:require [metrology.lib.gen-html :refer :all]
-            [metrology.lib.protocol :as pr]
+            [metrology.utils.protocol :as pr]
             [metrology.lib.metrology :as metr]
             [clojure.string :as string]))
 
